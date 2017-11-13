@@ -7,17 +7,9 @@ router.get('/', function(req, res, next) {
 });
 
 /* Tram Test */
-var HongKongTrams = require("hongkong-trams");
-var trams = HongKongTrams();
-
-var etaeta;
-
-trams.getNextTramETA("92W").then(function(eta){
-  etaeta = eta;
-});
 
 router.get('/trams/eta/:stop', function(req, res) {
-  res.json(etaeta);
+  res.json({stop: req.params.stop});
 });
 
 //The end
