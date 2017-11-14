@@ -4,7 +4,8 @@ block content
   div(class="container")
     h2 Tram ETAs
     each stop, stop_code in data
-      h3 Stop #{stop_code} (#{stop.en_name})
+      h3 
+        a(href="/#{stop.en_name}") Stop #{stop_code} (#{stop.en_name})
       p Chinese: #{stop.tc_name}
       //ETA Table Starts
       table(class="table")
