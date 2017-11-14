@@ -44,6 +44,7 @@ function trams_eta_all(req, res, isJSON){
         promises.push(trams.getNextTramETA(stopCode)
         .then(etaFunction.bind({stopCode: stopCode}))
         .catch(function(err) {
+		  data[stopCode].eta = {};
           console.error(err);
         }));
       });

@@ -5,7 +5,7 @@ block content
     h2 Tram ETAs
     each stop, stop_code in data
       h3 
-        a(href=stop_code+"/") Stop #{stop_code} (#{stop.en_name})
+        a(href="eta/"+stop_code+"/") Stop #{stop_code} (#{stop.en_name})
       p Chinese: #{stop.tc_name}
       if stop.eta.length
         //ETA Table Starts

@@ -8,6 +8,9 @@ var app = require('../app');
 var debug = require('debug')('myapp1:server');
 var http = require('http');
 
+// set the view engine to ejs
+//app.set('view engine', 'ejs');
+
 /**
  * Get port from environment and store in Express.
  */
