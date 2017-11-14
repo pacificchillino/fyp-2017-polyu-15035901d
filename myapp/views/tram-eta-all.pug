@@ -1,0 +1,25 @@
+extends bootstrap
+
+block content
+  div(class="container")
+    h2 Tram ETAs
+    each stop, stop_code in data
+      h3 Stop #{stop_code} (#{stop.en_name})
+      p Chinese: #{stop.tc_name}
+      //ETA Table Starts
+      table(class="table")
+        tr
+          th #
+          th Dest.
+          th Tram No.
+          th ETA
+        each eta_item, index in stop.eta
+          tr
+            td #{index}
+            td #{eta_item.tram_dest_en} (#{eta_item.dest_stop_code})
+            td ##{eta_item.tram_id}
+            if eta_item.is_arrived
+              td Arrived (#{eta_item.arrive_in_second} s)
+            else
+              td #{eta_item.arrive_in_minute}mins (#{eta_item.arrive_in_second}s)
+      //ETA Table Ends
