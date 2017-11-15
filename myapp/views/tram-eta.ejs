@@ -1,0 +1,31 @@
+<%- include('header'); %>
+	<div class="container">
+		<h2>Tram ETA for stop <%= stop_code %></h2>
+		<% if(data.length){ %>
+			<table class="table">
+				<tr>
+					<th>#</th>
+					<th>Dest.</th>
+					<th>Tram No.</th>
+					<th>ETA</th>
+				</tr>
+				<% for(var i in data){ %>
+					<tr>
+						<td><%= i - (-1) %></th>
+						<td><%= data[i].tram_dest_en %> (<%= data[i].dest_stop_code %>)</th>
+						<td>#<%= data[i].tram_id %></th>
+						<td>
+							<% if (data[i].is_arrived){ %>
+								Arrived (<%= data[i].arrive_in_second %> s)
+							<% }else{ %>
+								<%= data[i].arrive_in_minute %> mins (<%= data[i].arrive_in_second %> s)
+							<% } %>
+						</th>
+					</tr>
+				<% } %>
+			</table>
+		<% }else{ %>
+			<p>Sorry, no ETA data.</p>
+		<% } %>
+	</div>
+<%- include('footer'); %>

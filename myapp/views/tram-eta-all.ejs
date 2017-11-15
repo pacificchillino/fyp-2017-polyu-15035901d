@@ -1,0 +1,34 @@
+<%- include('header'); %>
+	<div class="container">
+		<h2>Tram ETA for All Stops</h2>
+		<% for (var code in data){ var stop = data[code]; %>
+			<h3><a href="<%= code %>/">Stop <%= code %> (<%= stop.en_name %>)</a></h3> 
+			<p>Chinese: <%= stop.tc_name %></p>
+			<% if(stop.eta.length){ %>
+				<table class="table">
+					<tr>
+						<th>#</th>
+						<th>Dest.</th>
+						<th>Tram No.</th>
+						<th>ETA</th>
+					</tr>
+					<% for(var i in stop.eta){ %>
+						<tr>
+							<td><%= i - (-1) %></th>
+							<td><%= stop.eta[i].tram_dest_en %> (<%= stop.eta[i].dest_stop_code %>)</th>
+							<td>#<%= stop.eta[i].tram_id %></th>
+							<td>
+								<% if (stop.eta[i].is_arrived){ %>
+									Arrived (<%= stop.eta[i].arrive_in_second %> s)
+								<% }else{ %>
+									<%= stop.eta[i].arrive_in_minute %> mins (<%= stop.eta[i].arrive_in_second %> s)
+								<% } %>
+							</th>
+						</tr>
+					<% } %>
+				</table>
+			<% }else{ %>
+				<p>Sorry, no ETA data.</p>
+			<% } %>
+		<% } %>
+<%- include('footer'); %>
