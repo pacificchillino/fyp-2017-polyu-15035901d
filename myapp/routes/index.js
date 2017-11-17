@@ -110,5 +110,32 @@ router.get('/api/weather', function(req,res){
   }).catch(console.error);
 });
 
+//MongoDB Test
+var MongoClient = require('mongodb').MongoClient;
+var mydb;
+
+var mongo_user = "fyp";
+var mongo_pwd = "HuYv77bq5i";
+var mongo_url_foreign = "188.166.180.107:27017";
+var mongo_url_local = "localhost:27017";
+var mongo_auth = "admin";
+var mongo_db = "ptdata";
+
+var mongo_url = "mongodb://"+mongo_user+":"+mongo_pwd+"@"+((process.platform == "win32") ? mongo_url_foreign : mongo_url_local)+"/"+mongo_db+"?authSource="+mongo_auth;
+
+MongoClient.connect(mongo_url, function(err, db) {
+	if (err) throw err;
+	mydb = db;
+	console.log("Database connected!");
+});
+
+router.get('/test/mongo/:test', function(req,res){
+	var data = { name: req.params.test, time: new Date() };
+	mydb.collection("test").insertOne(data, function(err, res) {
+	  if (err) throw err;
+	});
+	res.send("New item "+ JSON.stringify(data) +" inserted", null, 3);
+});
+
 //The end
 module.exports = router;
