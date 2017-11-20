@@ -7,9 +7,46 @@
 var app = require('../app');
 var debug = require('debug')('myapp1:server');
 var http = require('http');
+var server = http.createServer(app);
+var io = require('socket.io')(server);
+var config = require('../config');
+var func = require('../func');
+var MongoClient = require('mongodb').MongoClient;
+var cron = require('node-cron');
 
-// set the view engine to ejs
-app.set('view engine', 'ejs');
+/**
+ * Global variables:
+ * global.db : Database connection object
+ * 
+ */
+
+/**
+ * Socket.io connection
+ */
+
+io.on('connection', function (socket) {
+	global.io = io;
+});
+
+/**
+ * MongoDB connection
+ */
+
+var url = (process.platform == "win32") ? config.mongo_url_foreign : config.mongo_url_local;
+url = "mongodb://"+config.mongo_user+":"+config.mongo_pwd+"@"+url+"/"+config.mongo_db+"?authSource="+config.mongo_auth;
+MongoClient.connect(url, function(err, mydb) {
+	if (err) throw err;
+	global.db = mydb;
+	console.log("DB connection successful");
+});
+
+/**
+ * Crons
+ */
+
+cron.schedule('0 * * * *', function(){
+	func.socketMsg("The time now is " + new Date().getHours() + ":00", config.debug_color.hour);
+});
 
 /**
  * Get port from environment and store in Express.
@@ -17,12 +54,6 @@ app.set('view engine', 'ejs');
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
