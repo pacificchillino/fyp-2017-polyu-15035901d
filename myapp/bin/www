@@ -15,40 +15,6 @@ var MongoClient = require('mongodb').MongoClient;
 var cron = require('node-cron');
 
 /**
- * Global variables:
- * global.db : Database connection object
- * 
- */
-
-/**
- * Socket.io connection
- */
-
-io.on('connection', function (socket) {
-	global.io = io;
-});
-
-/**
- * MongoDB connection
- */
-
-var url = (process.platform == "win32") ? config.mongo_url_foreign : config.mongo_url_local;
-url = "mongodb://"+config.mongo_user+":"+config.mongo_pwd+"@"+url+"/"+config.mongo_db+"?authSource="+config.mongo_auth;
-MongoClient.connect(url, function(err, mydb) {
-	if (err) throw err;
-	global.db = mydb;
-	console.log("DB connection successful");
-});
-
-/**
- * Crons
- */
-
-cron.schedule('0 * * * *', function(){
-	func.socketMsg("The time now is " + new Date().getHours() + ":00", config.debug_color.hour);
-});
-
-/**
  * Get port from environment and store in Express.
  */
 
@@ -122,3 +88,82 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+//-------------------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Includes
+ */
+
+var data_obtain = require("../data_obtain");
+//var data_regression = require("../data_regression");
+
+/**
+ * Socket.io connection --> global.io
+ */
+
+io.on('connection', function (socket) {
+	global.io = io;
+});
+
+/**
+ * MongoDB connection --> global.db
+ */
+MongoClient.connect(func.getMongoURL(), function(err, mydb) {
+	if (err) throw err;
+	global.db = mydb;
+	//Init
+	data_obtain.init(false);
+	console.log("DB connection successful");
+});
+
+/**
+ * Crons
+ */
+
+//Cuckoo reminder
+cron.schedule('0 * * * *', function(){
+	func.msg("Cuckoo! The time now is " + new Date().getHours() + ":00", config.debug_color.hour);
+});
+
+/**
+ * Weather
+ */
+cron.schedule(config.cron_time_weather_obtain, function(){
+	data_obtain.obtainWeather();
+});
+
+/**
+ * Trams
+ */
+
+//Date turnover
+cron.schedule(config.cron_time_date_turnover, function(){
+	data_obtain.init(true);
+});
+
+//Obtain data for isTerminus: false
+cron.schedule(config.cron_time_tram_get_eta, function(){
+	data_obtain.obtainTramETA(false);
+});
+
+//Obtain data for isTerminus: true
+cron.schedule(config.cron_time_tram_get_eta2, function(){
+	data_obtain.obtainTramETA(true);
+});
+
+//Update regression
+cron.schedule(config.cron_time_tram_update_regression, function(){
+	//data_regression.updateRegressionForTrams();
+});
+
+//Reminders
+cron.schedule(config.cron_time_tram_start, function(){
+	func.msg("Tram : Starts data obtaining", config.debug_color.hour);
+});
+cron.schedule(config.cron_time_tram_end, function(){
+	func.msg("Tram : Ends recordings of new tram entries", config.debug_color.hour);
+});
+cron.schedule(config.cron_time_tram_cutoff, function(){
+	func.msg("Tram : Cutoffs all tram recordings", config.debug_color.hour);
+});

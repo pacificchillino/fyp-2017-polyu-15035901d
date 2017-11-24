@@ -8,7 +8,7 @@ router.get('/', function(req, res, next) {
 });
 
 /* Tram Test */
-var HongKongTrams = require("hongkong-trams");
+var HongKongTrams = require("../include/hongkong-trams.js");
 var trams = new HongKongTrams();
 
 //-- ETA
@@ -101,7 +101,7 @@ router.get('/api/trams/em/:stop', function(req,res){
 });
 
 //Weather Test
-var HongKongWeather = require('hongkong-weather');
+var HongKongWeather = require('../include/hongkong-weather.js');
 var weather = new HongKongWeather();
 router.get('/api/weather', function(req,res){
   weather.getCurrent().then(function(data){

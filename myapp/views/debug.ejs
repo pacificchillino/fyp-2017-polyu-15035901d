@@ -6,12 +6,19 @@
 
 		socket.on('connect', function () {
 			socket.on('msg', function(data) {
-				document.getElementById("msg").innerHTML =
-					"<span style='color: " + data.color + "'>"
-					+ "(" + data.date.toString() + ")"
+				document.getElementById("msg").innerHTML +=
+					"<br/><span style='color: " + data.color + "'>"
+					+ "(" + data.date + ")"
 					+ "<strong>" + data.message + "</strong>"
-					+ "</span><br/>"
-					+ document.getElementById("msg").innerHTML;
+					+ "</span>";
+			});
+			socket.on('msg2', function(data) {
+				document.getElementById("msg").innerHTML +=
+					"<br/><span style='color: " + data.color + "'>"
+					+ "(" + data.date + ")"
+					+ "<strong>" + data.message + "</strong>"
+					+ "</span>"
+					+ "<br/><small>" + data.message2 + "</small>";
 			});
 		});
 
@@ -22,6 +29,8 @@
 	</script>
 	<div class="container">
 		<button type="button" class="btn btn-default" onclick="clear_msg()">Clear Messages</button>
-		<div id = "msg"></div>
+		<div id = "msg" style="font-size: 100%;"></div>
+		<br/>
+		<button type="button" class="btn btn-default" onclick="clear_msg()">Clear Messages</button>
 	</div>
 <%- include('footer'); %>

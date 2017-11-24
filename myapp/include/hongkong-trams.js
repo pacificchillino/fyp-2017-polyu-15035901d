@@ -134,7 +134,9 @@ Tram.prototype.getNextTramETA = function(stopCode) {
         var newItem = item.$;
         newItem.eta = newItem.eat;
         newItem.is_arrived = newItem.is_arrived == "1" ? true : false;
-        newItem.is_last_tram = newItem.is_last_tram == "1" ? true : false;
+		newItem.is_last_tram = newItem.is_last_tram == "1" ? true : false;
+		newItem.arrive_in_minute = parseInt(newItem.arrive_in_minute);
+		newItem.arrive_in_second = parseInt(newItem.arrive_in_second);
         delete newItem.eat;
         return newItem;
       });
