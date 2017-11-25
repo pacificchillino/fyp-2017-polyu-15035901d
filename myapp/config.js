@@ -36,6 +36,10 @@ const $WC = "Wan Chai";
 const $EA = "Eastern District";
 exports.rainfall_recorded = [$CW, $WC, $EA];
 exports.cron_time_weather_obtain = "30 * * * * *";				//Obtain weather data at 30th second of each minute
+exports.weather_time_start = 5;//hours							//Omit weather recordings beginning before 5am
+exports.cron_time_weather_start = "0 5 * * *";
+exports.weather_time_end = 0;//hours							//Omit weather recordings beginning after 12am
+exports.cron_time_weather_end = "0 0 * * *";
 
 /**
  * Tram settings
@@ -47,16 +51,16 @@ exports.cron_time_tram_end = "0 0 * * *";
 exports.tram_time_cutoff = 1.5;//hours							//Discard recordings which are unable to end before 1:30am
 exports.cron_time_tram_cutoff = "30 1 * * *";
 exports.tram_eta_threshold = 60;//mins							//If the obtained ETA is over 60 mins (or under -60 mins), omit it
-exports.tram_time_threshold = 120;//mins						//If the tram does not leave a section within 120 minutes, discard it
 exports.tram_eta_nonarrived_limit = 120;//secs					//For determination of arrival time by non-arrived ETA, it must be less than 120 seconds
 exports.cron_time_tram_get_eta = "0 * * * * *";					//Get ETA for all every minute
-exports.cron_time_tram_get_eta2 = "10,20,30,40,50 * * * * *";	//Get ETA for isTerminus: true every 10 seconds, except every minute as above does
+exports.cron_time_tram_get_eta2 = "10,20,30,40,50 * * * * *";	//Get ETA for isTerminus: true every 10 seconds (except @min)
 exports.cron_time_tram_update_regression = "30 3 * * *";		//Update regression variables at 3:30am
 
 //Stops that ETA data are required
 exports.tram_stops_for_eta = {
 	"KTT": {isTerminus: true, name: "Kennedy Town"},
 	"07E": {isTerminus: false, name: "Hill Road, Shek Tong Tsui"},
+	"WMT": {isTerminus: true, name: "Western Market, Sheung Wan"},
 	"19E": {isTerminus: false, name: "Macau Ferry, Sheung Wan"},
 	"27E": {isTerminus: false, name: "Pedder Street, Central"},
 	"33E": {isTerminus: false, name: "Murray Street, Central"},
@@ -79,58 +83,88 @@ exports.tram_est_sections = [
 	{from: "KTT", to: "07E",
 		rainfall: [{district: $CW, weight: 1}],
 		dest: ["WM","HVT_B","HVT_K","CBT","NPT","ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "07E", to: "19E",
 		rainfall: [{district: $CW, weight: 1}],
 		dest: ["WM","HVT_B","HVT_K","CBT","NPT","ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "19E", to: "27E",
 		rainfall: [{district: $CW, weight: 1}],
 		dest: ["HVT_B","HVT_K","CBT","NPT","ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "27E", to: "35E",
 		rainfall: [{district: $CW, weight: 1}],
 		dest: ["HVT_B","HVT_K","CBT","NPT","ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "35E", to: "49E",
 		rainfall: [{district: $CW, weight: 0.2},{district: $WC, weight: 0.8}],
 		dest: ["HVT_B","HVT_K","CBT","NPT","ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "49E", to: "HVT_B", to2: "HVT_K",
 		rainfall: [{district: $WC, weight: 1}],
 		dest: ["HVT_B","HVT_K"],
+		time_upper_limit: 90,
 	},
 	{from: "HVT_B", to: "49E",
 		rainfall: [{district: $WC, weight: 1}],
 		dest: ["CBT","NPT","ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "49E", to: "57E",
 		rainfall: [{district: $WC, weight: 1}],
 		dest: ["NPT","ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "57E", to: "69E",
 		rainfall: [{district: $EA, weight: 1}],
 		dest: ["ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "69E", to: "81E",
 		rainfall: [{district: $EA, weight: 1}],
 		dest: ["ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "81E", to: "87E",
 		rainfall: [{district: $EA, weight: 1}],
 		dest: ["ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "87E", to: "93E",
 		rainfall: [{district: $EA, weight: 1}],
 		dest: ["ED","SKT"],
+		time_upper_limit: 90,
 	},
 	{from: "93E", to: "SKT",
 		rainfall: [{district: $EA, weight: 1}],
 		dest: ["SKT"],
+		time_upper_limit: 90,
 	},
 	//Special sections
 	{from: "33E", to: "37E",
 		rainfall: [{district: $CW, weight: 1}],
 		dest: ["HVT_B","HVT_K","CBT","NPT","ED","SKT"],
+		time_upper_limit: 90,
+	},
+	//Full-length sections
+	{from: "KTT", to: "HVT_B", to2: "HVT_K",
+		rainfall: [{district: $CW, weight: 0.6},{district: $WC, weight: 0.4}],
+		dest: ["HVT_B","HVT_K"],
+		time_upper_limit: 150,
+	},
+	{from: "HVT_B", to: "SKT",
+		rainfall: [{district: $WC, weight: 0.2},{district: $EA, weight: 0.8}],
+		dest: ["SKT"],
+		time_upper_limit: 150,
+	},
+	{from: "WMT", to: "SKT",
+		rainfall: [{district: $WC, weight: 0.2},{district: $EA, weight: 0.8}],
+		dest: ["SKT"],
+		time_upper_limit: 150,
 	},
 ];

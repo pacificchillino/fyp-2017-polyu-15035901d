@@ -159,11 +159,17 @@ cron.schedule(config.cron_time_tram_update_regression, function(){
 
 //Reminders
 cron.schedule(config.cron_time_tram_start, function(){
-	func.msg("Tram : Starts data obtaining", config.debug_color.hour);
+	func.msg("Tram : Starts data recording", config.debug_color.hour);
 });
 cron.schedule(config.cron_time_tram_end, function(){
 	func.msg("Tram : Ends recordings of new tram entries", config.debug_color.hour);
 });
 cron.schedule(config.cron_time_tram_cutoff, function(){
 	func.msg("Tram : Cutoffs all tram recordings", config.debug_color.hour);
+});
+cron.schedule(config.cron_time_weather_start, function(){
+	func.msg("Weather : Starts data recording", config.debug_color.hour);
+});
+cron.schedule(config.cron_time_weather_end, function(){
+	func.msg("Weather : Ends data recording", config.debug_color.hour);
 });

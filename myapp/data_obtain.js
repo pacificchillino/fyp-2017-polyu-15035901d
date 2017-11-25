@@ -44,36 +44,39 @@ function initForWeather(isDateTurnover){
 }
 
 exports.obtainWeather = function(){
-	//Socket Message
-	func.msg("Weather : Obtaining rainfall data",config.debug_color.weather);
-	//Make new request
-	weather.getCurrent().then(function(data){
-		//Extract rainfall data
-		var updated = data.regional.updated_on.toString();
-		if (updated == weatherLastUpdate){
-			//NO Updates
-			//Socket Message
-			func.msg("Weather : No updates yet",config.debug_color.weather);
-		}else{
-			//HAVE Updates
-			weatherLastUpdate = updated;
-			rainfall = {};
-			_.each(config.rainfall_recorded, function(place) {
-				var index = _.findIndex(data.rainfall, {station: place});
-				//No rainfall if index is -1
-				rainfall[place] = (index == -1) ? 0 : func.getRainFallAmount(data.rainfall[index].mm);
-			});
-			//Insert to database
-			var data = {date: data.regional.updated_on, rainfall: rainfall};
-			if (global.db != null){
-				global.db.collection(func.getTableName("data_weather_rainfall")).insertOne(data,
-					function(err, res) { if (err) throw err; }
-				);
+	//Check if within period
+	if (func.isDuringWeatherRecordingTime()){
+		//Socket Message
+		func.msg("Weather : Obtaining rainfall data",config.debug_color.weather);
+		//Make new request
+		weather.getCurrent().then(function(data){
+			//Extract rainfall data
+			var updated = data.regional.updated_on.toString();
+			if (updated == weatherLastUpdate){
+				//NO Updates
+				//Socket Message
+				func.msg("Weather : No updates yet",config.debug_color.weather);
+			}else{
+				//HAVE Updates
+				weatherLastUpdate = updated;
+				rainfall = {};
+				_.each(config.rainfall_recorded, function(place) {
+					var index = _.findIndex(data.rainfall, {station: place});
+					//No rainfall if index is -1
+					rainfall[place] = (index == -1) ? 0 : func.getRainFallAmount(data.rainfall[index].mm);
+				});
+				//Insert to database
+				var data = {date: data.regional.updated_on, rainfall: rainfall};
+				if (global.db != null){
+					global.db.collection(func.getTableName("data_weather_rainfall")).insertOne(data,
+						function(err, res) { if (err) throw err; }
+					);
+				}
+				//Socket Message
+				func.msg("Weather : Rainfall data saved for " + config.rainfall_recorded.join(", "),config.debug_color.weather);
 			}
-			//Socket Message
-			func.msg("Weather : Rainfall data saved for " + config.rainfall_recorded.join(", "),config.debug_color.weather);
-		}
-	}).catch(console.error);
+		}).catch(console.error);
+	}
 };
 
 /**
@@ -127,8 +130,10 @@ function etaObtainedFunction(eta){
 	var error = false;
 	//If incoming ETA is empty and there are more than 1 element in the recent ETA, consider as error
 	if (eta.length == 0){
-		if (tramsETA[this.stop].now.length > 1){
-			error = true;
+		if (tramsETA[this.stop].now != null){
+			if (tramsETA[this.stop].now.length > 1){
+				error = true;
+			}
 		}
 	}
 	//No error

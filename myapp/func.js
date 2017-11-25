@@ -105,7 +105,7 @@ exports.isDuringExceptionTime = function(date){ //During exception time of marki
 }
 
 /**
- * Weather: Rainfall for x to y", consider as (x+y)/2
+ * Weather
  */
 
 exports.getRainFallAmount = function(str){ //For "x to y", consider as (x+y)/2
@@ -120,6 +120,17 @@ exports.getRainFallAmount = function(str){ //For "x to y", consider as (x+y)/2
 	}else{
 		return (parseInt(rainfall[0]) + parseInt(rainfall[1])) / 2;
 	}
+};
+
+exports.isDuringWeatherRecordingTime = function(date){
+	if (date == null) date = new Date();
+	var hours = date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600;
+	var starting = config.weather_time_start;
+	var ending = config.weather_time_end;
+	if (hours < config.hour_date_turnover) hours += 24;
+	if (ending < config.hour_date_turnover) ending += 24;
+	if (exports.isDuringExceptionTime()) return false;
+	return (hours >= starting && hours < ending);
 };
 
 /**

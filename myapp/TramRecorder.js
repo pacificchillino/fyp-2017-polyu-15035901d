@@ -21,11 +21,14 @@ function TramRecorder(_index, _stopA, _stopB, _stopB2) {
 	//Initialize
 	this.index = _index;
 	this.stopA = _stopA;
+	this.stopA$ = _stopA.split("_")[0];
 	this.stopA_isTerminus = config.tram_stops_for_eta[_stopA].isTerminus;
 	this.stopB = _stopB;
+	this.stopB$ = _stopB.split("_")[0];
 	if (_stopB2 != null){
 		this.stopB2 = _stopB2;
 	}
+	this.time_upper_limit = config.tram_est_sections[_index].time_upper_limit;
 	this.rainfallStations = config.tram_est_sections[_index].rainfall;
 	this.rainfallNow = null;
 	this.destLimits = config.tram_est_sections[_index].dest;
@@ -136,33 +139,23 @@ TramRecorder.prototype.markTramsEntry = function(dataA, otherData, medianTime){ 
 	//isTerminus: true
 	if (this.stopA_isTerminus){
 		if (dataA.prev != null){
-			//{Check if any queue jumping, i.e. NOW[a] == PREV[b], where a > b}
-			var flag2 = true;
-			/*for (var a in dataA.now){ for (var b in dataA.prev){
-				if (a > b){ if (dataA.now[a] == dataA.prev[b]){
-					flag2 = false;
-				}}
-			}}*/
-			//If no queue jumping, ok
-			if (flag2){
-				//List all trams in PREV
-				var lastFlag = true;
-				for (var i = 0 ; i < dataA.prev.length; i++){
-					var theTram = dataA.prev[i].tram_no;
-					var theDest = dataA.prev[i].dest;
-					var flag = true;
-					//If the last flag is false, don't do anything
-					flag = flag && lastFlag;
-					//If the tram is within the set of destinations
-					flag = flag && (_.indexOf(this.destLimits, theDest) != -1);
-					//If the tram is NOT found in NOW
-					flag = flag && (_.findIndex(dataA.now, {tram_no: theTram}) == -1)
-					//The tram enters section at medianTime
-					if (flag){
-						this.aTramEnters(theTram, theDest, medianTime, otherData);
-					}
-					lastFlag = flag;
+			//List all trams in PREV
+			var lastFlag = true;
+			for (var i = 0 ; i < dataA.prev.length; i++){
+				var theTram = dataA.prev[i].tram_no;
+				var theDest = dataA.prev[i].dest;
+				var flag = true;
+				//If the last flag is false, don't do anything
+				flag = flag && lastFlag;
+				//If the tram is within the set of destinations
+				flag = flag && (_.indexOf(this.destLimits, theDest) != -1);
+				//If the tram is NOT found in NOW
+				flag = flag && (_.findIndex(dataA.now, {tram_no: theTram}) == -1);
+				//The tram enters section at medianTime
+				if (flag && medianTime != -1){
+					this.aTramEnters(theTram, theDest, medianTime, otherData);
 				}
+				lastFlag = flag;
 			}
 		}
 	}
@@ -197,7 +190,7 @@ TramRecorder.prototype.markTramsEntry = function(dataA, otherData, medianTime){ 
 				//If the tram is within the set of destinations
 				flag = flag && (_.indexOf(this.destLimits, theDest) != -1);
 				//If the tram is NOT found in NOW
-				flag = flag && (_.findIndex(dataA.now, {tram_no: theTram}) == -1)
+				flag = flag && (_.findIndex(dataA.now, {tram_no: theTram}) == -1);
 				//The tram enters section at PREV_ETA
 				if (flag){
 					this.aTramEnters(dataA, theTram, theDest, dataA.prev[i].eta, otherData);
@@ -261,13 +254,13 @@ TramRecorder.prototype.markTramsLeave = function(dataB, otherData){
 };
 
 
-TramRecorder.prototype.aTramEnters = function(dataA,tram_id, dest, timestamp, otherData){
+TramRecorder.prototype.aTramEnters = function(dataA, tram_id, dest, timestamp, otherData){
 	var date = new Date(timestamp);
 	//Check if timestamp within recording time
 	if (func.isDuringTramRecordingTimeA(date)){
 		var theRainfall = this.getCorrespondingRainfall(otherData.rainfall);
 		this.trams[tram_id] = {time: timestamp, dest: dest, rainfall: theRainfall};
-		var msg1 = "Tram : ["+this.stopA+"->"+this.stopB+"] #" + tram_id + " (to " + dest + ") enters this section at "
+		var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " (to " + dest + ") enters this section at "
 		+ func.getHMSOfDay(new Date(timestamp))
 		+ ", the rainfall is " + theRainfall + " mm";
 		var msg2 = "Prev: " + JSON.stringify(dataA.prev) + "<br/>" + "Now: " + JSON.stringify(dataA.now);
@@ -283,13 +276,13 @@ TramRecorder.prototype.aTramLeaves = function(dataB, tram_id, timestamp){
 		if (this.trams[tram_id] != null){
 			//Check if the travelling time is within the limit
 			var minutesSpent = (timestamp - this.trams[tram_id].time) / 60000;
-			if (minutesSpent < config.tram_time_threshold){
+			if (minutesSpent < this.time_upper_limit){
 				//Okay, the tram leaves
 				var mins = Math.round(minutesSpent * 100) / 100;
 				//Update database
 				this.updateDatabase(tram_id, this.trams[tram_id].time, minutesSpent);
 				//Socket message
-				var msg1 = "Tram : ["+this.stopA+"->"+this.stopB+"] #" + tram_id + " finishes this section at "
+				var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " finishes this section at "
 				+ func.getHMSOfDay(new Date(timestamp))
 				+ ", it has spent " + mins + " mins.";
 				var msg2 = "Prev: " + JSON.stringify(dataB.prev) + "<br/>" + "Now: " + JSON.stringify(dataB.now);
@@ -299,7 +292,7 @@ TramRecorder.prototype.aTramLeaves = function(dataB, tram_id, timestamp){
 			delete this.trams[tram_id];
 		}else{
 			//Still got a socket message
-			/*var msg1 = "Tram : ["+this.stopA+"->"+this.stopB+"] #" + tram_id + " finishes this section at "
+			/*var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " finishes this section at "
 			+ func.getHMSOfDay(new Date(timestamp))
 			+ ". However, its entry has not been marked.";
 			var msg2 = "Prev: " + JSON.stringify(dataB.prev) + "<br/>" + "Now: " + JSON.stringify(dataB.now);
@@ -318,8 +311,8 @@ TramRecorder.prototype.updateDatabase = function (tram_id, entryTimestamp, minsS
 			isWeekday: global.isWeekday,
 			dayOfWeek: global.dayOfWeek,
 			date: global.dateStr,
-			stop_from: this.stopA,
-			stop_to: this.stopB,
+			stop_from: this.stopA$,
+			stop_to: this.stopB$,
 			tram_id: tram_id,
 			traveling_time: minsSpent,
 			timestamp: entryTimestamp,
@@ -353,7 +346,7 @@ TramRecorder.prototype.clearExpired = function() {
 		//Check if the travelling time is within the limit
 		var timestamp = new Date().getTime();
 		var minutesSpent = (timestamp - this.trams[tram_id].time) / 60000;
-		if (minutesSpent >= config.tram_time_threshold){
+		if (minutesSpent >= this.time_upper_limit){
 			delete this.trams[tram_id];
 		}
 	}
