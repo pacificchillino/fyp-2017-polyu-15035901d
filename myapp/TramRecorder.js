@@ -241,8 +241,6 @@ TramRecorder.prototype.markTramsLeave = function(dataB, otherData){
 			flag = flag && (!dataB.prev[i].arrived);
 			//If PREV_ETA is within the ETA limit
 			flag = flag && (dataB.prev[i].eta_sec < config.tram_eta_nonarrived_limit);
-			//If the tram is within the set of destinations
-			flag = flag && (_.indexOf(this.destLimits, theDest) != -1);
 			//If the tram is NOT found in NOW
 			flag = flag && (_.findIndex(dataB.now, {tram_no: theTram}) == -1)
 			//The tram enters section at PREV_ETA
@@ -292,10 +290,10 @@ TramRecorder.prototype.aTramLeaves = function(dataB, tram_id, timestamp){
 			delete this.trams[tram_id];
 		}else{
 			//Still got a socket message
-			var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " finishes this section at "
+			/*var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " finishes this section at "
 			+ func.getHMSOfDay(new Date(timestamp))
 			+ ". However, its entry has not been marked.";
-			func.msg(msg1, config.debug_color.tram2);
+			func.msg(msg1, config.debug_color.tram2);*/
 		}
 	}
 };

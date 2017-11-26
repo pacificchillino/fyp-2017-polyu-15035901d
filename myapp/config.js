@@ -68,13 +68,13 @@ exports.tram_stops_for_eta = {
 	"37E": {isTerminus: false, name: "Arsenal Street, Wan Chai"},
 	"49E": {isTerminus: false, name: "Canal Road, Causeway Bay"},
 	"HVT_B": {isTerminus: true, name: "Happy Valley"}, //To Shau Kei Wan
-	"HVT_K": {isTerminus: false, name: "Happy Valley"}, //To Kennedy Town
+	"HVT_K": {isTerminus: true, name: "Happy Valley"}, //To Kennedy Town
 	"57E": {isTerminus: false, name: "Victoria Park"},
 	"69E": {isTerminus: false, name: "North Point Road"},
 	"81E": {isTerminus: false, name: "Finnie Street, Quarry Bay"},
 	"87E": {isTerminus: false, name: "Kornhill, Tai Koo"},
 	"93E": {isTerminus: false, name: "Tai On Street, Sai Wan Ho"},
-	"SKT": {isTerminus: false, name: "Shau Kei Wan"},
+	"SKT": {isTerminus: true, name: "Shau Kei Wan"},
 };
 
 //Sections to be recorded
