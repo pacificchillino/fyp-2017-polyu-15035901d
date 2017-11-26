@@ -293,11 +293,10 @@ TramRecorder.prototype.aTramLeaves = function(dataB, tram_id, timestamp){
 			delete this.trams[tram_id];
 		}else{
 			//Still got a socket message
-			/*var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " finishes this section at "
+			var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " finishes this section at "
 			+ func.getHMSOfDay(new Date(timestamp))
 			+ ". However, its entry has not been marked.";
-			var msg2 = "Prev: " + JSON.stringify(dataB.prev) + "<br/>" + "Now: " + JSON.stringify(dataB.now);
-			func.msg2(msg1, msg2, config.debug_color.tram2);*/
+			func.msg(msg1, config.debug_color.tram2);
 		}
 	}
 };
