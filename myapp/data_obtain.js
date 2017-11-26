@@ -197,19 +197,6 @@ function obtainTramETA_2(isTerminus){
 		Promise.all(promises).then(function(){
 			//Socket Message
 			func.msg("Tram : ETA data obtained",config.debug_color.tram);
-
-
-
-
-			//Test code starts
-			for (var i in tramStops2){
-				func.msg2("Tram stop " + tramStops2[i], JSON.stringify(tramsETA[tramStops2[i]]));
-			}
-			//Test code ends
-
-
-
-
 			//Do only when having rainfall data
 			if (rainfall != null){
 				for (var i in tramRecorders){
