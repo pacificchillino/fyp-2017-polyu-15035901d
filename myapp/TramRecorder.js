@@ -108,11 +108,6 @@ TramRecorder.prototype.feedData = function(params) {
 	}else{
 		var medianTime = -1;
 	}
-
-	//This is a test code
-	func.msg2(this.stopA$ + ">>" + this.stopB$,JSON.stringify(tramDataNew));
-	func.msg2("Median Time: " + medianTime + ", Rainfall",JSON.stringify(params.otherData));
-
 	//Send to another function
 	if (params.type == "A"){
 		this.markTramsEntry(tramDataNew, params.otherData, medianTime);
@@ -141,6 +136,8 @@ For A isTerminus = false (A is no a terminus):
 */
 
 TramRecorder.prototype.markTramsEntry = function(dataA, otherData, medianTime){ //medianTime could be -1
+	func.msg(new Date().getHours());
+	func.msg(func.isDuringTramRecordingTimeA());
 	//isTerminus: true
 	if (this.stopA_isTerminus){
 		if (dataA.prev != null){
