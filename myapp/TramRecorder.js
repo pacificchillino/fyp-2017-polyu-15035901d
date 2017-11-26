@@ -138,7 +138,7 @@ For A isTerminus = false (A is no a terminus):
 TramRecorder.prototype.markTramsEntry = function(dataA, otherData, medianTime){ //medianTime could be -1
 	//isTerminus: true
 	if (this.stopA_isTerminus){
-		func.msg(this.stopA$,JSON.stringify(dataA)); //###
+		func.msg2(this.stopA$,JSON.stringify(dataA)); //###
 		if (dataA.prev != null){
 			//List all trams in PREV
 			//var lastFlag = true;
