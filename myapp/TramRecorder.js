@@ -298,32 +298,32 @@ TramRecorder.prototype.updateDatabase = function (tram_id, entryTimestamp, minsS
 		var hours = (entryTimestamp / 3600 / 1000) % 24 + config.timezone;
 		//Add new data
 		var data = {
-			isWeekday: global.isWeekday,
-			dayOfWeek: global.dayOfWeek,
+			wkday: global.isWeekday,
+			dayOfWk: global.dayOfWeek,
 			date: global.dateStr,
-			stop_from: this.stopA$,
-			stop_to: this.stopB$,
-			tram_id: tram_id,
-			traveling_time: minsSpent,
-			timestamp: entryTimestamp,
-			time_hours: hours,
+			//from: this.stopA$,
+			//to: this.stopB$,
+			tram: tram_id,
+			tt_mins: minsSpent, //In minutes
+			hours: hours,
 		};
 		var time_hours_left = Math.floor(hours);
 		var time_hours_right = Math.ceil(hours);
 		if (time_hours_left % 2 == 0){
 			//Left is even
-			data.time_hours_even = time_hours_left;
-			data.time_hours_even_offset = hours - time_hours_left;
-			data.time_hours_odd = time_hours_right;
-			data.time_hours_odd_offset = time_hours_right - hours;
+			data.hours0 = time_hours_left;
+			data.hours0off = hours - time_hours_left;
+			data.hours1 = time_hours_right;
+			data.hours1off = time_hours_right - hours;
 		}else{
 			//Left is odd
-			data.time_hours_odd = time_hours_left;
-			data.time_hours_odd_offset = hours - time_hours_left;
-			data.time_hours_even = time_hours_right;
-			data.time_hours_even_offset = time_hours_right - hours;
+			data.hours1 = time_hours_left;
+			data.hours1off = hours - time_hours_left;
+			data.hours0 = time_hours_right;
+			data.hours0off = time_hours_right - hours;
 		}
-		global.db.collection(func.getTableName("data_tram_tt")).insertOne(data,
+		var tableName = "data_tram_" + this.stopA$ + "_" + this.stopB$;
+		global.db.collection(func.getTableName(tableName)).insertOne(data,
 			function(err, res) { if (err) throw err; }
 		);
 	}
