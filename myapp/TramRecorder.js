@@ -219,12 +219,8 @@ TramRecorder.prototype.markTramsLeave = function(dataB, otherData){
 	//Find all arrived trams in NOW
 	for (var i in dataB.now){
 		var theTram = dataB.now[i].tram_no;
-		var theDest = dataB.now[i].dest;
-		var flag = true;
-		//Check if tram has arrived
-		flag = flag && (dataB.now[i].arrived);
 		//The tram enters section at NOW_ETA
-		if (flag){
+		if (dataB.now[i].arrived){
 			this.aTramLeaves(dataB, theTram, dataB.now[i].eta);
 		}
 	}
@@ -233,7 +229,6 @@ TramRecorder.prototype.markTramsLeave = function(dataB, otherData){
 		//List all trams in PREV
 		for (var i = 0 ; i < dataB.prev.length; i++){
 			var theTram = dataB.prev[i].tram_no;
-			var theDest = dataB.prev[i].dest;
 			var flag = true;
 			//If the tram has not arrived
 			flag = flag && (!dataB.prev[i].arrived);
@@ -287,8 +282,8 @@ TramRecorder.prototype.aTramLeaves = function(dataB, tram_id, timestamp){
 			//The end
 			delete this.trams[tram_id];
 		}else{
-			//Still got a socket message
-			/*var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " finishes this section at "
+			/*//Still got a socket message
+			var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " finishes this section at "
 			+ func.getHMSOfDay(new Date(timestamp))
 			+ ". However, its entry has not been marked.";
 			func.msg(msg1, config.debug_color.tram2);*/
