@@ -223,8 +223,6 @@ TramRecorder.prototype.markTramsLeave = function(dataB, otherData){
 		var flag = true;
 		//Check if tram has arrived
 		flag = flag && (dataB.now[i].arrived);
-		//If the tram is within the set of destinations
-		flag = flag && (_.indexOf(this.destLimits, theDest) != -1);
 		//The tram enters section at NOW_ETA
 		if (flag){
 			this.aTramLeaves(dataB, theTram, dataB.now[i].eta);
