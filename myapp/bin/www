@@ -123,7 +123,20 @@ MongoClient.connect(func.getMongoURL(), function(err, mydb) {
 
 //Cuckoo reminder
 cron.schedule('0 * * * *', function(){
-	func.msg("Cuckoo! The time now is " + new Date().getHours() + ":00", config.debug_color.hour);
+	func.msg("Cuckoo!", config.debug_color.hour);
+});
+
+//Every 5 
+cron.schedule('*/5 * * * *', function(){
+	var msg2 = {
+		dayType: global.dayType,
+		dayOfWeek: global.dayOfWeek,
+		dateStr: global.dateStr,
+		isWeekday: global.isWeekday,
+		exceptionHourStart: global.exceptionHourStart,
+		exceptionHourEnd: global.exceptionHourEnd,
+	};
+	func.msg2("The time now is " + func.getHMOfDay(), JSON.stringify(msg2), config.debug_color.hour);
 });
 
 /**

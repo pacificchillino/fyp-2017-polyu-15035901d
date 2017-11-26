@@ -4,8 +4,8 @@
  * TramRecorder.feedData(params)
  * TramRecorder.markTramsEntry(dataA, otherData, medianTime)
  * TramRecorder.markTramsLeave(dataB, otherData)
- * TramRecorder.aTramEnters(tram_id, dest, timestamp, otherData)
- * TramRecorder.aTramLeaves(tram_id, timestamp, otherData)
+ * TramRecorder.aTramEnters(dataA, tram_id, dest, timestamp, otherData)
+ * TramRecorder.aTramLeaves(dataB, tram_id, timestamp, otherData)
  * TramRecorder.getCorrespondingRainfall(weatherData)
  * TramRecorder.clearExpired()
  * TramRecorder.restart()
@@ -138,26 +138,24 @@ For A isTerminus = false (A is no a terminus):
 TramRecorder.prototype.markTramsEntry = function(dataA, otherData, medianTime){ //medianTime could be -1
 	//isTerminus: true
 	if (this.stopA_isTerminus){
-		func.msg2(this.stopA$,JSON.stringify(dataA)); //###
 		if (dataA.prev != null){
 			//List all trams in PREV
-			//var lastFlag = true;
+			var lastFlag = true;
 			for (var i = 0 ; i < dataA.prev.length; i++){
 				var theTram = dataA.prev[i].tram_no;
 				var theDest = dataA.prev[i].dest;
 				var flag = true;
 				//If the last flag is false, don't do anything
-				//flag = flag && lastFlag;
-				flag = flag && (i != data.prev.length - 1);
+				flag = flag && lastFlag;
 				//If the tram is within the set of destinations
 				flag = flag && (_.indexOf(this.destLimits, theDest) != -1);
 				//If the tram is NOT found in NOW
 				flag = flag && (_.findIndex(dataA.now, {tram_no: theTram}) == -1);
 				//The tram enters section at medianTime
 				if (flag && medianTime != -1){
-					this.aTramEnters(theTram, theDest, medianTime, otherData);
+					this.aTramEnters(dataA, theTram, theDest, medianTime, otherData);
 				}
-				//lastFlag = flag;
+				lastFlag = flag;
 			}
 		}
 	}
@@ -175,7 +173,7 @@ TramRecorder.prototype.markTramsEntry = function(dataA, otherData, medianTime){ 
 			flag = flag && (_.indexOf(this.destLimits, theDest) != -1);
 			//The tram enters section at NOW_ETA
 			if (flag){
-				this.aTramEnters(theTram, theDest, dataA.now[i].eta, otherData);
+				this.aTramEnters(dataA, theTram, theDest, dataA.now[i].eta, otherData);
 			}
 		}
 		//Case 2-----------------------------------------------------
@@ -229,7 +227,7 @@ TramRecorder.prototype.markTramsLeave = function(dataB, otherData){
 		flag = flag && (_.indexOf(this.destLimits, theDest) != -1);
 		//The tram enters section at NOW_ETA
 		if (flag){
-			this.aTramLeaves(theTram, dataB.now[i].eta);
+			this.aTramLeaves(dataB, theTram, dataB.now[i].eta);
 		}
 	}
 	//Case 2-----------------------------------------------------
