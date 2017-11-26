@@ -138,15 +138,17 @@ For A isTerminus = false (A is no a terminus):
 TramRecorder.prototype.markTramsEntry = function(dataA, otherData, medianTime){ //medianTime could be -1
 	//isTerminus: true
 	if (this.stopA_isTerminus){
+		func.msg(this.stopA$,JSON.stringify(dataA)); //###
 		if (dataA.prev != null){
 			//List all trams in PREV
-			var lastFlag = true;
+			//var lastFlag = true;
 			for (var i = 0 ; i < dataA.prev.length; i++){
 				var theTram = dataA.prev[i].tram_no;
 				var theDest = dataA.prev[i].dest;
 				var flag = true;
 				//If the last flag is false, don't do anything
-				flag = flag && lastFlag;
+				//flag = flag && lastFlag;
+				flag = flag && (i != data.prev.length - 1);
 				//If the tram is within the set of destinations
 				flag = flag && (_.indexOf(this.destLimits, theDest) != -1);
 				//If the tram is NOT found in NOW
@@ -155,7 +157,7 @@ TramRecorder.prototype.markTramsEntry = function(dataA, otherData, medianTime){ 
 				if (flag && medianTime != -1){
 					this.aTramEnters(theTram, theDest, medianTime, otherData);
 				}
-				lastFlag = flag;
+				//lastFlag = flag;
 			}
 		}
 	}
@@ -364,6 +366,8 @@ TramRecorder.prototype.getCorrespondingRainfall = function(rainfall){
 //Restart recorder - date turn
 
 TramRecorder.prototype.restart = function() {
+	var msg1 = "Tram : Recorder ["+this.stopA$+"->"+this.stopB$+"] restarted.";
+	func.msg(msg1, config.debug_color.tram2);
 	this.trams = {};
 };
 
