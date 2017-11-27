@@ -96,6 +96,8 @@ function initForTrams(isDateTurnover){
 	
 	//Trams: initialize variables
 	for (var stop in config.tram_stops_for_eta){
+		tramStops = {};
+		tramStops2 = {};
 		//Update tramStops, tramStops2
 		if (config.tram_stops_for_eta[stop].isTerminus){
 			tramStops2.push(stop);
