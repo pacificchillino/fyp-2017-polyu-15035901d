@@ -93,11 +93,13 @@ function initForRoads(isDateTurnover){
 function initForTrams(isDateTurnover){
 	//Socket Message
 	func.msg(isDateTurnover ? "Data Obtain : Day changed. Re-initialized." : "Data Obtain : Initialized.", config.debug_color.hour);
+
+	//Reset variables
+	tramStops = {};
+	tramStops2 = {};
 	
 	//Trams: initialize variables
 	for (var stop in config.tram_stops_for_eta){
-		tramStops = {};
-		tramStops2 = {};
 		//Update tramStops, tramStops2
 		if (config.tram_stops_for_eta[stop].isTerminus){
 			tramStops2.push(stop);
