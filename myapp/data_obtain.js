@@ -95,8 +95,8 @@ function initForTrams(isDateTurnover){
 	func.msg(isDateTurnover ? "Data Obtain : Day changed. Re-initialized." : "Data Obtain : Initialized.", config.debug_color.hour);
 
 	//Reset variables
-	tramStops = {};
-	tramStops2 = {};
+	tramStops = [];
+	tramStops2 = [];
 	
 	//Trams: initialize variables
 	for (var stop in config.tram_stops_for_eta){
