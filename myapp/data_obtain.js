@@ -71,17 +71,19 @@ exports.obtainWeather = function(){
 				var filter = {date: data.regional.updated_on};
 				//var filter = {date: data.regional.updated_on};
 				if (global.db != null){
-					//First prevent duplications
-					var tableName = func.getTableName("data_weather_rainfall");
-					global.db.collection(tableName).findOne(filter, function(err, result) {
-						if (err) throw err;
-						if (result == null){
-							//No duplications --> insert to database
-							global.db.collection(tableName).insertOne(entry,
-								function(err, res) { if (err) throw err; }
-							);
-						}
-					});
+					if (func.isSavingDBAllowed()){
+						//First prevent duplications
+						var tableName = func.getTableName("data_weather_rainfall");
+						global.db.collection(tableName).findOne(filter, function(err, result) {
+							if (err) throw err;
+							if (result == null){
+								//No duplications --> insert to database
+								global.db.collection(tableName).insertOne(entry,
+									function(err, res) { if (err) throw err; }
+								);
+							}
+						});
+					}
 				}
 				//Socket Message
 				func.msg("Weather : Rainfall data saved for " + config.rainfall_recorded.join(", "),config.debug_color.weather);

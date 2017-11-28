@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title><%= title %></title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel='stylesheet' href='/stylesheets/bootstrap.min.css' />
+		<link rel='stylesheet' href='/stylesheets/datepicker.0.css' />
+		<link rel='stylesheet' href='/stylesheets/datepicker.1.css' />
+		<link rel='stylesheet' href='/stylesheets/datepicker.2.css' />
+		<script src="/javascripts/jquery.min.js"></script>
+		<script src="/javascripts/bootstrap.min.js"></script>
+		<script src="/javascripts/datepicker.0.js"></script>
+		<script src="/javascripts/datepicker.1.js"></script>
+		<script src="/javascripts/datepicker.2.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<a class="navbar-brand" href="#">Travelling Time Estimation Trial Project</a>
+					</div>
+					<ul class="nav navbar-nav">
+						<%# Menu starts -------------------------------------------------------- %>
+						<li><a href="/">Home</a></li>
+						<li class="dropdown">
+							<a class="dropdown-toggle" data-toggle="dropdown" href="#">Trams
+							<span class="caret"></span></a>
+							<ul class="dropdown-menu">
+								<li><a href="/trams/data">Raw Data</a></li>
+							</ul>
+						</li>
+						<%# Menu End -------------------------------------------------------- %>
+					</ul>
+				</div>
+			</nav>

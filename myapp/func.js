@@ -31,9 +31,19 @@ exports.msg2 = function(message, message2, color){
 /**
  * Get working database table: for remote computer, use test tables only
  */
+
 var db_table_initial = (process.platform == "win32") ? "test_" : "";
 exports.getTableName = function(name){
 	return db_table_initial + name;
+}
+
+if (process.platform == "win32"){
+	var _isSavingDBAllowed = !config.disable_test_db;
+}else{
+	var _isSavingDBAllowed = true;
+}
+exports.isSavingDBAllowed = function(){
+	return _isSavingDBAllowed;
 }
 
 /**

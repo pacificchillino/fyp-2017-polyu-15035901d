@@ -1,0 +1,42 @@
+<%- include('header'); %>
+	<%- include('tram_data_searchbox'); %>
+	<style>
+		.table td {text-align: center;}
+		.table th {text-align: center;}
+	</style>
+	<% if (params != null){ %>
+		<h3>Search results for Section <%= params.stopA %> - <%= params.stopB %></h2>
+		<% if (result.length == 0){ %>
+			<p>Sorry, there are no results.</p>
+		<% }else{ %>
+			<p>There are <%= count %> results. <% if (count > limit){ %> Only the first <%= limit %> results are displayed. <% } %></p>
+			<div class="table-responsive">          
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Weekday?</th>
+							<th>D.O.W.</th>
+							<th>Date</th>
+							<th>Tram No.</th>
+							<th>Starting Time</th>
+							<th>Ending Time</th>
+							<th>Mins Spent</th>
+						</tr>
+					</thead>
+					<% for (var i in result){ %>
+						<tr>
+							<td><%= result[i].wkday ? "Yes" : "No" %></td>
+							<td><%= ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][result[i].dayOfWk] %></td>
+							<td><%= result[i].date %></td>
+							<td>#<%= result[i].tram %></td>
+							<td><%= result[i].starting %></td>
+							<td><%= result[i].ending %></td>
+							<td><%= result[i].minsSpent %> mins</td>
+						</tr>
+					<% } %>
+				</table>
+			</div>
+		<% } %>
+	<% } %>
+
+<%- include('footer'); %>

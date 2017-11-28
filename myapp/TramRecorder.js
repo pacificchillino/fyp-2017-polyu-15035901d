@@ -323,9 +323,11 @@ TramRecorder.prototype.updateDatabase = function (tram_id, entryTimestamp, minsS
 			data.hours0off = time_hours_right - hours;
 		}
 		var tableName = "data_tram_" + this.stopA$ + "_" + this.stopB$;
-		global.db.collection(func.getTableName(tableName)).insertOne(data,
-			function(err, res) { if (err) throw err; }
-		);
+		if (func.isSavingDBAllowed()){
+			global.db.collection(func.getTableName(tableName)).insertOne(data,
+				function(err, res) { if (err) throw err; }
+			);
+		}
 	}
 };
 

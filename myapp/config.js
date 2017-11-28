@@ -9,8 +9,10 @@ exports.mongo_auth = "admin";							//Database for authentication
 exports.mongo_db = "ptdata";							//Database for working
 
 /**
- * Debug color settings
+ * Debug settings
  */
+
+exports.disable_test_db = true; //No saving data into test tables when using local computer
 
 exports.debug_color = {
 	hour: "blue",
