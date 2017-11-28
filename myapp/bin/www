@@ -165,6 +165,11 @@ cron.schedule(config.cron_time_tram_get_eta2, function(){
 	data_obtain.obtainTramETA(true);
 });
 
+//Obtain E.M. message
+cron.schedule(config.cron_time_tram_get_em, function(){
+	data_obtain.obtainTramEM();
+});
+
 //Update regression
 cron.schedule(config.cron_time_tram_update_regression, function(){
 	//data_regression.updateRegressionForTrams();

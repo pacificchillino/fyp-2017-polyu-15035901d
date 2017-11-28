@@ -25,6 +25,7 @@ var tramStops = [];				//Array of all tram stops
 var tramStops2 = [];			//Array of tram stops for isTerminus : true
 var tramsETA = {};				//ETA data, e.g. tramsETA["50W"].now, tramsETA["50W"].prev
 var tramRecorders = [];			//Object to host TramRecorder instances
+var tramEM = {};				//Emergency message data
 
 /**
  * Initialize - either when starting the server or date turnover
@@ -97,6 +98,7 @@ function initForTrams(isDateTurnover){
 	//Reset variables
 	tramStops = [];
 	tramStops2 = [];
+	tramEM = {};
 	
 	//Trams: initialize variables
 	for (var stop in config.tram_stops_for_eta){
@@ -127,6 +129,9 @@ function initForTrams(isDateTurnover){
 			tramRecorders[i].restart();
 		}
 	}
+
+	//Emergency Message
+	obtainTramEM_2();
 }
 
 function etaObtainedFunction(eta){
@@ -177,7 +182,7 @@ exports.obtainTramETA = function(isTerminus){
 	if (func.isDuringTramRecordingTimeB()){
 		obtainTramETA_2(isTerminus);
 	}
-}
+};
 
 function obtainTramETA_2(isTerminus){
 	//tramStops2: only stops with isTerminus = true ; tramStops: all stops
@@ -228,31 +233,44 @@ function obtainTramETA_2(isTerminus){
 				for (var i in tramRecorders){
 					//StopA: Ensure having no data errors --> feed data to TramRecorder instance
 					if (!tramsETA[tramRecorders[i].stopA].hasError){
-						tramRecorders[i].feedData({
-							type: "A",
-							tramData: tramsETA[tramRecorders[i].stopA],
-							otherData: {rainfall: rainfall},
-						});
+						//No E.M.
+						if (tramEM[tramRecorders[i].stopA] == false){
+							tramRecorders[i].feedData({
+								type: "A",
+								tramData: tramsETA[tramRecorders[i].stopA],
+								otherData: {rainfall: rainfall},
+							});
+						}
+						//Has E.M.
+						else{
+							tramRecorders[i].flush();
+						};
 					}
 					//StopB: Ensure having no data errors --> feed data to TramRecorder instance
 					if (tramRecorders[i].stopB2 == null){
 						//Without B2
 						if (!tramsETA[tramRecorders[i].stopB].hasError){
-							tramRecorders[i].feedData({
-								type: "B",
-								tramData: tramsETA[tramRecorders[i].stopB],
-								otherData: {rainfall: rainfall},
-							});
+							//No E.M.
+							if (tramEM[tramRecorders[i].stopB] == false){
+								tramRecorders[i].feedData({
+									type: "B",
+									tramData: tramsETA[tramRecorders[i].stopB],
+									otherData: {rainfall: rainfall},
+								});
+							}
 						}
 					}else{
 						//With B2
 						if (!tramsETA[tramRecorders[i].stopB].hasError){ if (!tramsETA[tramRecorders[i].stopB2].hasError){
-							tramRecorders[i].feedData({
-								type: "B",
-								tramData: tramsETA[tramRecorders[i].stopB],
-								tramData2: tramsETA[tramRecorders[i].stopB2],
-								otherData: {rainfall: rainfall},
-							});
+							//No E.M.
+							if (tramEM[tramRecorders[i].stopB] == false){ if (tramEM[tramRecorders[i].stopB2] == false){
+								tramRecorders[i].feedData({
+									type: "B",
+									tramData: tramsETA[tramRecorders[i].stopB],
+									tramData2: tramsETA[tramRecorders[i].stopB2],
+									otherData: {rainfall: rainfall},
+								});
+							}}
 						}}
 					}
 					//Clear expired data
@@ -261,4 +279,40 @@ function obtainTramETA_2(isTerminus){
 			}
 		});
 	}
+}
+
+/**
+ * Obtain tram emergency message --> if there is E.M., stop recording for that stop
+ */
+exports.obtainTramEM = function(){
+	//Check if within time range
+	if (func.isDuringTramRecordingTimeB()){
+		obtainTramEM_2();
+	}
 };
+
+function obtainTramEM_2(){
+	//Socket Message
+	func.msg("Tram : Obtaining emergency message for " + tramStops.join(", "),config.debug_color.tram);
+	//Obtain Data
+	_.each(tramStops, function(stop) {
+		trams.getEmergencyMessageForTramStop(stop).then(
+			emObtainedFunction.bind({stop: stop})
+		).catch(
+			emObtainFailedFunction.bind({stop: stop})
+		);
+	});
+}
+
+function emObtainedFunction(emsg){
+	tramEM[this.stop] = (emsg.length > 0);
+	if (emsg.length > 0){
+		//Socket Message
+		func.msg2("Tram : There is emergency message for stop " + this.stop, JSON.stringify(emsg),config.debug_color.tram);
+	}
+}
+
+function emObtainFailedFunction(err){
+	//Socket Message
+	func.msg("Tram : Error obtaining emergency message for stop " + this.stop, config.debug_color.error);
+}

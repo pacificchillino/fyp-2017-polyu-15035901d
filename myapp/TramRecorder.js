@@ -295,7 +295,7 @@ TramRecorder.prototype.aTramLeaves = function(dataB, tram_id, timestamp){
 
 TramRecorder.prototype.updateDatabase = function (tram_id, entryTimestamp, minsSpent){
 	if (global.db != null){
-		var hours = (entryTimestamp / 3600 / 1000) % 24 + config.timezone;
+		var hours = (entryTimestamp / 3600 / 1000 + config.timezone) % 24;
 		//Add new data
 		var data = {
 			wkday: global.isWeekday,
@@ -359,5 +359,9 @@ TramRecorder.prototype.restart = function() {
 	func.msg(msg1, config.debug_color.tram2);
 	this.trams = {};
 };
+
+TramRecorder.prototype.flush = function(){
+	this.trams = {};
+}
 
 module.exports = TramRecorder;
