@@ -36,10 +36,10 @@ const $WC = "Wan Chai";
 const $EA = "Eastern District";
 exports.rainfall_recorded = [$CW, $WC, $EA];
 exports.cron_time_weather_obtain = "30 * * * * *";				//Obtain weather data at 30th second of each minute
-exports.weather_time_start = 5;//hours							//Omit weather recordings beginning before 5am
-exports.cron_time_weather_start = "0 5 * * *";
-exports.weather_time_end = 0;//hours							//Omit weather recordings beginning after 12am
-exports.cron_time_weather_end = "0 0 * * *";
+exports.weather_time_start = 5.5;//hours						//Omit weather recordings beginning before 5:30am
+exports.cron_time_weather_start = "15 5 * * *";
+exports.weather_time_end = 0;//hours							//Omit weather recordings beginning after 12:00am
+exports.cron_time_weather_end = "15 0 * * *";
 
 /**
  * Tram settings
