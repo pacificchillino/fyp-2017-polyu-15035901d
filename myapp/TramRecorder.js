@@ -268,7 +268,7 @@ TramRecorder.prototype.aTramLeaves = function(dataB, tram_id, timestamp){
 		if (this.trams[tram_id] != null){
 			//Check if the travelling time is within the limit
 			var minutesSpent = (timestamp - this.trams[tram_id].time) / 60000;
-			if (minutesSpent < this.time_upper_limit){
+			if (minutesSpent < this.time_upper_limit && minutesSpent > this.time_lower_limit){
 				//Okay, the tram leaves
 				var mins = Math.round(minutesSpent * 100) / 100;
 				//Update database
@@ -339,7 +339,7 @@ TramRecorder.prototype.clearExpired = function() {
 		//Check if the travelling time is within the limit
 		var timestamp = new Date().getTime();
 		var minutesSpent = (timestamp - this.trams[tram_id].time) / 60000;
-		if (minutesSpent >= this.time_upper_limit || minutesSpent <= this.time_lower_limit){
+		if (minutesSpent >= this.time_upper_limit){
 			delete this.trams[tram_id];
 		}
 	}
