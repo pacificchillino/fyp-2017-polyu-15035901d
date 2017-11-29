@@ -29,6 +29,7 @@ function TramRecorder(_index, _stopA, _stopB, _stopB2) {
 		this.stopB2 = _stopB2;
 	}
 	this.time_upper_limit = config.tram_est_sections[_index].time_upper_limit;
+	this.time_lower_limit = config.tram_est_sections[_index].time_lower_limit;
 	this.rainfallStations = config.tram_est_sections[_index].rainfall;
 	this.rainfallNow = null;
 	this.destLimits = config.tram_est_sections[_index].dest;
@@ -338,7 +339,7 @@ TramRecorder.prototype.clearExpired = function() {
 		//Check if the travelling time is within the limit
 		var timestamp = new Date().getTime();
 		var minutesSpent = (timestamp - this.trams[tram_id].time) / 60000;
-		if (minutesSpent >= this.time_upper_limit){
+		if (minutesSpent >= this.time_upper_limit || minutesSpent <= this.time_lower_limit){
 			delete this.trams[tram_id];
 		}
 	}

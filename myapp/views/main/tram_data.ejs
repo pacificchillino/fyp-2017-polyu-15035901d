@@ -4,7 +4,7 @@
 		.table td {text-align: center;}
 		.table th {text-align: center;}
 	</style>
-	<% if (params != null){ %>
+	<% if (typeof params !== "undefined"){ %>
 		<h3>Search results for Section <%= params.stopA %> - <%= params.stopB %></h2>
 		<% if (result.length == 0){ %>
 			<p>Sorry, there are no results.</p>
