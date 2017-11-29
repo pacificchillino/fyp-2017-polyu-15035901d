@@ -285,6 +285,16 @@ function obtainTramETA_2(isTerminus){
 							}}
 						}}
 					}
+					//notVia
+					for (var j in tramRecorders[i].notVia){
+						var nvStop = tramRecorders[i].notVia[j];
+						if (!tramsETA[nvStop].hasError){
+							tramRecorders[i].feedData({
+								type: "V",
+								tramData: tramsETA[nvStop],
+							});
+						};
+					};
 					//Clear expired data
 					tramRecorders[i].clearExpired();
 				}

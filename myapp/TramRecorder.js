@@ -28,6 +28,11 @@ function TramRecorder(_index, _stopA, _stopB, _stopB2) {
 	if (_stopB2 != null){
 		this.stopB2 = _stopB2;
 	}
+	if (config.tram_est_sections[_index].notVia != null){
+		this.notVia = config.tram_est_sections[_index].notVia;
+	}else{
+		this.notVia = [];
+	}
 	this.time_upper_limit = config.tram_est_sections[_index].time_upper_limit;
 	this.time_lower_limit = config.tram_est_sections[_index].time_lower_limit;
 	this.rainfallStations = config.tram_est_sections[_index].rainfall;
@@ -112,8 +117,10 @@ TramRecorder.prototype.feedData = function(params) {
 	//Send to another function
 	if (params.type == "A"){
 		this.markTramsEntry(tramDataNew, params.otherData, medianTime);
-	}else{
+	}else if (params.type == "B"){
 		this.markTramsLeave(tramDataNew, params.otherData);
+	}else if (params.type == "V"){
+		this.markTramsNotVia(tramDataNew);
 	}
 };
 
@@ -288,6 +295,23 @@ TramRecorder.prototype.aTramLeaves = function(dataB, tram_id, timestamp){
 			+ func.getHMSOfDay(new Date(timestamp))
 			+ ". However, its entry has not been marked.";
 			func.msg(msg1, config.debug_color.tram2);*/
+		}
+	}
+};
+
+/**
+ * Mark Trams NotVia : if a tram runs to that stop, it runs on an invalid route --> remove that tram in this section
+ */
+
+TramRecorder.prototype.markTramsNotVia = function (dataV){
+	for (var i in dataV.now){
+		var theTram = dataV.now[i].tram_no;
+		//Remove!
+		if (this.trams[theTram] != null){
+			delete this.trams[theTram];
+			//Socket message
+			var msg1 = "Tram : Recorder ["+this.stopA$+"->"+this.stopB$+"] - Tram #" + theTram + " runs at a wrong route. Removed.";
+			func.msg(msg1, config.debug_color.tram2);
 		}
 	}
 };

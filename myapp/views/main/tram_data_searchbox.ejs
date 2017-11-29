@@ -121,11 +121,29 @@ function query2(_query, compare){
 			window.location.href = URL;
 		}
 	}
-	//Prefill data
-	<% if(typeof query !== "undefined"){ %>
-		<% if(typeof query.date_gt !== "undefined"){ %> $("#date_gt").val("<%= query.date_gt %>"); <% } %>
-		<% if(typeof query.date_lt !== "undefined"){ %> $("#date_lt").val("<%= query.date_lt %>"); <% } %>
-		<% if(typeof query.hours_gt !== "undefined"){ %> $("#time_gt").val("<%= query.hours_gt %>"); <% } %>
-		<% if(typeof query.hours_lt !== "undefined"){ %> $("#time_lt").val("<%= query.hours_lt %>"); <% } %>
-	<% } %>
 </script>
+<%
+if(typeof query !== "undefined"){
+	if(typeof query.date_gt === "undefined"){
+		query.date_gt = "";
+	}
+	if(typeof query.date_lt === "undefined"){
+		query.date_lt = "";
+	}
+	if(typeof query.hours_gt === "undefined"){
+		query.hours_gt = "";
+	}
+	if(typeof query.hours_lt === "undefined"){
+		query.hours_lt = "";
+	}
+	%>
+	<script language = "javascript">
+		//Prefill data
+		$("#date_gt").val("<%= query.date_gt %>");
+		$("#date_lt").val("<%= query.date_lt %>");
+		$("#hours_gt").val("<%= query.hours_gt %>");
+		$("#hours_lt").val("<%= query.hours_lt %>");
+	</script>
+	<%
+}
+%>
