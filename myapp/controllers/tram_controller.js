@@ -66,13 +66,13 @@ tram_data_result_2 = function (req, res, isAPI){
 	if (req.query.dow != null) filter.dayOfWk = parseInt(req.query.dow);
 	if (req.query.date_gt != null || req.query.date_lt != null){
 		filter.date = {};
-		if (req.query.date_gt != null) filter.date.$gt = req.query.date_gt;
-		if (req.query.date_lt != null) filter.date.$lt = req.query.date_lt;
+		if (req.query.date_gt != null) filter.date.$gte = req.query.date_gt;
+		if (req.query.date_lt != null) filter.date.$lte = req.query.date_lt;
 	}
 	if (req.query.hours_gt != null || req.query.hours_lt != null){
 		filter.hours = {};
-		if (req.query.hours_gt != null) filter.hours.$gt = hours(req.query.hours_gt);
-		if (req.query.hours_lt != null) filter.hours.$lt = hours(req.query.hours_lt);
+		if (req.query.hours_gt != null) filter.hours.$gte = hours(req.query.hours_gt);
+		if (req.query.hours_lt != null) filter.hours.$lte = hours(req.query.hours_lt);
 	}
 	//Sort
 	var sort = {};

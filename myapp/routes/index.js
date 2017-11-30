@@ -4,7 +4,7 @@ var _ = require('underscore');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.render('main/index', { title: 'Travelling Time Estimation Trial Project' });
 });
 
 /** 
