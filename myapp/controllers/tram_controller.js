@@ -81,9 +81,18 @@ tram_data_result_2 = function (req, res, isAPI){
 			sort = tram_sortby[req.query.sortby].sort;
 		}
 	}
+	//Page
+	var page = 0;
+	if (req.query.page != null){
+		var _page = parseInt(req.query.page);
+		if (_page > 0){
+			page = _page;
+		}
+	}
+	var skip = tram_query_limit * page;
 	//Select from DB
 	if (global.db != null){
-		global.db.collection(db_table).find(filter).sort(sort).limit(tram_query_limit).toArray(function(err, result) {
+		global.db.collection(db_table).find(filter).sort(sort).skip(skip).limit(tram_query_limit).toArray(function(err, result) {
 			if (err) throw err;
 			global.db.collection(db_table).find(filter).count(function(err, count){
 				if (isAPI){
@@ -104,7 +113,11 @@ tram_data_result_2 = function (req, res, isAPI){
 						query: req.query,
 						result: result,
 						count: count,
-						limit: tram_query_limit,
+						item_first: skip + 1,
+						item_last: Math.min(skip + tram_query_limit, count),
+						page: page,
+						is_page_first: (skip == 0),
+						is_page_last: (skip + tram_query_limit >= count),
 					};
 					res.render('main/tram_data', data);
 				}

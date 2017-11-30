@@ -9,7 +9,7 @@
 		<% if (result.length == 0){ %>
 			<p>Sorry, there are no results.</p>
 		<% }else{ %>
-			<p>There are <%= count %> results. <% if (count > limit){ %> Only the first <%= limit %> results are displayed. <% } %></p>
+			<p>There are <%= count %> results. (#<%= item_first %> ~ <%= item_last %>)</p>
 			<div class="table-responsive">          
 				<table class="table">
 					<thead>
@@ -21,6 +21,7 @@
 							<th>Starting Time</th>
 							<th>Ending Time</th>
 							<th>Mins Spent</th>
+							<th>Rainfall</th>
 						</tr>
 					</thead>
 					<% for (var i in result){ %>
@@ -32,6 +33,7 @@
 							<td><%= result[i].starting %></td>
 							<td><%= result[i].ending %></td>
 							<td><%= result[i].minsSpent %> mins</td>
+							<td><%= result[i].rainfall %> mm</td>
 						</tr>
 					<% } %>
 				</table>

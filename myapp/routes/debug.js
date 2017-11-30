@@ -13,4 +13,11 @@ router.get('/fixtime/:from/:to', function(req, res, next) {
 	res.send("Fix Time");
 });
 
+var fillWeather = require("../include/fillweather-20171130.js");
+
+router.get('/fillweather/:from/:to', function(req, res, next) {
+	fillWeather.fillWeather(req.params.from, req.params.to);
+	res.send("Fill Weather");
+});
+
 module.exports = router;
