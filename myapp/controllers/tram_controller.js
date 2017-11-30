@@ -24,7 +24,7 @@ function tram_data_searchbox(){
 	};
 	for (var i in config.tram_est_sections){
 		var from = config.tram_est_sections[i].from.split("_")[0];
-		var to = config.tram_est_sections[i].to;
+		var to = config.tram_est_sections[i].to.split("_")[0];
 		searchbox.sections.push({
 			from_to: from + "/" + to,
 			caption: from + " to " + to + " (" + config.tram_stops_for_eta[config.tram_est_sections[i].from].name + " to " + config.tram_stops_for_eta[config.tram_est_sections[i].to].name + ")",

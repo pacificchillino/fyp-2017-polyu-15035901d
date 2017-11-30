@@ -279,7 +279,7 @@ TramRecorder.prototype.aTramLeaves = function(dataB, tram_id, timestamp){
 				//Okay, the tram leaves
 				var mins = Math.round(minutesSpent * 100) / 100;
 				//Update database
-				this.updateDatabase(tram_id, this.trams[tram_id].time, minutesSpent);
+				this.updateDatabase(tram_id, minutesSpent);
 				//Socket message
 				var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " finishes this section at "
 				+ func.getHMSOfDay(new Date(timestamp))
@@ -318,9 +318,9 @@ TramRecorder.prototype.markTramsNotVia = function (dataV){
 
 //Update to database
 
-TramRecorder.prototype.updateDatabase = function (tram_id, entryTimestamp, minsSpent){
+TramRecorder.prototype.updateDatabase = function (tram_id, minsSpent){
 	if (global.db != null){
-		var hours = (entryTimestamp / 3600 / 1000 + config.timezone) % 24;
+		var hours = (this.trams[tram_id].time / 3600 / 1000 + config.timezone) % 24;
 		//Add new data
 		var data = {
 			wkday: global.isWeekday,
@@ -331,6 +331,7 @@ TramRecorder.prototype.updateDatabase = function (tram_id, entryTimestamp, minsS
 			tram: tram_id,
 			tt_mins: minsSpent, //In minutes
 			hours: hours,
+			rainfall: this.trams[tram_id].rainfall,
 		};
 		var time_hours_left = Math.floor(hours);
 		var time_hours_right = Math.ceil(hours);

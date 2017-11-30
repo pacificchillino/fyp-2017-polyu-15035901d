@@ -13,13 +13,13 @@ function trams_eta_bystop(req, res, isJSON){
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(data), null, 3);
     }else{
-      res.render('test/tram-eta', {title: 'Tram ETA', stop_code: this.stop_code, data: data});
+      res.render('/test/tram-eta', {title: 'Tram ETA', stop_code: this.stop_code, data: data});
     }
   }.bind({stop_code: req.params.stop})).catch(function(err) {
     console.error(err);
   });
 }
-router.get('test/api/trams/eta/:stop', function(req, res) {
+router.get('/test/api/trams/eta/:stop', function(req, res) {
   trams_eta_bystop(req, res, true);
 });
 router.get('/test/trams/eta/:stop', function(req, res) {
@@ -49,21 +49,21 @@ function trams_eta_all(req, res, isJSON){
 			res.setHeader('Content-Type', 'application/json');
 			res.send(JSON.stringify(data), null, 3);
 		}else{
-			res.render('test/tram-eta-all', {title: 'Tram ETAs', data: data});
+			res.render('/test/tram-eta-all', {title: 'Tram ETAs', data: data});
 		}
       });
     }).catch(function(err) {
       console.error(err);
     });
 }
-router.get('test/api/trams/eta', function(req, res) {
+router.get('/test/api/trams/eta', function(req, res) {
   trams_eta_all(req, res, true);
 });
 router.get('/test/trams/eta', function(req, res) {
   trams_eta_all(req, res, false);
 });
 //-- Stops
-router.get('test/api/trams/stops', function(req,res){
+router.get('/test/api/trams/stops', function(req,res){
   trams.getTramStops().then(function(data) {
     for (var i in data){
       data[i] = data[i].stop_code;
@@ -77,7 +77,7 @@ router.get('test/api/trams/stops', function(req,res){
   });
 });
 //-- Service Updates
-router.get('test/api/trams/updates', function(req,res){
+router.get('/test/api/trams/updates', function(req,res){
   trams.getServiceUpdates().then(function(data) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(data), null, 3);
@@ -86,7 +86,7 @@ router.get('test/api/trams/updates', function(req,res){
   });
 });
 //-- Emergency Message (EM)
-router.get('test/api/trams/em/:stop', function(req,res){
+router.get('/test/api/trams/em/:stop', function(req,res){
   trams.getEmergencyMessageForTramStop(req.params.stop).then(function(data) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(data), null, 3);
@@ -98,7 +98,7 @@ router.get('test/api/trams/em/:stop', function(req,res){
 //Weather Test
 var HongKongWeather = require('../include/hongkong-weather.js');
 var weather = new HongKongWeather();
-router.get('test/api/weather', function(req,res){
+router.get('/test/api/weather', function(req,res){
   weather.getCurrent().then(function(data){
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(data), null, 3);
