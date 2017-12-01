@@ -296,7 +296,7 @@ function obtainTramETA_2(isTerminus){
 					}
 					//via - if E.M. happens in such stops, flush the recorder
 					for (var j in tramRecorders[i].via){
-						if (tramEM[tramRecorders[i].via[j]] == false){
+						if (tramEM[tramRecorders[i].via[j]] != false){
 							flushable = true;
 						}
 					}
