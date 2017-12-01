@@ -243,6 +243,7 @@ function obtainTramETA_2(isTerminus){
 			//Do only when having rainfall data
 			if (rainfall != null){
 				for (var i in tramRecorders){
+					var flushable = false;
 					//StopA: Ensure having no data errors --> feed data to TramRecorder instance
 					if (!tramsETA[tramRecorders[i].stopA].hasError){
 						//No E.M.
@@ -255,7 +256,7 @@ function obtainTramETA_2(isTerminus){
 						}
 						//Has E.M.
 						else{
-							tramRecorders[i].flush();
+							flushable = true;
 						};
 					}
 					//StopB: Ensure having no data errors --> feed data to TramRecorder instance
@@ -270,22 +271,39 @@ function obtainTramETA_2(isTerminus){
 									otherData: {rainfall: rainfall},
 								});
 							}
+							//Has E.M.
+							else{
+								flushable = true;
+							};
 						}
 					}else{
 						//With B2
-						if (!tramsETA[tramRecorders[i].stopB].hasError){ if (!tramsETA[tramRecorders[i].stopB2].hasError){
+						if ((!tramsETA[tramRecorders[i].stopB].hasError) && (!tramsETA[tramRecorders[i].stopB2].hasError)){
 							//No E.M.
-							if (tramEM[tramRecorders[i].stopB] == false){ if (tramEM[tramRecorders[i].stopB2] == false){
+							if (tramEM[tramRecorders[i].stopB] == false && tramEM[tramRecorders[i].stopB2] == false){
 								tramRecorders[i].feedData({
 									type: "B",
 									tramData: tramsETA[tramRecorders[i].stopB],
 									tramData2: tramsETA[tramRecorders[i].stopB2],
 									otherData: {rainfall: rainfall},
 								});
-							}}
-						}}
+							}
+							//Has E.M.
+							else{
+								flushable = true;
+							};
+						}
 					}
-					//notVia
+					//via - if E.M. happens in such stops, flush the recorder
+					for (var j in tramRecorders[i].via){
+						if (tramEM[tramRecorders[i].via[j]] == false){
+							flushable = true;
+						}
+					}
+					if (flushable){ //Flush (clear all running data) in the recorder
+						tramRecorders[i].flush();
+					}
+					//notVia - trams should not pass thru such stops
 					for (var j in tramRecorders[i].notVia){
 						var nvStop = tramRecorders[i].notVia[j];
 						if (!tramsETA[nvStop].hasError){

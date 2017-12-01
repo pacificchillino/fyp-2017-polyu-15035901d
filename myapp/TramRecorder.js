@@ -28,6 +28,11 @@ function TramRecorder(_index, _stopA, _stopB, _stopB2) {
 	if (_stopB2 != null){
 		this.stopB2 = _stopB2;
 	}
+	if (config.tram_est_sections[_index].via != null){
+		this.via = config.tram_est_sections[_index].via;
+	}else{
+		this.via = [];
+	}
 	if (config.tram_est_sections[_index].notVia != null){
 		this.notVia = config.tram_est_sections[_index].notVia;
 	}else{
