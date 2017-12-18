@@ -3,6 +3,7 @@
 	<style>
 		.table td {text-align: center;}
 		.table th {text-align: center;}
+		.table {font-size:0.8em;}
 	</style>
 	<% if (typeof params !== "undefined"){ %>
 		<h3>Search results for Section <%= params.stopA %> - <%= params.stopB %></h2>
@@ -22,6 +23,9 @@
 							<th>Ending Time</th>
 							<th>Mins Spent</th>
 							<th>Rainfall</th>
+							<th>HKO Temp.</th>
+							<th>HKO Hum.</th>
+							<th>HKO UVI</th>
 						</tr>
 					</thead>
 					<% for (var i in result){ %>
@@ -34,6 +38,9 @@
 							<td><%= result[i].ending %></td>
 							<td><%= result[i].minsSpent %> mins</td>
 							<td><%= result[i].rainfall %> mm</td>
+							<% if (typeof result[i].HKO_temp !== "undefined"){ %><td><%= result[i].HKO_temp %> ℃</td><% } %>
+							<% if (typeof result[i].HKO_hum !== "undefined"){ %><td><%= result[i].HKO_hum %> %</td><% } %>
+							<% if (typeof result[i].HKO_uv !== "undefined"){ %><td><%= result[i].HKO_uv %></td><% } %>
 						</tr>
 					<% } %>
 				</table>
