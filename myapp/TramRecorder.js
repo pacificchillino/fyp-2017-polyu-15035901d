@@ -149,6 +149,8 @@ For A isTerminus = false (A is no a terminus):
 */
 
 TramRecorder.prototype.markTramsEntry = function(dataA, otherData, medianTime){ //medianTime could be -1
+	//First calculate rainfall by weightings defined for this recorder
+	otherData.rainfall = this.getCorrespondingRainfall(otherData.rainfall);
 	//isTerminus: true
 	if (this.stopA_isTerminus){
 		if (dataA.prev != null){
@@ -262,11 +264,10 @@ TramRecorder.prototype.aTramEnters = function(dataA, tram_id, dest, timestamp, o
 	var date = new Date(timestamp);
 	//Check if timestamp within recording time
 	if (func.isDuringTramRecordingTimeA(date)){
-		var theRainfall = this.getCorrespondingRainfall(otherData.rainfall);
-		this.trams[tram_id] = {time: timestamp, dest: dest, rainfall: theRainfall};
+		this.trams[tram_id] = {time: timestamp, dest: dest, otherData: otherData};
 		var msg1 = "Tram : ["+this.stopA$+"->"+this.stopB$+"] #" + tram_id + " (to " + dest + ") enters this section at "
 		+ func.getHMSOfDay(new Date(timestamp))
-		+ ", the rainfall is " + theRainfall + " mm";
+		+ ", otherData: " + JSON.stringify(otherData);
 		var msg2 = "Prev: " + JSON.stringify(dataA.prev) + "<br/>" + "Now: " + JSON.stringify(dataA.now);
 		func.msg2(msg1, msg2, config.debug_color.tram2);
 	}
@@ -336,7 +337,6 @@ TramRecorder.prototype.updateDatabase = function (tram_id, minsSpent){
 			tram: tram_id,
 			tt_mins: minsSpent, //In minutes
 			hours: hours,
-			rainfall: this.trams[tram_id].rainfall,
 		};
 		var time_hours_left = Math.floor(hours);
 		var time_hours_right = Math.ceil(hours);
@@ -352,6 +352,10 @@ TramRecorder.prototype.updateDatabase = function (tram_id, minsSpent){
 			data.hours1off = hours - time_hours_left;
 			data.hours0 = time_hours_right;
 			data.hours0off = time_hours_right - hours;
+		}
+		//Rainfall, HKO temperature, etc
+		for (var i in this.trams[tram_id].otherData){
+			data[i] = this.trams[tram_id].otherData[i];
 		}
 		var tableName = "data_tram_" + this.stopA$ + "_" + this.stopB$;
 		if (func.isSavingDBAllowed()){

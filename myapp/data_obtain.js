@@ -18,7 +18,11 @@ var what_day = require("./what_day.js");
 
 //Weather
 var weatherLastUpdate = "";		//Time of last weather update
-var rainfall = null;				//Rainfall data, e.g. rainfall["Wan Chai"]
+var rainfall = null;			//Rainfall data, e.g. rainfall["Wan Chai"]
+var HKO_temp = null;			//HKO Temperature
+var HKO_hum = null;				//HKO Humidity
+var HKO_uv = null;				//HKO UV Index
+
 
 //Trams
 var tramStops = [];				//Array of all tram stops
@@ -60,14 +64,25 @@ exports.obtainWeather = function(){
 			}else{
 				//HAVE Updates
 				weatherLastUpdate = updated;
+				//Rainfall
 				rainfall = {};
 				_.each(config.rainfall_recorded, function(place) {
 					var index = _.findIndex(data.rainfall, {station: place});
 					//No rainfall if index is -1
 					rainfall[place] = (index == -1) ? 0 : func.getRainFallAmount(data.rainfall[index].mm);
 				});
+				//H.K.O.
+				HKO_temp = parseInt(data.regional.degrees_c);
+				HKO_hum = parseInt(data.regional.humidity_pct);
+				HKO_uv = (data.regional.uv_index_at == "") ? 0 : parseInt(data.regional.uv_index_at);
 				//Insert to database
-				var entry = {date: data.regional.updated_on, rainfall: rainfall};
+				var entry = {
+					date: data.regional.updated_on,
+					rainfall: rainfall,
+					HKO_temp: HKO_temp,
+					HKO_hum: HKO_hum,
+					HKO_uv: HKO_uv,
+				};
 				var filter = {date: data.regional.updated_on};
 				//var filter = {date: data.regional.updated_on};
 				if (global.db != null){
@@ -228,7 +243,7 @@ function obtainTramETA_2(isTerminus){
 							tramRecorders[i].feedData({
 								type: "A",
 								tramData: tramsETA[tramRecorders[i].stopA],
-								otherData: {rainfall: rainfall},
+								otherData: getOtherData(),
 							});
 						}
 					}
@@ -251,7 +266,7 @@ function obtainTramETA_2(isTerminus){
 							tramRecorders[i].feedData({
 								type: "A",
 								tramData: tramsETA[tramRecorders[i].stopA],
-								otherData: {rainfall: rainfall},
+								otherData: getOtherData(),
 							});
 						}
 						//Has E.M.
@@ -268,7 +283,7 @@ function obtainTramETA_2(isTerminus){
 								tramRecorders[i].feedData({
 									type: "B",
 									tramData: tramsETA[tramRecorders[i].stopB],
-									otherData: {rainfall: rainfall},
+									otherData: getOtherData(),
 								});
 							}
 							//Has E.M.
@@ -285,7 +300,7 @@ function obtainTramETA_2(isTerminus){
 									type: "B",
 									tramData: tramsETA[tramRecorders[i].stopB],
 									tramData2: tramsETA[tramRecorders[i].stopB2],
-									otherData: {rainfall: rainfall},
+									otherData: getOtherData(),
 								});
 							}
 							//Has E.M.
@@ -319,6 +334,15 @@ function obtainTramETA_2(isTerminus){
 			}
 		});
 	}
+}
+
+function getOtherData(){
+	return {
+		rainfall: rainfall,
+		HKO_temp: HKO_temp,
+		HKO_hum: HKO_hum,
+		HKO_uv: HKO_uv,
+	};
 }
 
 /**
