@@ -21,7 +21,6 @@ var weatherLastUpdate = "";		//Time of last weather update
 var rainfall = null;			//Rainfall data, e.g. rainfall["Wan Chai"]
 var HKO_temp = null;			//HKO Temperature
 var HKO_hum = null;				//HKO Humidity
-var HKO_uv = null;				//HKO UV Index
 
 
 //Trams
@@ -74,14 +73,12 @@ exports.obtainWeather = function(){
 				//H.K.O.
 				HKO_temp = parseInt(data.regional.degrees_c);
 				HKO_hum = parseInt(data.regional.humidity_pct);
-				HKO_uv = (data.regional.uv_index_at == "") ? 0 : parseInt(data.regional.uv_index_at);
 				//Insert to database
 				var entry = {
 					date: data.regional.updated_on,
 					rainfall: rainfall,
 					HKO_temp: HKO_temp,
 					HKO_hum: HKO_hum,
-					HKO_uv: HKO_uv,
 				};
 				var filter = {date: data.regional.updated_on};
 				//var filter = {date: data.regional.updated_on};
@@ -341,7 +338,6 @@ function getOtherData(){
 		rainfall: rainfall,
 		HKO_temp: HKO_temp,
 		HKO_hum: HKO_hum,
-		HKO_uv: HKO_uv,
 	};
 }
 
