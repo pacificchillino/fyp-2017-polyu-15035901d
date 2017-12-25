@@ -96,7 +96,7 @@ function onListening() {
  */
 
 var data_obtain = require("../data_obtain");
-//var data_regression = require("../data_regression");
+var data_regression_tram = require("../data_regression_tram");
 
 /**
  * Socket.io connection --> global.io
@@ -172,7 +172,7 @@ cron.schedule(config.cron_time_tram_get_em, function(){
 
 //Update regression
 cron.schedule(config.cron_time_tram_update_regression, function(){
-	//data_regression.updateRegressionForTrams();
+	data_regression_tram.updateRegressions();
 });
 
 //Reminders

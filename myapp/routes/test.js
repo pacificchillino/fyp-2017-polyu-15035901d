@@ -6,6 +6,16 @@ var _ = require('underscore');
 var HongKongTrams = require("../include/hongkong-trams.js");
 var trams = new HongKongTrams();
 
+/**
+ * Summary
+ * /test/api/trams/eta/:stop
+ * /test/api/trams/updates
+ * /test/api/trams/em/:stop
+ * /test/api/weather
+ * /test/regr_test/:stopA/:stopB
+ * /test/regr_update
+ */
+
 //-- ETA
 function trams_eta_bystop(req, res, isJSON){
   trams.getNextTramETA(req.params.stop).then(function(data) {
@@ -21,60 +31,6 @@ function trams_eta_bystop(req, res, isJSON){
 }
 router.get('/test/api/trams/eta/:stop', function(req, res) {
   trams_eta_bystop(req, res, true);
-});
-router.get('/test/trams/eta/:stop', function(req, res) {
-  trams_eta_bystop(req, res, false);
-});
-//-- ETA for all stops
-function trams_eta_all(req, res, isJSON){
-	var data = new Object();
-    var promises = new Array();
-    var etaFunction = function(eta){
-      data[this.stopCode].eta = eta;
-    }
-    trams.getTramStops().then(function(stops) {
-      _.each(stops, function(stop) {
-        var stopCode = stop.stop_code;
-        data[stopCode] = stop;
-        promises.push(trams.getNextTramETA(stopCode)
-        .then(etaFunction.bind({stopCode: stopCode}))
-        .catch(function(err) {
-		  data[stopCode].eta = {};
-          console.error(err);
-        }));
-      });
-      //Output
-      Promise.all(promises).then(function(){
-        if (isJSON){
-			res.setHeader('Content-Type', 'application/json');
-			res.send(JSON.stringify(data), null, 3);
-		}else{
-			res.render('/test/tram-eta-all', {title: 'Tram ETAs', data: data});
-		}
-      });
-    }).catch(function(err) {
-      console.error(err);
-    });
-}
-router.get('/test/api/trams/eta', function(req, res) {
-  trams_eta_all(req, res, true);
-});
-router.get('/test/trams/eta', function(req, res) {
-  trams_eta_all(req, res, false);
-});
-//-- Stops
-router.get('/test/api/trams/stops', function(req,res){
-  trams.getTramStops().then(function(data) {
-    for (var i in data){
-      data[i] = data[i].stop_code;
-    }
-    _.uniq(data);
-    data.sort();
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(data), null, 3);
-  }).catch(function(err) {
-    console.error(err);
-  });
 });
 //-- Service Updates
 router.get('/test/api/trams/updates', function(req,res){
@@ -103,6 +59,33 @@ router.get('/test/api/weather', function(req,res){
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(data), null, 3);
   }).catch(console.error);
+});
+
+//Tram Regression Test
+
+var data_regression_tram = require("../data_regression_tram.js");
+router.get('/test/regr_test/:stopA/:stopB', function(req,res){
+	//Select from DB
+	var stopA = req.params.stopA;
+	var stopB = req.params.stopB;
+	var db_table = "data_tram_" + stopA + "_" + stopB;
+	if (global.db != null){
+		global.db.collection(db_table).find({}).toArray(function(err, result) {
+			if (err) throw err;
+			if(result.length > 0){
+				res.send(JSON.stringify(
+					data_regression_tram.doRegressionForSection(stopA, stopB, result)
+				));
+			}else{
+				res.send("Error");
+			};
+		});
+	};
+});
+
+router.get('/test/regr_update', function(req,res){
+	data_regression_tram.updateRegressions();
+	res.send("Update Regressions.");
 });
 
 //The end

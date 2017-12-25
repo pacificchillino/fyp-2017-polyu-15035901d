@@ -57,7 +57,7 @@ exports.tram_eta_nonarrived_limit = 120;//secs					//For determination of arriva
 exports.cron_time_tram_get_eta = "0 * * * * *";					//Get ETA for all every minute
 exports.cron_time_tram_get_eta2 = "10,20,30,40,50 * * * * *";	//Get ETA for isTerminus: true every 10 seconds (except @min)
 exports.cron_time_tram_get_em = "5 */3 * * * *";				//Get emergency message every 3 minutes
-exports.cron_time_tram_update_regression = "30 3 * * *";		//Update regression variables at 3:30am
+exports.cron_time_tram_update_regression = "0 3 * * *";			//Update regression variables at 3am
 
 //Stops that ETA data are required
 exports.tram_stops_for_eta = {
@@ -179,3 +179,141 @@ exports.tram_est_sections = [
 		time_upper_limit: 180, time_lower_limit: 10,
 	},
 ];
+
+/**
+ * Tram Regressions
+ */
+
+exports.tram_regression_modes = {
+	"default": {
+		name: "Default",
+		remarks: "Time of Day: Hourly Mean ; Day Classification: Weekday or Not ; Other Factors: Rainfall Only",
+		time_of_day_hourly_mean: true,
+		day_classification_by_weekday: true,
+		regression_variables_count: 1,
+		regression_variables_label: ["R"],
+		regression_variables_remarks: ["R: Rainfall (in mm)"],
+		regression_variables: function(data){
+			return [
+				data.rainfall,
+			];
+		},
+	},
+	"hko_linear": {
+		name: "Other Factors: HKO Temperature & Humidity (Linear)",
+		remarks: "",
+		time_of_day_time_hourly_mean: true,
+		day_classification_by_weekday: true,
+		regression_variables_count: 3,
+		regression_variables_label: ["R","T", "H"],
+		regression_variables_remarks: ["R: Rainfall (in mm)","T: HKO Temperature (in Degrees Celcius)","H: HKO Humidity (in %)"],
+		regression_variables: function(data){
+			if (data.HKO_temp != null && data.HKO_hum != null){
+				return [
+					data.rainfall,
+					data.HKO_temp,
+					data.HKO_hum,
+				];
+			}else{
+				return null;
+			}
+		},
+	},
+	"hko_quad": {
+		name: "Other Factors: HKO Temperature & Humidity (Quadratic)",
+		remarks: "",
+		time_of_day_time_hourly_mean: true,
+		day_classification_by_weekday: true,
+		regression_variables_count: 6,
+		regression_variables_label: ["R^2", "R", "T^2", "T", "H^2", "H"],
+		regression_variables_remarks: ["R: Rainfall (in mm)","T: HKO Temperature (in Degrees Celcius)","H: HKO Temperature"],
+		regression_variables: function(data){
+			if (data.HKO_temp != null && data.HKO_hum != null){
+				return [
+					data.rainfall * data.rainfall,
+					data.rainfall,
+					data.HKO_temp * data.HKO_temp,
+					data.HKO_temp,
+					data.HKO_hum * data.HKO_hum,
+					data.HKO_hum,
+				];
+			}else{
+				return null;
+			}
+		},
+	},
+	"day_of_wk": {
+		name: "Day Classification: Day of Week",
+		remarks: "Public holidays are considered as Sundays.",
+		time_of_day_time_hourly_mean: true,
+		day_classification_by_weekday: false,
+		regression_variables_count: 1,
+		regression_variables_label: ["R"],
+		regression_variables_remarks: ["R: Rainfall (in mm)"],
+		regression_variables: function(data){
+			return [
+				data.rainfall,
+			];
+		},
+	},
+	"time_4": {
+		name: "Time of Day: 4-Degree Polynomial Fitting",
+		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 4.",
+		time_of_day_time_hourly_mean: false,
+		day_classification_by_weekday: true,
+		regression_variables_count: 5,
+		regression_variables_label: ["t^4","t^3","t^2","t","R"],
+		regression_variables_remarks: ["t: Time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
+		regression_variables: function(data){
+			var tod = data.hours / 24;
+			var m = 1;
+			var arr = [];
+			for (var i = 0; i < 4; i++){
+				m *= tod;
+				arr.unshift(m);
+			}
+			arr.push(data.rainfall);
+			return arr;
+		},
+	},
+	"time_6": {
+		name: "Time of Day: 6-Degree Polynomial Fitting",
+		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 6.",
+		time_of_day_time_hourly_mean: false,
+		day_classification_by_weekday: true,
+		regression_variables_count: 7,
+		regression_variables_label: ["t^6","t^5","t^4","t^3","t^2","t","R"],
+		regression_variables_remarks: ["t: Time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
+		regression_variables: function(data){
+			var tod = data.hours / 24;
+			var m = 1;
+			var arr = [];
+			for (var i = 0; i < 6; i++){
+				m *= tod;
+				arr.unshift(m);
+			}
+			arr.push(data.rainfall);
+			return arr;
+		},
+	},
+	"time_8": {
+		name: "Time of Day: 8-Degree Polynomial Fitting",
+		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 8.",
+		time_of_day_time_hourly_mean: false,
+		day_classification_by_weekday: true,
+		regression_variables_count: 9,
+		regression_variables_label: ["t^8","t^7","t^6","t^5","t^4","t^3","t^2","t","R"],
+		regression_variables_remarks: ["t: Time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
+		regression_variables: function(data){
+			var tod = data.hours / 24;
+			var m = 1;
+			var arr = [];
+			for (var i = 0; i < 8; i++){
+				m *= tod;
+				arr.unshift(m);
+			}
+			arr.push(data.rainfall);
+			return arr;
+		},
+	},
+};
