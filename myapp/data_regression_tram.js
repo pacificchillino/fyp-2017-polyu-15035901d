@@ -300,10 +300,8 @@ var updateRegressionOfASection = function(err, result) {
 	if(result.length > 0){
 		//Do regression
 		var regr = exports.doRegressionForSection(this.stopA, this.stopB, result);
-		//Remove from DB if exists
-		db.collection(regressionTable).remove({stopA: this.stopA, stopB: this.stopB});
-		//Insert new entry
-		db.collection(regressionTable).insertOne(regr);
+		//Update
+		db.collection(regressionTable).update({stopA: this.stopA, stopB: this.stopB}, regr, {upsert: true});
 		//Socket Message
 		if (updatingPointer == 0){
 			func.msg("Tram : Automatic regression starts.", config.debug_color.tram2);
