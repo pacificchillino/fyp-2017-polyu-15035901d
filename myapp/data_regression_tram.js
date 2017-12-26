@@ -233,17 +233,21 @@ exports.doRegressionForSection = function(stopA, stopB, data){
 
 var regressionTable = "regression_tram";
 
+var updatingPointer = 0;
+var updatingTotal = config.tram_est_sections.length;
+
 exports.updateRegressions = function(){
 	//Connect to database
 	if (global.db != null){
-		for (var i in config.tram_est_sections){
+		//for (var i in config.tram_est_sections){
+			var i = updatingPointer;
 			var stopA = config.tram_est_sections[i].from.split("_")[0];
 			var stopB = config.tram_est_sections[i].to.split("_")[0];
 			var db_table = "data_tram_" + stopA + "_" + stopB;
 			global.db.collection(db_table).find({}).toArray(updateRegressionOfASection.bind(
 				{stopA: stopA, stopB: stopB}
 			));
-		}
+		//}
 	}
 }
 
@@ -256,5 +260,20 @@ var updateRegressionOfASection = function(err, result) {
 		db.collection(regressionTable).remove({stopA: this.stopA, stopB: this.stopB});
 		//Insert new entry
 		db.collection(regressionTable).insertOne(regr);
+		//Socket Message
+		if (updatingPointer == 0){
+			func.msg("Tram : Automatic regression starts.", config.debug_color.tram2);
+		}
+		var msg = "Tram : ["+this.stopA+"->"+this.stopB+"] Regression done for this section."; 
+		func.msg(msg, config.debug_color.tram2);
+		//Update Next
+		updatingPointer++;
+		if (updatingPointer < updatingTotal){
+			exports.updateRegressions();
+		}else{
+			updatingPointer = 0;
+			//Socket Message
+			func.msg("Tram : Automatic regression ends.", config.debug_color.tram2);
+		}
 	}
 }
