@@ -239,17 +239,20 @@ exports.tram_regression_modes = {
 		remarks: "",
 		time_of_day_hourly_mean: true,
 		day_classification_by_weekday: true,
-		regression_variables_count: 6,
-		regression_variables_label: ["R<sup>2</sup>", "R", "T<sup>2</sup>", "T", "H<sup>2</sup>", "H"],
+		regression_variables_count: 9,
+		regression_variables_label: ["R<sup>2</sup>", "T<sup>2</sup>", "H<sup>2</sup>", "RT", "RH", "TH", "R", "T", "H"],
 		regression_variables_remarks: ["R: Rainfall (in mm)","T: HKO Temperature (in ℃)","H: HKO Temperature"],
 		regression_variables: function(data){
 			if (data.HKO_temp != null && data.HKO_hum != null){
 				return [
 					data.rainfall * data.rainfall,
-					data.rainfall,
 					data.HKO_temp * data.HKO_temp,
-					data.HKO_temp,
 					data.HKO_hum * data.HKO_hum,
+					data.rainfall * data.HKO_temp,
+					data.rainfall * data.HKO_hum,
+					data.HKO_temp * data.HKO_hum,
+					data.rainfall,
+					data.HKO_temp,
 					data.HKO_hum,
 				];
 			}else{
