@@ -28,21 +28,25 @@ exports.getToday = function(){
 		if (day == 0){
 			global.dayType = "PH";
 			global.isWeekday = false;
+			global.isPH = true;
 		}
 		//Saturday
 		else if (day == 6){
 			global.dayType = "SA";
 			global.isWeekday = false;
+			global.isPH = false;
 		}
 		//Weekday
 		else{
 			global.dayType = "WK";
 			global.isWeekday = true;
+			global.isPH = false;
 		}
 		//Public Holiday
 		if (result != null){
 			global.dayType = "PH";
 			global.isWeekday = false;
+			global.isPH = true;
 		}
 	});
 	//Obtain from days_exceptions

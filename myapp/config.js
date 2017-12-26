@@ -187,7 +187,7 @@ exports.tram_est_sections = [
 exports.tram_regression_modes = {
 	"default": {
 		name: "Default",
-		remarks: "Time of Day: Hourly Mean ; Day Classification: Weekday or Not ; Other Factors: Rainfall Only",
+		remarks: "Time of Day: Hourly Mean ; Day Classification: Weekday or Not ; Other Factors: Rainfall Only (Linear)",
 		time_of_day_hourly_mean: true,
 		day_classification_by_weekday: true,
 		regression_variables_count: 1,
@@ -199,8 +199,23 @@ exports.tram_regression_modes = {
 			];
 		},
 	},
+	"rain_quad": {
+		name: "Other Factors: Rainfall: Quadratic",
+		remarks: "",
+		time_of_day_hourly_mean: true,
+		day_classification_by_weekday: true,
+		regression_variables_count: 2,
+		regression_variables_label: ["R<sup>2</sup>","R"],
+		regression_variables_remarks: ["R: Rainfall (in mm)"],
+		regression_variables: function(data){
+			return [
+				data.rainfall*data.rainfall,
+				data.rainfall,
+			];
+		},
+	},
 	"hko_linear": {
-		name: "Other Factors: HKO Temperature & Humidity (Linear)",
+		name: "Other Factors: Rainfall, HKO Temperature & Humidity (Linear)",
 		remarks: "",
 		time_of_day_hourly_mean: true,
 		day_classification_by_weekday: true,
@@ -220,7 +235,7 @@ exports.tram_regression_modes = {
 		},
 	},
 	"hko_quad": {
-		name: "Other Factors: HKO Temperature & Humidity (Quadratic)",
+		name: "Other Factors: Rainfall, HKO Temperature & Humidity (Quadratic)",
 		remarks: "",
 		time_of_day_hourly_mean: true,
 		day_classification_by_weekday: true,
@@ -234,48 +249,6 @@ exports.tram_regression_modes = {
 					data.rainfall,
 					data.HKO_temp * data.HKO_temp,
 					data.HKO_temp,
-					data.HKO_hum * data.HKO_hum,
-					data.HKO_hum,
-				];
-			}else{
-				return null;
-			}
-		},
-	},
-	"temp_quad": {
-		name: "Other Factors: HKO Temperature Only (Quadratic)",
-		remarks: "",
-		time_of_day_hourly_mean: true,
-		day_classification_by_weekday: true,
-		regression_variables_count: 4,
-		regression_variables_label: ["R<sup>2</sup>", "R", "T<sup>2</sup>", "T"],
-		regression_variables_remarks: ["R: Rainfall (in mm)","T: HKO Temperature (in ℃)"],
-		regression_variables: function(data){
-			if (data.HKO_temp != null && data.HKO_hum != null){
-				return [
-					data.rainfall * data.rainfall,
-					data.rainfall,
-					data.HKO_temp * data.HKO_temp,
-					data.HKO_temp,
-				];
-			}else{
-				return null;
-			}
-		},
-	},
-	"hum_quad": {
-		name: "Other Factors: HKO Humidity Only (Quadratic)",
-		remarks: "",
-		time_of_day_hourly_mean: true,
-		day_classification_by_weekday: true,
-		regression_variables_count: 4,
-		regression_variables_label: ["R<sup>2</sup>", "R", "H<sup>2</sup>", "H"],
-		regression_variables_remarks: ["R: Rainfall (in mm)","H: HKO Temperature"],
-		regression_variables: function(data){
-			if (data.HKO_temp != null && data.HKO_hum != null){
-				return [
-					data.rainfall * data.rainfall,
-					data.rainfall,
 					data.HKO_hum * data.HKO_hum,
 					data.HKO_hum,
 				];

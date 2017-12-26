@@ -330,6 +330,7 @@ TramRecorder.prototype.updateDatabase = function (tram_id, minsSpent){
 		//Add new data
 		var data = {
 			wkday: global.isWeekday,
+			PH: global.isPH,
 			dayOfWk: global.dayOfWeek,
 			date: global.dateStr,
 			//from: this.stopA$,

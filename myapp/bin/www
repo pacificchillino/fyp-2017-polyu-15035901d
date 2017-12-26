@@ -133,6 +133,7 @@ cron.schedule('*/5 * * * *', function(){
 		dayOfWeek: global.dayOfWeek,
 		dateStr: global.dateStr,
 		isWeekday: global.isWeekday,
+		isPH: global.isPH,
 		exceptionHourStart: global.exceptionHourStart,
 		exceptionHourEnd: global.exceptionHourEnd,
 	};

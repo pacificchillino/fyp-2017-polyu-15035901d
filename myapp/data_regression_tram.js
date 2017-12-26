@@ -27,7 +27,11 @@ function classificationFunction(entry, day_classification_by_weekday){
 	if (day_classification_by_weekday){
 		return entry.wkday ? "d1" : "d0";
 	}else{
-		return "d" + entry.dayOfWk;
+		if (entry.PH == true){
+			return "d0";
+		}else{
+			return "d" + entry.dayOfWk;
+		}
 	}
 }
 

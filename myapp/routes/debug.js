@@ -6,18 +6,11 @@ router.get('/', function(req, res, next) {
 	res.render('test/debug',{title: "Debug"});
 });
 
-var fixTime = require("../include/fixtime-20171128.js");
+var fixing_20171226 = require("../include/fixing-20171226.js");
 
-router.get('/fixtime/:from/:to', function(req, res, next) {
-	fixTime.fixTime(req.params.from, req.params.to);
-	res.send("Fix Time");
-});
-
-var fillWeather = require("../include/fillweather-20171130.js");
-
-router.get('/fillweather/:from/:to', function(req, res, next) {
-	fillWeather.fillWeather(req.params.from, req.params.to);
-	res.send("Fill Weather");
+router.get('/fixing-20171226/:from/:to', function(req, res, next) {
+	fixing_20171226.fix(req.params.from, req.params.to);
+	res.send("Fix 20171226");
 });
 
 module.exports = router;

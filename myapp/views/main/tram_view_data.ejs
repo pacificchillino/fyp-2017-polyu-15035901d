@@ -47,6 +47,7 @@
 					<thead>
 						<tr>
 							<th>Weekday?</th>
+							<th>P.H.?</th>
 							<th>D.O.W.</th>
 							<th>Date</th>
 							<th>Tram No.</th>
@@ -61,6 +62,7 @@
 					<% for (var i in result){ %>
 						<tr>
 							<td><%= result[i].wkday ? "Yes" : "No" %></td>
+							<td><%= result[i].PH ? "Yes" : "No" %></td>
 							<td><%= ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][result[i].dayOfWk] %></td>
 							<td><%= result[i].date %></td>
 							<td>#<%= result[i].tram %></td>

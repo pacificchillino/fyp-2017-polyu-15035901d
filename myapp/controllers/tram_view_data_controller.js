@@ -167,7 +167,7 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 								result[i].prediction_2d[mode] = result[i].prediction[mode].toFixed(2);
 								var myError = Math.abs(result[i].tt_mins - prediction);
 								result[i].prediction_error_2d[mode] = myError.toFixed(2);
-								error_worst_2d[mode] = Math.max(error_worst_2d[mode], myError.toFixed(2));
+								error_worst_2d[mode] = Math.max(error_worst_2d[mode], myError);
 								error_count[mode]++;
 								error_total[mode]+= myError;
 							}
@@ -178,6 +178,7 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 					for (var mode in config.tram_regression_modes){
 						mode_count++;
 						error_avg_2d[mode] = (error_total[mode] / error_count[mode]).toFixed(2);
+						error_worst_2d[mode] = error_worst_2d[mode].toFixed(2);
 						if (isNaN(error_avg_2d[mode])){
 							error_avg_2d[mode] = "";
 							error_worst_2d[mode] = "";

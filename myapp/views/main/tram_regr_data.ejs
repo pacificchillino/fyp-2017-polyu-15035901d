@@ -53,6 +53,7 @@
 					<thead>
 						<tr>
 							<th>Weekday?</th>
+							<th>P.H.?</th>
 							<th>D.O.W.</th>
 							<th>Starting</th>
 							<th>(Normalized)</th>
@@ -68,6 +69,7 @@
 					<% for (var i in result){ %>
 						<tr>
 							<td><%= result[i].wkday ? "Yes" : "No" %></td>
+							<td><%= result[i].PH ? "Yes" : "No" %></td>
 							<td><%= ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][result[i].dayOfWk] %></td>
 							<td><%= result[i].starting %></td>
 							<td><%= result[i].starting_n %></td>
@@ -89,7 +91,7 @@
 					<% } %>
 					<thead>
 						<tr>
-							<th colspan="8">Average Prediction Error: </th>
+							<th colspan="9">Average Prediction Error: </th>
 							<% for (var mode in error_avg){ %>
 								<% if (error_avg[mode] == ""){ %>
 								<th>N/A</th>
@@ -99,7 +101,7 @@
 							<% } %>
 						</tr>
 						<tr>
-						<th colspan="8">Worst Prediction Error: </th>
+						<th colspan="9">Worst Prediction Error: </th>
 							<% for (var mode in error_worst){ %>
 								<% if (error_worst[mode] == ""){ %>
 								<th>N/A</th>
@@ -109,7 +111,7 @@
 							<% } %>
 							</tr>
 						<tr>
-							<th colspan="8"></th>
+							<th colspan="9"></th>
 							<% for (var mode in error_avg){ %>
 								<th><%= mode %></th>
 							<% } %>
@@ -117,6 +119,20 @@
 					</thead>
 				</table>
 			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="row">
+						<div class="col-sm-6 col-lg-6">
+							<button type="button" class="btn-block btn-default" onclick="btn_prev_day();">Prev Day (<%= date_prev %>)</button>
+						</div>
+						<div class="col-sm-6 col-lg-6">
+							<button type="button" class="btn-block btn-default" onclick="btn_next_day();">Next Day (<%= date_next %>)</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
 		<% } %>
 
 		<script language = "javascript">
