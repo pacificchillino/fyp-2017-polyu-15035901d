@@ -99,6 +99,16 @@
 							<% } %>
 						</tr>
 						<tr>
+						<th colspan="8">Worst Prediction Error: </th>
+							<% for (var mode in error_worst){ %>
+								<% if (error_worst[mode] == ""){ %>
+								<th>N/A</th>
+								<% }else{ %>
+								<th><%= error_worst[mode] %>'</th>
+								<% } %>
+							<% } %>
+							</tr>
+						<tr>
 							<th colspan="8"></th>
 							<% for (var mode in error_avg){ %>
 								<th><%= mode %></th>

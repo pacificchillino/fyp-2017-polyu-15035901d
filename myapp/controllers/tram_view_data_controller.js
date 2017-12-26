@@ -146,9 +146,11 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 					//Manipulate result & Calculate Error
 					var error_count = {};
 					var error_total = {};
+					var error_worst_2d = {};
 					for (var mode in config.tram_regression_modes){
 						error_count[mode] = 0;
 						error_total[mode] = 0;
+						error_worst_2d[mode] = 0;
 					}
 					for (var i in result){
 						result[i].starting = HHMMSS(result[i].hours);
@@ -165,6 +167,7 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 								result[i].prediction_2d[mode] = result[i].prediction[mode].toFixed(2);
 								var myError = Math.abs(result[i].tt_mins - prediction);
 								result[i].prediction_error_2d[mode] = myError.toFixed(2);
+								error_worst_2d[mode] = Math.max(error_worst_2d[mode], myError.toFixed(2));
 								error_count[mode]++;
 								error_total[mode]+= myError;
 							}
@@ -177,6 +180,7 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 						error_avg_2d[mode] = (error_total[mode] / error_count[mode]).toFixed(2);
 						if (isNaN(error_avg_2d[mode])){
 							error_avg_2d[mode] = "";
+							error_worst_2d[mode] = "";
 						}
 					}
 					//Date
@@ -195,6 +199,7 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 						query: req.query,
 						result: result,
 						error_avg: error_avg_2d,
+						error_worst: error_worst_2d,
 						mode_count: mode_count,
 					};
 					res.render('main/tram_regr_data', data);
