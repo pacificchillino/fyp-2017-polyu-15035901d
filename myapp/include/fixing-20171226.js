@@ -1,3 +1,5 @@
+var func = require("../func.js");
+
 var data = {};
 var i = -1;
 var length = 0;
@@ -8,7 +10,6 @@ exports.fix = function($from, $to){
 	var filter = {PH: {$exists: false}};
 	global.db.collection("data_tram_" + $from + "_" + $to).find(filter).toArray(function(err, result) {
 		if (err) throw err;
-		console.log(result.length);
 		if (i == -1 && result.length > 0){
 			data = result;
 			i = 0;
@@ -21,7 +22,10 @@ exports.fix = function($from, $to){
 };
 
 var func1 = function(){
-	console.log(i+"/"+length);
+	if (i % 100 == 0){
+		func.msg("20171226 Fix: "+i+"/"+length);
+		console.log(i+"/"+length);
+	}
 	var filter = {_id: data[i]._id};
 	var newVal = data[i];
 	if (data[i].dayOfWk != 6 && !data[i].wkday){
@@ -38,6 +42,8 @@ var func2 = function(err, res){
 	if (i < length){
 		func1();
 	}else{
+		func.msg("20171226 Fix: Done");
+		console.log("Done");
 		i = -1;
 	}
 }
