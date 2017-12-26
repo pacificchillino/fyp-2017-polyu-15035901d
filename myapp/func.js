@@ -115,6 +115,18 @@ exports.isDuringExceptionTime = function(date){ //During exception time of marki
 }
 
 /**
+ * Get Date
+ */
+
+exports.getYYYYMMDD = function(date){ //YYYY/MM/DD
+	if (date == null) date = new Date();
+	var YYYY = date.getFullYear();
+	var MM = ten(1+date.getMonth());
+	var DD = ten(date.getDate());
+	return YYYY + "/" + MM + "/" + DD;
+};
+
+/**
  * Weather
  */
 

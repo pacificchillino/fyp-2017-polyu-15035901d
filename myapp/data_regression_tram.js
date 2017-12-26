@@ -181,7 +181,7 @@ exports.doRegressionForSection = function(stopA, stopB, data){
 				var myClass = classificationFunction(data[i], mode.day_classification_by_weekday);
 				var myInput = mode.regression_variables(data[i]);
 				if (myInput != null){//Calculate mean with corresponding class and time
-					if (mode.time_of_day_time_hourly_mean){
+					if (mode.time_of_day_hourly_mean){
 						var t = getHoursIntepolation(data[i]);
 						if (mode.day_classification_by_weekday){
 							var myMean = result.common.mean_by_wkday[myClass].hourly[t.hours0] * t.hours0_weight
@@ -211,10 +211,10 @@ exports.doRegressionForSection = function(stopA, stopB, data){
 				var mlr = new MLR(input[myClass], output[myClass]);
 				var weights = [];
 				//Bias
-				var bias = mlr.predict(onehotArray(varCount, -1));
+				var bias = mlr.predict(onehotArray(varCount, -1))[0];
 				//Weightings
 				for (var i = 0; i < varCount; i++){
-					var w = mlr.predict(onehotArray(varCount, i)) - bias;
+					var w = mlr.predict(onehotArray(varCount, i))[0] - bias;
 					weights.push(w);
 				}
 				//Return
@@ -228,28 +228,68 @@ exports.doRegressionForSection = function(stopA, stopB, data){
 };
 
 /**
+ * Do prediction (data: tram journey data, regression: regression data)
+ */
+
+exports.doPrediction = function(stopA, stopB, data, regression, mode){
+	//Determine Class
+	var myClass = classificationFunction(data, config.tram_regression_modes[mode].day_classification_by_weekday);
+	//Determine Mean Value
+	if (config.tram_regression_modes[mode].day_classification_by_weekday){
+		var theMean = regression.common.mean_by_wkday[myClass];
+	}else{
+		var theMean = regression.common.mean_by_dayOfWk[myClass];
+	}
+	if (config.tram_regression_modes[mode].time_of_day_hourly_mean){
+		//Hourly Mean
+		var h = getHoursIntepolation(data);
+		var myMean = h.hours0_weight * theMean.hourly[h.hours0] + h.hours1_weight * theMean.hourly[h.hours1];
+	}else{
+		//Whole Day Mean
+		var myMean = theMean.overall;
+	}
+	//Determine Polynomial
+	var myVars = config.tram_regression_modes[mode].regression_variables(data);
+	if (myVars == null){
+		//Return null
+		return null;
+	}else{
+		//Determine Weight
+		var myWeights = regression.modes[mode][myClass].weights;
+		var myBias = regression.modes[mode][myClass].bias;
+		//Multiply Weights and Bias
+		var myPoly = 0;
+		for (var i in myWeights){
+			myPoly += myWeights[i] * myVars[i];
+		}
+		myPoly += myBias;
+		//Return result
+		return myMean * myPoly;
+	}
+};
+
+/**
  * Do regression analysis on all sections
  */
 
 var regressionTable = "regression_tram";
 
-var updatingPointer = 0;
+var updatingPointer = -1;
 var updatingTotal = config.tram_est_sections.length;
 
-exports.updateRegressions = function(){
+var updateRegressionOfASection2 = function(){
 	//Connect to database
 	if (global.db != null){
 		//for (var i in config.tram_est_sections){
-			var i = updatingPointer;
-			var stopA = config.tram_est_sections[i].from.split("_")[0];
-			var stopB = config.tram_est_sections[i].to.split("_")[0];
+			var stopA = config.tram_est_sections[updatingPointer].from.split("_")[0];
+			var stopB = config.tram_est_sections[updatingPointer].to.split("_")[0];
 			var db_table = "data_tram_" + stopA + "_" + stopB;
 			global.db.collection(db_table).find({}).toArray(updateRegressionOfASection.bind(
 				{stopA: stopA, stopB: stopB}
 			));
 		//}
 	}
-}
+};
 
 var updateRegressionOfASection = function(err, result) {
 	if (err) throw err;
@@ -264,16 +304,27 @@ var updateRegressionOfASection = function(err, result) {
 		if (updatingPointer == 0){
 			func.msg("Tram : Automatic regression starts.", config.debug_color.tram2);
 		}
+		//Increment Pointer
+		updatingPointer++;
+		//Socket Message
 		var msg = "Tram : ["+this.stopA+"->"+this.stopB+"] Regression done for this section."; 
+		msg += " (" + updatingPointer +" of " + updatingTotal + ")";
 		func.msg(msg, config.debug_color.tram2);
 		//Update Next
-		updatingPointer++;
 		if (updatingPointer < updatingTotal){
-			exports.updateRegressions();
+			updateRegressionOfASection2();
 		}else{
-			updatingPointer = 0;
+			updatingPointer = -1;
 			//Socket Message
 			func.msg("Tram : Automatic regression ends.", config.debug_color.tram2);
 		}
+	}
+}
+
+exports.updateRegressions = function(){
+	if (updatingPointer == -1){
+		//Prevent from interrupting
+		updatingPointer = 0;
+		updateRegressionOfASection2();
 	}
 }

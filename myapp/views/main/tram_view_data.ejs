@@ -1,0 +1,93 @@
+<%- include('header'); %>
+	<%- include('tram_data_searchbox'); %>
+
+	<style>
+		.table td {text-align: center;}
+		.table th {text-align: center;}
+		.table {font-size:0.8em;}
+	</style>
+
+	<script language = "javascript">
+		//Date & Time Pickers
+		$('.datepicker').pickadate({format: 'yyyy/mm/dd'});
+		$("#date").val("<%= global.dateStr %>");
+		//Submit
+		function searchbox_submit(){
+			if ($("#section").val() != "" && $("#date").val() != ""){
+				//Valid
+				var URL = "/trams/data/" + $("#section").val() + "/" + $("#date").val();
+				//Go to new URL
+				window.location.href = URL;
+			}
+		}
+	</script>
+
+	<% if (typeof params !== "undefined"){ %>
+
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-6 col-lg-6">
+						<button type="button" class="btn-block btn-default" onclick="btn_prev_day();">Prev Day (<%= date_prev %>)</button>
+					</div>
+					<div class="col-sm-6 col-lg-6">
+						<button type="button" class="btn-block btn-default" onclick="btn_next_day();">Next Day (<%= date_next %>)</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<h3><%= params.stopA %> - <%= params.stopB %> (<%= params.yy %>/<%= params.mm %>/<%= params.dd %>)</h2>
+		<% if (result.length == 0){ %>
+			<p>Sorry, there are no entries.</p>
+		<% }else{ %>
+			<p>There are <%= count %> entries.</p>
+			<div class="table-responsive">          
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Weekday?</th>
+							<th>D.O.W.</th>
+							<th>Date</th>
+							<th>Tram No.</th>
+							<th>Starting Time</th>
+							<th>Ending Time</th>
+							<th>Mins Spent</th>
+							<th>Rainfall</th>
+							<th>HKO Temp.</th>
+							<th>HKO Hum.</th>
+						</tr>
+					</thead>
+					<% for (var i in result){ %>
+						<tr>
+							<td><%= result[i].wkday ? "Yes" : "No" %></td>
+							<td><%= ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][result[i].dayOfWk] %></td>
+							<td><%= result[i].date %></td>
+							<td>#<%= result[i].tram %></td>
+							<td><%= result[i].starting %></td>
+							<td><%= result[i].ending %></td>
+							<td><%= result[i].minsSpent %> mins</td>
+							<td><%= result[i].rainfall %> mm</td>
+							<% if (typeof result[i].HKO_temp !== "undefined"){ %><td><%= result[i].HKO_temp %> ℃</td><% } %>
+							<% if (typeof result[i].HKO_hum !== "undefined"){ %><td><%= result[i].HKO_hum %> %</td><% } %>
+						</tr>
+					<% } %>
+				</table>
+			</div>
+		<% } %>
+
+		<script language = "javascript">
+				//Prefill data
+				$("#date").val("<%= params.yy %>/<%= params.mm %>/<%= params.dd %>");
+				//Next & Prev day button
+				function btn_prev_day(){
+					window.location.href = "/trams/data/<%= params.stopA %>/<%= params.stopB %>/<%= date_prev %>";
+				}
+				function btn_next_day(){
+					window.location.href = "/trams/data/<%= params.stopA %>/<%= params.stopB %>/<%= date_next %>";
+				}
+		</script>
+
+	<% } %>
+
+<%- include('footer'); %>

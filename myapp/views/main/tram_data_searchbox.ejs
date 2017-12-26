@@ -6,26 +6,15 @@ function section(compare){
 		return (params.stopA+"/"+params.stopB == compare) ? " selected" : "";
 	}
 }
-function query2(_query, compare){
-	if (typeof query !== "undefined"){
-		if (typeof query[_query] !== "undefined"){
-			return (query[_query] == compare) ? " selected" : "";
-		}else{
-			return "";
-		}
-	}else{
-		return "";
-	}
-}
 
 %>
 <div class="panel panel-default">
-	<div class="panel-heading"><b>Search for Raw Data</b></div>
+	<div class="panel-heading"><b>View Raw Data</b></div>
 	<div class="panel-body">
 		<form>
 			<div class="form-group">
 				<div class="row">
-					<%# Section selector %>
+					<%# Section %>
 					<label class="control-label col-sm-3 col-lg-2" for="section">Select section:</label>
 					<div class="col-sm-9 col-lg-4">
 						<select class="form-control" id="section">
@@ -35,115 +24,17 @@ function query2(_query, compare){
 							<% } %>
 						</select>
 					</div>
-					<%# Sorting %>
-					<label class="control-label col-sm-3 col-lg-2" for="sort">Sort from:</label>
-					<div class="col-sm-9 col-lg-4">
-						<select class="form-control" id="sort">
-							<option value="">No sorting</option>
-							<% for (var i in searchbox.sortby){ %>
-							<option value = "<%= i %>"<%= query2("sortby", i) %>><%= searchbox.sortby[i].name %></option>
-							<% } %>
-						</select>
-					</div>
-				</div>
-				<div class="row">
-					<%# Filter: Weekdays? %>
-					<label class="control-label col-sm-3 col-lg-2" for="wkday">-Weekdays?</label>
-					<div class="col-sm-9 col-lg-4">
-						<select class="form-control" id="wkday">
-							<option value="">Not filtered</option>
-							<option value="1"<%= query2("wkday", 1) %>>Weekdays only</option>
-							<option value="0"<%= query2("wkday", 0) %>>Non-weekdays only</option>
-						</select>
-					</div>
-					<%# Filter: DOW %>
-					<label class="control-label col-sm-3 col-lg-2" for="dow">-Day of the Week?</label>
-					<div class="col-sm-9 col-lg-4">
-						<select class="form-control" id="dow">
-							<option value="">Not filtered</option>
-							<option value="0"<%= query2("dow", 0) %>>Sundays</option>
-							<option value="1"<%= query2("dow", 1) %>>Mondays</option>
-							<option value="2"<%= query2("dow", 2) %>>Tuesdays</option>
-							<option value="3"<%= query2("dow", 3) %>>Wednesdays</option>
-							<option value="4"<%= query2("dow", 4) %>>Thursdays</option>
-							<option value="5"<%= query2("dow", 5) %>>Fridays</option>
-							<option value="6"<%= query2("dow", 6) %>>Saturdays</option>
-						</select>
-					</div>
 					<%# Filter: Date %>
-					<label class="control-label col-sm-3 col-lg-2" for="date_gt">-Date (from ..)</label>
+					<label class="control-label col-sm-3 col-lg-2" for="date">Date:</label>
 					<div class="col-sm-9 col-lg-4">
-							<input type="text" class="datepicker form-control" id="date_gt" placeholder="Not filtered">
-					</div>
-					<label class="control-label col-sm-3 col-lg-2" for="date_lt">-Date (.. to)</label>
-					<div class="col-sm-9 col-lg-4">
-							<input type="text" class="datepicker form-control" id="date_lt" placeholder="Not filtered">
-					</div>
-					<%# Filter: Time %>
-					<label class="control-label col-sm-3 col-lg-2" for="time_gt">-Time (from ..)</label>
-					<div class="col-sm-9 col-lg-4">
-							<input type="text" class="timepicker form-control" id="time_gt" placeholder="Not filtered">
-					</div>
-					<label class="control-label col-sm-3 col-lg-2" for="time_lt">-Time (.. to)</label>
-					<div class="col-sm-9 col-lg-4">
-							<input type="text" class="timepicker form-control" id="time_lt" placeholder="Not filtered">
+							<input type="text" class="datepicker form-control" id="date" placeholder="Not filtered">
 					</div>
 				</div>
 				<div class="row">
 					<br/>
-					<button type="button" class="btn-block btn-default" onclick="searchbox_submit();">Search</button>
+					<button type="button" class="btn-block btn-default" onclick="searchbox_submit();">View</button>
 				</div>
 			</div>
 		</form>
 	</div>
 </div>
-
-<script language = "javascript">
-	//Date & Time Pickers
-	$('.datepicker').pickadate({format: 'yyyy/mm/dd'});
-	$('.timepicker').pickatime({format: 'HH:i'});
-	//Submit
-	function searchbox_submit(){
-		if ($("#section").val() != ""){
-			//Valid
-			var URL = "/trams/data/" + $("#section").val();
-			var params = [];
-			if ($("#sort").val() != "") params.push("sortby=" + $("#sort").val());
-			if ($("#wkday").val() != "") params.push("wkday=" + $("#wkday").val());
-			if ($("#dow").val() != "") params.push("dow=" + $("#dow").val());
-			if ($("#date_gt").val() != "") params.push("date_gt=" + $("#date_gt").val());
-			if ($("#date_lt").val() != "") params.push("date_lt=" + $("#date_lt").val());
-			if ($("#time_gt").val() != "") params.push("hours_gt=" + $("#time_gt").val());
-			if ($("#time_lt").val() != "") params.push("hours_lt=" + $("#time_lt").val());
-			//Concat URL
-			if (params.length) URL += "?" + params.join("&");
-			//Go to new URL
-			window.location.href = URL;
-		}
-	}
-</script>
-<%
-if(typeof query !== "undefined"){
-	if(typeof query.date_gt === "undefined"){
-		query.date_gt = "";
-	}
-	if(typeof query.date_lt === "undefined"){
-		query.date_lt = "";
-	}
-	if(typeof query.hours_gt === "undefined"){
-		query.hours_gt = "";
-	}
-	if(typeof query.hours_lt === "undefined"){
-		query.hours_lt = "";
-	}
-	%>
-	<script language = "javascript">
-		//Prefill data
-		$("#date_gt").val("<%= query.date_gt %>");
-		$("#date_lt").val("<%= query.date_lt %>");
-		$("#hours_gt").val("<%= query.hours_gt %>");
-		$("#hours_lt").val("<%= query.hours_lt %>");
-	</script>
-	<%
-}
-%>

@@ -11,11 +11,15 @@ router.get('/', function(req, res, next) {
  * Tram
  */
 
-var tram_controller = require('../controllers/tram_controller');
+var tram_view_data_controller = require('../controllers/tram_view_data_controller');
 
-router.get('/trams/data', tram_controller.tram_data);
-router.get('/trams/data/:stopA/:stopB', tram_controller.tram_data_result);
-router.get('/api/trams/data/:stopA/:stopB', tram_controller.tram_data_result_api);
+router.get('/trams/data', tram_view_data_controller.tram_data);
+router.get('/trams/data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result);
+router.get('/api/trams/data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result_api);
+
+router.get('/trams/data_regr', tram_view_data_controller.tram_data_regr);
+router.get('/trams/data_regr/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_regr_result);
+router.get('/api/trams/data_regr/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_regr_result_api);
 
 //The end
 module.exports = router;
