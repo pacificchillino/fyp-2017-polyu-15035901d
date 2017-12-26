@@ -274,32 +274,6 @@ exports.tram_regression_modes = {
 			];
 		},
 	},
-	"dow_hko_q": {
-		name: "Day Classification: Day of Week ; Other Factors: Rainfall, HKO Temperature & Humidity (Quadratic)",
-		remarks: "",
-		time_of_day_hourly_mean: true,
-		day_classification_by_weekday: false,
-		regression_variables_count: 9,
-		regression_variables_label: ["R<sup>2</sup>", "T<sup>2</sup>", "H<sup>2</sup>", "RT", "RH", "TH", "R", "T", "H"],
-		regression_variables_remarks: ["R: Rainfall (in mm)","T: HKO Temperature (in ℃)","H: HKO Temperature"],
-		regression_variables: function(data){
-			if (data.HKO_temp != null && data.HKO_hum != null){
-				return [
-					data.rainfall * data.rainfall,
-					data.HKO_temp * data.HKO_temp,
-					data.HKO_hum * data.HKO_hum,
-					data.rainfall * data.HKO_temp,
-					data.rainfall * data.HKO_hum,
-					data.HKO_temp * data.HKO_hum,
-					data.rainfall,
-					data.HKO_temp,
-					data.HKO_hum,
-				];
-			}else{
-				return null;
-			}
-		},
-	},
 	"time_4": {
 		name: "Time of Day: 4-Degree Polynomial Fitting",
 		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 4.",
