@@ -9,7 +9,7 @@ function section(compare){
 
 %>
 <div class="panel panel-default">
-	<div class="panel-heading"><b>View Raw Data</b></div>
+	<div class="panel-heading"><b><%= title %></b></div>
 	<div class="panel-body">
 		<form>
 			<div class="form-group">
@@ -27,7 +27,7 @@ function section(compare){
 					<%# Filter: Date %>
 					<label class="control-label col-sm-3 col-lg-2" for="date">Date:</label>
 					<div class="col-sm-9 col-lg-4">
-							<input type="text" class="datepicker form-control" id="date" placeholder="Not filtered">
+							<input type="text" class="datepicker form-control" id="date">
 					</div>
 				</div>
 				<div class="row">

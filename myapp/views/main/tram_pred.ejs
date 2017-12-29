@@ -1,0 +1,175 @@
+<%- include('header'); %>
+	<%- include('tram_pred_querybox'); %>
+
+	<style>
+		.table td {text-align: center;}
+		.table th {text-align: center;}
+		.table {font-size:0.9em;}
+	</style>
+
+	<% if (typeof params !== "undefined"){ %>
+		<% if (error) { %>
+			<p>Sorry, there are errors on the input of parameters.</p>
+		<% }else{
+				var byWeekday = {"d1": "Weekdays", "d0": "Non-weekdays"};
+				var byDOW = {"d1": "Mon", "d2": "Tue", "d3": "Wed", "d4": "Thu", "d5": "Fri", "d6": "Sat", "d0": "Sun & P.H."};
+
+				//Find hours by determining non-(-1) values
+				var hour_max = regression.common.mean_by_wkday.d1.hourly.length - 1;
+				for (var i = 0; i <= hour_max; i++){
+					if (regression.common.mean_by_wkday.d1.hourly[i] != -1){
+						hour_min = i;
+						break;
+					}
+				}
+			%>
+
+			<%# Common Means ---------------------------------------------------------------------------------------------- %>
+			<h3>Common Means (for this section)</h3>
+			<div class="panel panel-default">
+				<div class="panel-heading"><b>For day classification by weekday or not:</b></div>
+				<div class="panel-body">
+					<div>Mean values are updated once every day.</div>
+					<div class="table-responsive">          
+						<table class="table">
+							<thead>
+								<tr>
+									<th></th>
+									<% for (var d in byWeekday) { %>
+										<th><%= byWeekday[d] %> (<%= d %>)</th>
+									<% } %>
+								</tr>
+							</thead>
+							<tr>
+								<th>Overall</th>
+								<% for (var d in byWeekday) { %>
+									<td>μ<sub>w,<%=d%></sub> = <%= regression.common.mean_by_wkday[d].overall.toFixed(5) %></td>
+								<% } %>
+							</tr>
+							<% for (var h = hour_min; h <= hour_max; h++) { %>
+								<tr>
+									<th>Hour: <%=h%></th>
+									<% for (var d in byWeekday) { %>
+										<td>μ<sub>w,<%=d%>,<%=h%></sub> = <%= regression.common.mean_by_wkday[d].hourly[h].toFixed(5) %></td>
+									<% } %>
+								</tr>
+							<% } %>
+						</table>
+					</div>
+					<p>Note: Weekdays are Mondays to Fridays. Rounded to 5 decimals.</p>
+				</div>
+			
+				<div class="panel-heading"><b>For day classification by day of week:</b></div>
+				<div class="panel-body">
+					<div>Mean values are updated once every day.</div>
+					<div class="table-responsive">          
+						<table class="table">
+							<thead>
+								<tr>
+									<th></th>
+									<% for (var d in byDOW) { %>
+										<th><%= byDOW[d] %> (<%= d %>)</th>
+									<% } %>
+								</tr>
+							</thead>
+							<tr>
+								<th>Overall</th>
+								<% for (var d in byDOW) { %>
+									<td>μ<sub>w,<%=d%></sub> = <%= regression.common.mean_by_dayOfWk[d].overall.toFixed(5) %></td>
+								<% } %>
+							</tr>
+							<% for (var h = hour_min; h <= hour_max; h++) { %>
+								<tr>
+									<th>Hour: <%=h%></th>
+									<% for (var d in byDOW) { %>
+										<td>μ<sub>d,<%=d%>,<%=h%></sub> = <%= regression.common.mean_by_dayOfWk[d].hourly[h].toFixed(5) %></td>
+									<% } %>
+								</tr>
+							<% } %>
+						</table>
+					</div>
+					<p>Note: Public holidays are considered as Sundays. Rounded to 5 decimals.</p>
+				</div>
+			
+				<div class="panel-heading"><b>For Non-Integer Hours:</b></div>
+				<div class="panel-body">
+					<%
+						var h = query.hours - 0;
+						if (Math.round(h) == h){
+						h = (h < 12) ? (h + Math.random()) : (h - Math.random());
+						}
+						var h1 = Math.floor(h);
+						var h2 = Math.ceil(h);
+						var h1o = h - h1;
+						var h2o = h2 - h;
+					%>
+					For non-integer hours, it is linearly intepolated between the neighbouring integer hours. That is for hour <%= h.toFixed(5) %>, it is summed between means for hour <%= h1 %> (with weighting <%= h2o.toFixed(5) %>) and hour <%= h2 %> (with weighting <%= h1o.toFixed(5) %>).
+				</div>
+			</div>
+
+			<%# Regression Modes ---------------------------------------------------------------------------------------------- %>
+			<% for (var mode in regression_modes){ %>
+				<h3 id="<%= mode %>"><%= regression_modes[mode].name %><small> (<%= mode %>)</small></h3>
+				<p><%= regression_modes[mode].remarks %></p>
+				<div class="well">
+					<strong>Predicted Travelling Time:</strong>
+					<span style="font-size:1.5em"><strong><%= prediction[mode].toFixed(2) %> mins</strong></span>
+				</div>
+				<div class="panel panel-default">
+
+					<div class="panel-heading"><b>Formula:</b></div>
+					<div class="panel-body">
+						<ul>
+							<li> Travelling time (mins) = 
+								μ<sub><%= (regression_modes[mode].day_classification_by_weekday) ? "w":"d" %>,dn<%= (regression_modes[mode].time_of_day_hourly_mean) ? ",h":"" %></sub> [
+								<% for (var i = 0; i < regression_modes[mode].regression_variables_count; i++){ %>
+									<%= (i > 0) ? " + " : "" %>w<sub><%= i+1 %>,dn</sub> <%- regression_modes[mode].regression_variables_label[i] %>
+								<% } %> + b<sub>dn</sub> ]
+							</li>
+							<li>dn: Class of the day</li>
+							<% for (var r in regression_modes[mode].regression_variables_remarks) { %>
+							<li>
+								<%= regression_modes[mode].regression_variables_remarks[r] %>
+							</li>
+							<% } %>
+						</ul>
+					</div>
+
+					<div class="panel-heading"><b>Coefficients:</b></div>
+					<div class="panel-body">
+						<% var myClasses = (regression_modes[mode].day_classification_by_weekday) ? byWeekday : byDOW; %>
+						<div>Coefficients are updated once every day.</div>
+						<div class="table-responsive">          
+							<table class="table">
+								<thead>
+									<tr>
+										<th></th>
+										<% for (var d in myClasses) { %>
+											<th><%= myClasses[d] %> (<%= d %>)</th>
+										<% } %>
+									</tr>
+									<% for (var i = 0; i < regression_modes[mode].regression_variables_count; i++){ %>
+									<tr>
+										<td>Coefficient of <%- regression_modes[mode].regression_variables_label[i] %></td>
+										<% for (var d in myClasses) { %>
+											<td>w<sub><%= i %>,<%= d %></sub> = <%= regression.modes[mode][d].weights[i].toFixed(5) %></td>
+										<% } %>
+									</tr>
+									<% } %>
+									<tr>
+										<td>Bias</td>
+										<% for (var d in myClasses) { %>
+											<td>b<sub>d<%= i %></sub> = <%= regression.modes[mode][d].bias.toFixed(5) %></td>
+											<% } %>
+									</tr>
+								</thead>
+							</table>
+						</div>
+					</div>
+				</div>
+			<% } %>
+
+		<% } %>
+	<% } %>
+
+<%- include('footer'); %>

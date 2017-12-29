@@ -240,8 +240,8 @@ exports.tram_regression_modes = {
 		time_of_day_hourly_mean: true,
 		day_classification_by_weekday: true,
 		regression_variables_count: 9,
-		regression_variables_label: ["R<sup>2</sup>", "T<sup>2</sup>", "H<sup>2</sup>", "RT", "RH", "TH", "R", "T", "H"],
-		regression_variables_remarks: ["R: Rainfall (in mm)","T: HKO Temperature (in ℃)","H: HKO Temperature"],
+		regression_variables_label: ["R<sup>2</sup>", "T<sup>2</sup>", "H<sup>2</sup>", "R T", "R H", "T H", "R", "T", "H"],
+		regression_variables_remarks: ["R: Rainfall (in mm)","T: HKO Temperature (in ℃)","H: HKO Humidity (in %)"],
 		regression_variables: function(data){
 			if (data.HKO_temp != null && data.HKO_hum != null){
 				return [

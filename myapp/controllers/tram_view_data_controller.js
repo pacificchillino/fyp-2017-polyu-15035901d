@@ -23,7 +23,7 @@ function tram_data_searchbox(){
 
 exports.tram_data = function(req, res){
 	var data = {
-		title: "Raw Data of Tram Travelling Time",
+		title: "View Raw Data of Tram Travelling Time",
 		searchbox: tram_data_searchbox(),
 	};
 	res.render('main/tram_view_data', data);
@@ -35,7 +35,7 @@ exports.tram_data = function(req, res){
 
 exports.tram_data_regr = function(req, res){
 	var data = {
-		title: "Raw Data of Tram Travelling Time",
+		title: "Travelling Time Prediction with Existing Data",
 		searchbox: tram_data_searchbox(),
 	};
 	res.render('main/tram_regr_data', data);
@@ -68,6 +68,7 @@ tram_data_result_2 = function (req, res, isAPI){
 		global.db.collection(db_table).find(filter).toArray(function(err, result) {
 			if (err) throw err;
 			global.db.collection(db_table).find(filter).count(function(err, count){
+				if (err) throw err;
 				if (isAPI){
 					//Return API
 					res.send(JSON.stringify(result));

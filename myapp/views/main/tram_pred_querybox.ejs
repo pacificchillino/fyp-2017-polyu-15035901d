@@ -1,0 +1,136 @@
+<%
+function section(compare){
+	if (typeof params === "undefined"){ return ""; }
+	else{ return (params.stopA+"/"+params.stopB == compare) ? " selected" : ""; }
+}
+
+function q(variable, compare){
+	if (typeof query === "undefined"){ return ""; }
+	else if (typeof query[variable] === "undefined"){ return ""; }
+	else{ return (query[variable] == compare) ? " selected" : ""; }
+}
+
+function s(variable){
+	if (typeof query === "undefined"){ return ""; }
+	else if (typeof query[variable] === "undefined"){ return ""; }
+	else{ return query[variable]; }
+}
+
+%>
+
+<script language = "javascript">
+	//Submit
+	function querybox_submit(){
+		//Check if any inputs are missing
+		if ($("#section").val() != ""){
+			//Translate hours
+			var hours = $("#hours").val().split(":");
+			if (hours.length == 1){
+				hours = (hours[0]-0);
+			}else if (hours.length == 2){
+				hours = (hours[0]-0) + (hours[1]-0) / 60;
+			}else{
+				hours = (hours[0]-0) + (hours[1]-0) / 60 + (hours[2]-0) / 3600;
+			}
+			if (isNaN(hours)){
+				hours = "";
+			}
+			//Valid
+			var URL = "/trams/pred_sect/" + $("#section").val()
+			+ "?dayOfWk=" + $("#dayOfWk").val()
+			+ "&PH=" + $("#PH").val()
+			+ "&hours=" + hours
+			+ "&rainfall=" + $("#rainfall").val()
+			+ "&HKO_temp=" + $("#HKO_temp").val()
+			+ "&HKO_hum=" + $("#HKO_hum").val();
+			//Go to new URL
+			window.location.href = URL;
+		}
+	}
+
+	//Ensure that Sunday must be Public Holiday
+	function checkSunday(){
+		if ($("#dayOfWk").val() == "0"){
+			$("#PH").val("1");
+		}
+	}
+</script>
+
+<div class="panel panel-default">
+	<div class="panel-heading"><b><%= title %></b></div>
+	<div class="panel-body">
+		<form>
+			<div class="form-group">
+				<div class="row">
+
+					<%# Section %>
+					<label class="control-label col-sm-3 col-lg-2" for="section">Select section:</label>
+					<div class="col-sm-9 col-lg-10">
+						<select class="form-control" id="section">
+							<option value="">-- Please select --</option>
+							<% for (var i in querybox.sections){ %>
+							<option value = "<%= querybox.sections[i].from_to %>"<%= section(querybox.sections[i].from_to) %>><%= querybox.sections[i].caption %></option>
+							<% } %>
+						</select>
+					</div>
+
+					<%# dayOfWk %>
+					<label class="control-label col-sm-3 col-lg-2" for="dayOfWk">Day of Week:</label>
+					<div class="col-sm-9 col-lg-4">
+						<select class="form-control" id="dayOfWk" onChange="checkSunday()">
+							<option value="">-- Please select --</option>
+							<option value = "1"<%= q("dayOfWk","1") %>>Monday</option>
+							<option value = "2"<%= q("dayOfWk","2") %>>Tuesday</option>
+							<option value = "3"<%= q("dayOfWk","3") %>>Wednesday</option>
+							<option value = "4"<%= q("dayOfWk","4") %>>Thursday</option>
+							<option value = "5"<%= q("dayOfWk","5") %>>Friday</option>
+							<option value = "6"<%= q("dayOfWk","6") %>>Saturday</option>
+							<option value = "0"<%= q("dayOfWk","0") %>>Sunday</option>
+						</select>
+					</div>
+
+					<%# PH %>
+					<label class="control-label col-sm-3 col-lg-2" for="PH">Public Holiday?</label>
+					<div class="col-sm-9 col-lg-4">
+						<select class="form-control" id="PH" onChange="checkSunday()">
+							<option value="">-- Please select --</option>
+							<option value = "0"<%= q("PH","0") %>>No</option>
+							<option value = "1"<%= q("PH","1") %>>Yes</option>
+						</select>
+					</div>
+
+					<%# hours %>
+					<label class="control-label col-sm-3 col-lg-2" for="hours">Start Time (Hours):</label>
+					<div class="col-sm-9 col-lg-4">
+						<input class="form-control" type="text" id="hours" placeholder="hours or hh:mm:ss" value="<%= s('hours') %>">
+					</div>
+
+					<%# rainfall %>
+					<label class="control-label col-sm-3 col-lg-2" for="rainfall">Rainfall (mm):</label>
+					<div class="col-sm-9 col-lg-4">
+						<input class="form-control" type="text" id="rainfall" placeholder="in mm" value="<%= s('rainfall') %>">
+					</div>
+
+					<%# HKO_temp %>
+					<label class="control-label col-sm-3 col-lg-2" for="HKO_temp">HKO Temperature (℃):</label>
+					<div class="col-sm-9 col-lg-4">
+						<input class="form-control" type="text" id="HKO_temp" placeholder="in ℃" value="<%= s('HKO_temp') %>">
+					</div>
+
+					<%# HKO_hum %>
+					<label class="control-label col-sm-3 col-lg-2" for="HKO_hum">HKO Humidity (%):</label>
+					<div class="col-sm-9 col-lg-4">
+						<input class="form-control" type="text" id="HKO_hum" placeholder="in %" value="<%= s('HKO_hum') %>">
+					</div>
+					
+					<div class="control-label col-sm-12 col-lg-12">All fields are mandatory.</div>
+
+				</div>
+				<div class="row">
+					<br/>
+					<button type="button" class="btn-block btn-default" onclick="querybox_submit();">Predict</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
