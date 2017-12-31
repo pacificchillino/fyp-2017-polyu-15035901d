@@ -71,6 +71,19 @@ exports.getHMSOfDay = function(date){ //HH:MM:SS , where HH < 24
 	return ten(HH) + ":" + ten(MM) + ":" + ten(SS);
 };
 
+exports.getHMSByHours = function(hours){
+	var HH = ten(Math.floor(hours) % 24);
+	var MM = ten(Math.floor((hours * 60)) % 60);
+	var SS = ten(Math.floor((hours * 3600)) % 60);
+	return HH+":"+MM+"("+SS+")";
+};
+
+exports.getHMByHours = function(hours){
+	var HH = ten(Math.floor(hours) % 24);
+	var MM = ten(Math.floor((hours * 60)) % 60);
+	return HH+":"+MM;
+};
+
 exports.getHMSmsOfDay = function(date){ //HH:MM:SS.000 , where HH < 24
 	if (date == null) date = new Date();
 	var ms = date.getTime().toString();

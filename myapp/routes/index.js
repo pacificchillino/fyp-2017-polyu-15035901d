@@ -18,15 +18,17 @@ router.get('/trams/data', tram_view_data_controller.tram_data);
 router.get('/trams/data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result);
 router.get('/api/trams/data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result_api);
 
-router.get('/trams/data_regr', tram_view_data_controller.tram_data_regr);
-router.get('/trams/data_regr/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_regr_result);
-router.get('/api/trams/data_regr/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_regr_result_api);
+router.get('/trams/data_regression', tram_view_data_controller.tram_data_regr);
+router.get('/trams/data_regression/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_regr_result);
+router.get('/api/trams/data_regression/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_regr_result_api);
 
-router.get('/trams/pred_sect', tram_prediction_controller.tram_pred_sect);
-router.get('/trams/pred_sect/:stopA/:stopB', tram_prediction_controller.tram_pred_sect_result);
+router.get('/trams/prediction_section', tram_prediction_controller.tram_pred_sect);
+router.get('/trams/prediction_section/:stopA/:stopB', tram_prediction_controller.tram_pred_sect_result);
 
-router.get('/trams/pred', tram_prediction_controller.tram_pred);
-router.get('/trams/pred/:stopA/:stopB/:multi', tram_prediction_controller.tram_pred_result);
+router.get('/trams/prediction', tram_prediction_controller.tram_pred);
+router.get('/trams/prediction/:from/:to/:multi', tram_prediction_controller.tram_pred_result);
+router.get('/api/trams/prediction/from_to', tram_prediction_controller.tram_pred_from_to_api);
+router.get('/api/trams/prediction/:from/:to/:multi', tram_prediction_controller.tram_pred_result_api);
 
 //The end
 module.exports = router;

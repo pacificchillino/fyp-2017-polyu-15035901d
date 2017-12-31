@@ -75,9 +75,9 @@ tram_data_result_2 = function (req, res, isAPI){
 				}else{
 					//Manipulate result
 					for (var i in result){
-						result[i].starting = HHMMSS(result[i].hours);
+						result[i].starting = func.getHMSByHours(result[i].hours);
 						result[i].minsSpent = result[i].tt_mins.toFixed(2);
-						result[i].ending = HHMMSS(result[i].hours + result[i].tt_mins / 60);
+						result[i].ending = func.getHMSByHours(result[i].hours + result[i].tt_mins / 60);
 					}
 					var dateNow = new Date(req.params.yy-0, req.params.mm-1, req.params.dd-0);
 					var datePrev = new Date(dateNow);
@@ -154,7 +154,7 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 						error_worst_2d[mode] = 0;
 					}
 					for (var i in result){
-						result[i].starting = HHMMSS(result[i].hours);
+						result[i].starting = func.getHMSByHours(result[i].hours);
 						result[i].starting_n = (result[i].hours / 24).toFixed(4);
 						result[i].minsSpent = result[i].tt_mins.toFixed(2);
 						result[i].prediction_2d = {};
@@ -219,12 +219,4 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 function hours(HHMM){
 	var splitup = HHMM.split(":");
 	return parseInt(splitup[0]) + parseInt(splitup[1])/60;
-}
-
-//Convert from decimal to HH:MM
-function HHMMSS(hours){
-	var HH = func.ten(Math.floor(hours) % 24);
-	var MM = func.ten(Math.floor((hours * 60)) % 60);
-	var SS = func.ten(Math.floor((hours * 3600)) % 60);
-	return HH+":"+MM+"("+SS+")";
 }

@@ -4,14 +4,96 @@
 	<style>
 		.table td {text-align: center;}
 		.table th {text-align: center;}
-		.table {font-size:0.9em;}
+		.table {font-size:1.2em;}
 	</style>
 
 	<% if (typeof params !== "undefined"){ %>
-		<% if (error) { %>
-			<p>Sorry, there are errors on the input of parameters.</p>
-		<% }else{
-			<p>Hello</p>
+		<% if (result.error) { %>
+			<p>Sorry, there are either errors on the input of parameters, or the prediction.</p>
+		<% }else{ %>
+
+			<script language = "javascript">
+				function changeMode(){
+					$(".section").hide();
+					var selected = $("#mode").val();
+					$("#"+selected).show();
+				}
+				$(function() {
+					changeMode();
+				});
+			</script>
+
+			<h3>Prediction Result</h3>
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="row">
+						<label class="control-label col-sm-12 col-lg-4" for="mode">Prediction Mode:</label>
+						<div class="col-sm-12 col-lg-8">
+							<select class="form-control" id="mode" onChange="changeMode()">
+								<% for (var mode in result.modes){ %>
+								<option value = "<%= mode %>"><%= result.modes[mode].name %></option>
+								<% } %>
+							</select>
+						</div>
+				</div>
+			</div>
+
+			<% for (var mode in result.modes){ %>
+				<%
+				var url_q = new Array();
+				for (var i in query){
+					url_q.push(i+"="+query[i]);
+				}
+				url_q = url_q.join("&");
+				%>
+				<div id="<%= mode %>" class="section" style="display:none;">
+						<div class="well">
+								<strong>Predicted Travelling Time:</strong>
+								<span style="font-size:1.5em"><strong><%= result.summary.minsSpent[mode].toFixed(2) %> mins</strong></span>
+								<br/><strong>(Arriving at: <%= result.summary.arrivalTime_hhmm[mode] %>)</strong>
+						</div>
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<div class="col-sm-0 col-lg-3"></div>
+								<div class="col-sm-12 col-lg-6">
+									<table class="table">
+										<tr>
+											<td><strong><%= result.via[0].name %> <small>(<%= result.via[0].code %>)</small></strong></td>
+											<td><strong><%= result.beginningTime_hhmm %></strong></td>
+											<td></td>
+										</tr>
+										<% for (var i = 0; i < result.sections.length; i++){ %>
+											<tr>
+												<td>↓↓</td>
+												<td><%= result.sections[i].minsSpent[mode].toFixed(2) %> mins</td>
+												<td></td>
+											</tr>
+											<% if (i < result.sections.length - 1){ %>
+											<tr>
+												<td><%= result.via[i+1].name %> <small>(<%= result.via[i+1].code %>)</small></td>
+												<td><%= result.sections[i].arrivalTime_hhmm[mode] %></td>
+												<td>
+													<a href = "/trams/prediction_section/<%=result.via[i].code%>/<%=result.via[i+1].code%>?<%=url_q%>">
+														<small>(Details)</small></small>
+													</a>
+												</td>
+											</tr>
+											<% }else{ %>
+											<tr>
+												<td><strong><%= result.via[i+1].name %> <small>(<%= result.via[i+1].code %>)</small></strong></td>
+												<td><strong><%= result.sections[i].arrivalTime_hhmm[mode] %></strong></td>
+												<td></td>
+											</tr>
+											<% } %>
+										<% } %>
+									</table>
+								</div>
+								<div class="col-sm-0 col-lg-3"></div>
+							</div>
+						</div>
+				</div>
+			<% } %>
 		<% } %>
 	<% } %>
 

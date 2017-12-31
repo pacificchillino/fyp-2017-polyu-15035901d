@@ -15,7 +15,7 @@
 		function searchbox_submit(){
 			if ($("#section").val() != "" && $("#date").val() != ""){
 				//Valid
-				var URL = "/trams/data_regr/" + $("#section").val() + "/" + $("#date").val();
+				var URL = "/trams/data_regression/" + $("#section").val() + "/" + $("#date").val();
 				//Go to new URL
 				window.location.href = URL;
 			}
@@ -82,7 +82,7 @@
 								<td>N/A</td>
 								<% }else{ %>
 								<%
-								var url = "/trams/pred_sect/" + params.stopA + "/" + params.stopB
+								var url = "/trams/prediction_section/" + params.stopA + "/" + params.stopB
 								+ "?dayOfWk=" + result[i].dayOfWk
 								+ "&PH=" + (result[i].PH ? "1" : "0")
 								+ "&hours=" + result[i].hours

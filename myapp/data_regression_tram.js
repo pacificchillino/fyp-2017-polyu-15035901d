@@ -238,37 +238,45 @@ exports.doRegressionForSection = function(stopA, stopB, data){
 exports.doPrediction = function(stopA, stopB, data, regression, mode){
 	//Determine Class
 	var myClass = classificationFunction(data, config.tram_regression_modes[mode].day_classification_by_weekday);
-	//Determine Mean Value
-	if (config.tram_regression_modes[mode].day_classification_by_weekday){
-		var theMean = regression.common.mean_by_wkday[myClass];
-	}else{
-		var theMean = regression.common.mean_by_dayOfWk[myClass];
-	}
-	if (config.tram_regression_modes[mode].time_of_day_hourly_mean){
-		//Hourly Mean
-		var h = getHoursIntepolation(data);
-		var myMean = h.hours0_weight * theMean.hourly[h.hours0] + h.hours1_weight * theMean.hourly[h.hours1];
-	}else{
-		//Whole Day Mean
-		var myMean = theMean.overall;
-	}
-	//Determine Polynomial
-	var myVars = config.tram_regression_modes[mode].regression_variables(data);
-	if (myVars == null){
-		//Return null
+	//Determine if time out of boundary
+	var hourMin = config.tram_time_start;
+	var hourMax = config.tram_time_end;
+	if (hourMax < hourMin) hourMax += 24;
+	if (data.hours < hourMin || data.hours > hourMax){
 		return null;
 	}else{
-		//Determine Weight
-		var myWeights = regression.modes[mode][myClass].weights;
-		var myBias = regression.modes[mode][myClass].bias;
-		//Multiply Weights and Bias
-		var myPoly = 0;
-		for (var i in myWeights){
-			myPoly += myWeights[i] * myVars[i];
+		//Determine Mean Value
+		if (config.tram_regression_modes[mode].day_classification_by_weekday){
+			var theMean = regression.common.mean_by_wkday[myClass];
+		}else{
+			var theMean = regression.common.mean_by_dayOfWk[myClass];
 		}
-		myPoly += myBias;
-		//Return result
-		return myMean * myPoly;
+		if (config.tram_regression_modes[mode].time_of_day_hourly_mean){
+			//Hourly Mean
+			var h = getHoursIntepolation(data);
+			var myMean = h.hours0_weight * theMean.hourly[h.hours0] + h.hours1_weight * theMean.hourly[h.hours1];
+		}else{
+			//Whole Day Mean
+			var myMean = theMean.overall;
+		}
+		//Determine Polynomial
+		var myVars = config.tram_regression_modes[mode].regression_variables(data);
+		if (myVars == null){
+			//Return null
+			return null;
+		}else{
+			//Determine Weight
+			var myWeights = regression.modes[mode][myClass].weights;
+			var myBias = regression.modes[mode][myClass].bias;
+			//Multiply Weights and Bias
+			var myPoly = 0;
+			for (var i in myWeights){
+				myPoly += myWeights[i] * myVars[i];
+			}
+			myPoly += myBias;
+			//Return result
+			return myMean * myPoly;
+		}
 	}
 };
 

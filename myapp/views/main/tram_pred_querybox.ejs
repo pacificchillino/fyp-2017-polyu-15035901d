@@ -1,9 +1,4 @@
 <%
-function section(compare){
-	if (typeof params === "undefined"){ return ""; }
-	else{ return (params.stopA+"/"+params.stopB == compare) ? " selected" : ""; }
-}
-
 function q(variable, compare){
 	if (typeof query != "undefined"){
 		if (typeof query[variable] != "undefined"){
@@ -32,13 +27,90 @@ function s(variable){
 	return "";
 }
 
+function p(variable){
+	if (typeof params != "undefined"){
+		if (typeof params[variable] != "undefined"){
+			return params[variable];
+		}
+	}
+	return "";
+}
+
 %>
 
 <script language = "javascript">
+	
+	//List of from-tos
+	var from_to_list = JSON.parse('<%- JSON.stringify(from_to_list) %>');
+
+	//From
+	function options_from(){
+		$('#from').children().remove().end();
+		$("#from").append('<option value="">-- Please Select --</option>');
+		for (var stop in from_to_list.name){
+			if (from_to_list.via[stop] != null){
+				var caption = from_to_list.name[stop] + " (" + stop + ")";
+				$("#from").append('<option value="' + stop + '">' + caption + '</option>');
+			}
+		}
+		$("#from").val(params.from);
+	}
+
+	//To
+	function options_to(){
+		$('#to').children().remove().end();
+		var stopA = $("#from").val();
+		if (from_to_list.via[stopA] != null){
+			$("#to").append('<option value="">-- Please Select --</option>');
+			for (var stopB in from_to_list.name){
+				if (from_to_list.via[stopA][stopB] != null){
+					var caption = from_to_list.name[stopB] + " (" + stopB + ")";
+					$("#to").append('<option value="' + stopB + '">' + caption + '</option>');
+				}
+			}
+		}
+		$("#to").val(params.to);
+	}
+
+	//Multi
+	function options_multi(){
+		$('#multi').children().remove().end();
+		var stopA = $("#from").val();
+		var stopB = $("#to").val();
+		if (from_to_list.via[stopA] != null){
+			if (from_to_list.via[stopA][stopB] != null){
+				var nn0 = (from_to_list.via[stopA][stopB][0] != null);
+				var nn1 = (from_to_list.via[stopA][stopB][1] != null);
+				if (nn0 && nn1){
+					$("#multi").append('<option value="">-- Please Select --</option>');
+				}
+				if (nn0){
+					$("#multi").append('<option value="0">By one single prediction section</option>');
+				}
+				if (nn1){
+					$("#multi").append('<option value="1">By multiple prediction sections</option>');
+				}
+			}
+		}
+		$("#multi").val(params.multi);
+	}
+
+	//On Load
+	var params = {};
+	params.from = "<%= p('from') %>";
+	params.to = "<%= p('to') %>";
+	params.multi = "<%= p('multi') %>";
+
+	$(function() {
+		options_from();
+		options_to();
+		options_multi();
+	});
+
 	//Submit
 	function querybox_submit(){
 		//Check if any inputs are missing
-		if ($("#section").val() != ""){
+		if ($("#from").val() != "" && $("#to").val() != "" && $("#multi").val() != ""){
 			//Translate hours
 			var hours = $("#hours").val().split(":");
 			if (hours.length == 1){
@@ -52,7 +124,7 @@ function s(variable){
 				hours = "";
 			}
 			//Valid
-			var URL = "/trams/pred"
+			var URL = "/trams/prediction"
 			+ "/" + $("#from").val()
 			+ "/" + $("#to").val()
 			+ "/" + $("#multi").val()
@@ -73,6 +145,7 @@ function s(variable){
 			$("#PH").val("1");
 		}
 	}
+
 </script>
 
 <div class="panel panel-default">
@@ -84,24 +157,27 @@ function s(variable){
 
 					<%# From %>
 					<label class="control-label col-sm-3 col-lg-2" for="from">From:</label>
-					<div class="col-sm-9 col-lg-10">
-						<select class="form-control" id="from">
+					<div class="col-sm-9 col-lg-4">
+						<select class="form-control" id="from" onChange = "options_to()">
 						</select>
 					</div>
 
 					<%# To %>
-					<label class="control-label col-sm-3 col-lg-2" for="to">From:</label>
-					<div class="col-sm-9 col-lg-10">
-						<select class="form-control" id="to">
+					<label class="control-label col-sm-3 col-lg-2" for="to">To:</label>
+					<div class="col-sm-9 col-lg-4">
+						<select class="form-control" id="to" onChange = "options_multi()">
 						</select>
 					</div>
 
 					<%# Multi %>
-					<label class="control-label col-sm-3 col-lg-2" for="multi">From:</label>
-					<div class="col-sm-9 col-lg-10">
+					<label class="control-label col-sm-3 col-lg-2" for="multi">Type of Prediction:</label>
+					<div class="col-sm-9 col-lg-4">
 						<select class="form-control" id="multi">
 						</select>
 					</div>
+
+				</div>
+				<div class="row">
 
 					<%# dayOfWk %>
 					<label class="control-label col-sm-3 col-lg-2" for="dayOfWk">Day of Week:</label>
