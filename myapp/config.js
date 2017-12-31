@@ -80,6 +80,18 @@ exports.tram_stops_for_eta = {
 	"SKT": {isTerminus: false, name: "Shau Kei Wan"},
 };
 
+//Combined from/to available for prediction service
+exports.tram_prediction_from_to = [
+	{between: ["KTT","07E","19E","27E","35E","49E","57E","69E","81E","87E","93E","SKT"]},
+	{from: ["KTT","07E","19E","27E","35E","49E"], to: ["HVT_B"]},
+	{from: ["HVT_B"], to: ["49E","57E","69E","81E","87E","93E","SKT"]},
+	{from: ["WMT"], to: ["SKT"]},
+	{from: ["KTT"], to: ["HVT_B"]},
+	{from: ["HVT_B"], to: ["SKT"]},
+];
+
+exports.tram_prediction_options = ["KTT","07E","WMT","19E","27E","35E","49E","HVT_B","57E","69E","81E","87E","93E","SKT"];
+
 //Sections to be recorded
 exports.tram_est_sections = [
 	//Main Sections
@@ -281,7 +293,7 @@ exports.tram_regression_modes = {
 		day_classification_by_weekday: true,
 		regression_variables_count: 5,
 		regression_variables_label: ["t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R"],
-		regression_variables_remarks: ["t: Time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
+		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
 		regression_variables: function(data){
 			var tod = data.hours / 24;
 			var m = 1;
@@ -301,7 +313,7 @@ exports.tram_regression_modes = {
 		day_classification_by_weekday: true,
 		regression_variables_count: 7,
 		regression_variables_label: ["t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R"],
-		regression_variables_remarks: ["t: Time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
+		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
 		regression_variables: function(data){
 			var tod = data.hours / 24;
 			var m = 1;
@@ -321,7 +333,7 @@ exports.tram_regression_modes = {
 		day_classification_by_weekday: true,
 		regression_variables_count: 9,
 		regression_variables_label: ["t<sup>8</sup>","t<sup>7</sup>","t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R"],
-		regression_variables_remarks: ["t: Time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
+		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
 		regression_variables: function(data){
 			var tod = data.hours / 24;
 			var m = 1;

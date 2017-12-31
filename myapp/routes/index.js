@@ -24,7 +24,9 @@ router.get('/api/trams/data_regr/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_cont
 
 router.get('/trams/pred_sect', tram_prediction_controller.tram_pred_sect);
 router.get('/trams/pred_sect/:stopA/:stopB', tram_prediction_controller.tram_pred_sect_result);
+
 router.get('/trams/pred', tram_prediction_controller.tram_pred);
+router.get('/trams/pred/:stopA/:stopB/:multi', tram_prediction_controller.tram_pred_result);
 
 //The end
 module.exports = router;

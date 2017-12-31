@@ -49,7 +49,7 @@ function initForWeather(isDateTurnover){
 
 exports.obtainWeather = function(){
 	//Check if within period
-	if (func.isDuringWeatherRecordingTime()){
+	//if (func.isDuringWeatherRecordingTime()){
 		//Socket Message
 		func.msg("Weather : Obtaining rainfall data",config.debug_color.weather);
 		//Make new request
@@ -80,6 +80,7 @@ exports.obtainWeather = function(){
 					HKO_temp: HKO_temp,
 					HKO_hum: HKO_hum,
 				};
+				global.weather = entry;
 				var filter = {date: data.regional.updated_on};
 				//var filter = {date: data.regional.updated_on};
 				if (global.db != null){
@@ -101,7 +102,7 @@ exports.obtainWeather = function(){
 				func.msg("Weather : Rainfall data saved for " + config.rainfall_recorded.join(", "),config.debug_color.weather);
 			}
 		}).catch(console.error);
-	}
+	//}
 };
 
 /**

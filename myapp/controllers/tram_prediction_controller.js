@@ -1,5 +1,6 @@
 var config = require("../config.js");
 var func = require("../func.js");
+var _ = require('underscore');
 var data_regression_tram = require("../data_regression_tram.js");
 
 /**
@@ -83,13 +84,111 @@ var mapVariablesToEntry = function (query){
 	}
 };
 
+var getPredictionFromTos = function(){
+	var list = {name: {}, via:{}};
+	//Convert XXX_X to XXX
+	var xxx = function(str){
+		return str.split("_")[0];
+	}
+	//List names
+	for (var i in config.tram_prediction_options){
+		var stop = xxx(config.tram_prediction_options[i]);
+		list.name[stop] = config.tram_stops_for_eta[config.tram_prediction_options[i]].name;
+	}
+	//Permutate in tram_prediction_from_to
+	for (var i in config.tram_prediction_from_to){
+		var entry = config.tram_prediction_from_to[i];
+		//Type 1: between
+		if (entry.between != null){
+			for (var a = 0; a < entry.between.length - 1; a++){
+				for (var b = a + 1; b < entry.between.length; b++){ // a <= b
+					var stopA = xxx(entry.between[a]);
+					var stopB = xxx(entry.between[b]);
+					var via = [];
+					for (var j = a; j <= b; j++){
+						via.push(xxx(entry.between[j]));
+					}
+					if (list.via[stopA] == null) list.via[stopA] = {};
+					if (list.via[stopA][stopB] == null) list.via[stopA][stopB] = {};
+					list.via[stopA][stopB][(b - a) > 2 ? 1 : 0] = {
+						via: via,
+					};
+				}
+			}
+		}
+		//Type 2: from, to
+		else{
+			for (var a = 0; a < entry.from.length; a++){
+				for (var b = 0; b < entry.to.length; b++){
+					var stopA = xxx(entry.from[a]);
+					var stopB = xxx(entry.to[b]);
+					var via = [];
+					for (var j = a; j < entry.from.length; j++){
+						via.push(xxx(entry.from[j]));
+					}
+					for (var j = b; j < entry.to.length; j++){
+						via.push(xxx(entry.to[j]));
+					}
+					if (list.via[stopA] == null) list.via[stopA] = {};
+					if (list.via[stopA][stopB] == null) list.via[stopA][stopB] = {};
+					list.via[stopA][stopB][(b - a) > 2 ? 1 : 0] = {
+						via: via,
+					};
+				}
+			}
+		}
+	}
+	return list;
+};
+
+//List: from_to_list.name[stop]
+//List: from_to_list.via[stopA][stopB][multiple_sections ? 1 : 0]
+
+var from_to_list = getPredictionFromTos();
+
+/**
+ * Default Values for Query Box
+ */
+
+function default_data(){
+	var now = new Date();
+	var def = {};
+	//Day of Week
+	def.dayOfWk = now.getDay().toString();
+	//Public Holiday
+	def.PH = global.isPH ? "1" : "0";
+	//Hours
+	def.hours = func.getHMSOfDay(now);
+	//Rainfall
+	if (global.weather != null){
+		var sum = 0;
+		var count = 0;
+		for (var i in global.weather.rainfall){
+			sum += global.weather.rainfall[i];
+			count++;
+		}
+		if (count == 0){
+			def.rainfall = 0;
+		}else{
+			def.rainfall = sum / count;
+		}
+		//HKO Temp
+		def.HKO_temp = global.weather.HKO_temp;
+		//HKO Hum
+		def.HKO_hum = global.weather.HKO_hum;
+	}
+	//Return
+	return def;
+}
+
 /**
  * Query Box
  */
 
-function tram_data_querybox(){
+function tram_data_sect_querybox(){
 	var querybox = {
 		sections: [],
+		def: default_data(),
 	};
 	for (var i in config.tram_est_sections){
 		var from = config.tram_est_sections[i].from.split("_")[0];
@@ -109,9 +208,9 @@ function tram_data_querybox(){
 exports.tram_pred_sect = function(req, res){
 	var data = {
 		title: "Travelling Time Prediction of a Section",
-		querybox: tram_data_querybox(),
+		querybox: tram_data_sect_querybox(),
 	};
-	res.render('main/tram_pred', data);
+	res.render('main/tram_pred_sect', data);
 };
 
 /**
@@ -125,7 +224,7 @@ exports.tram_pred_sect_result = function(req, res){
 	//Data
 	var data = {
 		title: "Travelling Time Prediction of a Section",
-		querybox: tram_data_querybox(),
+		querybox: tram_data_sect_querybox(),
 		params: req.params,
 		query: req.query,
 		error: flag,
@@ -144,17 +243,12 @@ exports.tram_pred_sect_result = function(req, res){
 			for (var mode in config.tram_regression_modes){
 				data.prediction[mode] = data_regression_tram.doPrediction(stopA, stopB, entry, data.regression, mode);
 			}
-			tram_pred_sect_result2(req, res, data);
+			res.render('main/tram_pred_sect', data);
 		});
 	}else{
 		//Error
-		tram_pred_sect_result2(req, res, data);
+		res.render('main/tram_pred_sect', data);
 	}
-};
-
-tram_pred_sect_result2 = function(req, res, data){
-	//Render with Data
-	res.render('main/tram_pred', data);
 };
 
 /**
@@ -162,4 +256,13 @@ tram_pred_sect_result2 = function(req, res, data){
  */
 
 exports.tram_pred = function(req, res){
+	var data = {
+		title: "Travelling Time Prediction",
+		querybox: tram_data_sect_querybox(),
+		from_to_list: from_to_list,
+	};
+	res.render('main/tram_pred', data);
+};
+
+exports.tram_pred_result = function(req, res){
 };
