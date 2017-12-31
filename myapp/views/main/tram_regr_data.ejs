@@ -91,7 +91,7 @@
 								+ "&HKO_hum=" + (typeof result[i].HKO_hum !== "undefined" ? result[i].HKO_hum : "")
 								+ "#" + mode;
 								%>
-								<td><a href = "<%= url %>">
+								<td><a href = "<%= url %>" target="_blank">
 									<%= result[i].prediction_2d[mode] %>′<br/>
 									<small>(<%= result[i].prediction_error_2d[mode] %>')</small>
 								</a></td>
