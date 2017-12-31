@@ -5,9 +5,11 @@ function q(variable, compare){
 			return (query[variable] == compare) ? " selected" : "";
 		}
 	}
-	if (typeof querybox.def != "undefined"){
-		if (typeof querybox.def[variable] != "undefined"){
-			return (querybox.def[variable] == compare) ? " selected" : "";
+	if (typeof querybox != "undefined"){
+		if (typeof querybox.def != "undefined"){
+			if (typeof querybox.def[variable] != "undefined"){
+				return (querybox.def[variable] == compare) ? " selected" : "";
+			}
 		}
 	}
 	return "";
@@ -19,9 +21,11 @@ function s(variable){
 			return query[variable];
 		}
 	}
-	if (typeof querybox.def != "undefined"){
-		if (typeof querybox.def[variable] != "undefined"){
-			return querybox.def[variable];
+	if (typeof querybox != "undefined"){
+		if (typeof querybox.def != "undefined"){
+			if (typeof querybox.def[variable] != "undefined"){
+				return querybox.def[variable];
+			}
 		}
 	}
 	return "";
@@ -38,10 +42,9 @@ function p(variable){
 
 %>
 
+<script src = "/api/trams/prediction/from_to.js"></script>
+
 <script language = "javascript">
-	
-	//List of from-tos
-	var from_to_list = JSON.parse('<%- JSON.stringify(from_to_list) %>');
 
 	//From
 	function options_from(){
@@ -149,7 +152,7 @@ function p(variable){
 </script>
 
 <div class="panel panel-default">
-	<div class="panel-heading"><b><%= title %></b></div>
+	<div class="panel-heading"><b>Trams: Predict Travelling Time</b></div>
 	<div class="panel-body">
 		<form>
 			<div class="form-group">

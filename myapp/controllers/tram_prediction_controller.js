@@ -296,6 +296,10 @@ exports.tram_pred_from_to_api = function(req, res){
 	res.send(JSON.stringify(from_to_list));
 }
 
+exports.tram_pred_from_to_api_js = function(req, res){
+	res.send("from_to_list = " + JSON.stringify(from_to_list));
+}
+
 exports.tram_pred_result_api = function(req, res){
 	//Obtain data from regression db
 	var db_regr = "regression_tram";

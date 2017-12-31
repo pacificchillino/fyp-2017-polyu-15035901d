@@ -28,6 +28,7 @@ router.get('/trams/prediction_section/:stopA/:stopB', tram_prediction_controller
 router.get('/trams/prediction', tram_prediction_controller.tram_pred);
 router.get('/trams/prediction/:from/:to/:multi', tram_prediction_controller.tram_pred_result);
 router.get('/api/trams/prediction/from_to', tram_prediction_controller.tram_pred_from_to_api);
+router.get('/api/trams/prediction/from_to.js', tram_prediction_controller.tram_pred_from_to_api_js);
 router.get('/api/trams/prediction/:from/:to/:multi', tram_prediction_controller.tram_pred_result_api);
 
 //The end
