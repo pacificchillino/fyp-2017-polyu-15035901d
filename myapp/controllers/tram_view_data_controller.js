@@ -224,34 +224,35 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 result_for_charts = function(result){
 	var data = {
 		modes: [],
-		predicted: {},
-		actual: {},
+		time_actual: [],
+		time_predicted: {},
+		prediction_error: {},
 	};
 	//For each mode
 	for (var mode in config.tram_regression_modes){
 		data.modes.push(mode);
-		data.predicted[mode] = {
-			x_hours: [],
-			y_mins: [],
-			y_error: [],
-		};
+		data.time_predicted[mode] = [];
+		data.prediction_error[mode] = [];
 		for (var i in result){
 			//Only obtain data with predictions
 			if (result[i].prediction_2d[mode] != ""){
-				data.predicted[mode].x_hours.push(result[i].hours.toFixed(4));
-				data.predicted[mode].y_mins.push(result[i].prediction_2d[mode]);
-				data.predicted[mode].y_error.push(result[i].prediction_error_2d[mode]);
+				data.time_predicted[mode].push({
+					x: result[i].hours.toFixed(4) -0,
+					y: result[i].prediction_2d[mode] -0,
+				});
+				data.prediction_error[mode].push({
+					x: result[i].hours.toFixed(4) -0,
+					y: result[i].prediction_error_2d[mode] -0,
+				});
 			}
 		}
 	};
 	//For actual
-	data.actual = {
-		x_hours: [],
-		y_mins: [],
-	};
 	for (var i in result){
-		data.actual.x_hours.push(result[i].hours.toFixed(4));
-		data.actual.y_mins.push(result[i].minsSpent);
+		data.time_actual.push({
+			x: result[i].hours.toFixed(4) -0,
+			y: result[i].minsSpent -0,
+		});
 	}
 	return data;
 };

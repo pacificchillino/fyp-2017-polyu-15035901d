@@ -153,59 +153,127 @@
 
 				<!-- Chart -->
 				<div id="chart" class="tab-pane fade">
-					<div id = "chart_time"></div>
-					<div id = "chart_error"></div>
+					<div style="width: 100%">
+						<canvas id="chart_time"></canvas>
+					</div>
+					<div style="width: 100%">
+						<canvas id="chart_error"></canvas>
+					</div>
 
-					<script src = "/javascripts/plotly.min.js"></script>
+					<script src = "/javascripts/Chart.bundle.min.js"></script>
 
 					<script language = "javascript">
 						var results = JSON.parse('<%- result_for_charts %>');
 
-						//Chart for Travelling Time
-						var data_time = [];
-						for (var i in results.modes){
-							var mode = results.modes[i];
-							data_time.push({
-								x: results.predicted[mode].x_hours,
-								y: results.predicted[mode].y_mins,
-								mode: 'lines',
-								type: 'scatter',
-								name: mode,
-							});
-						}
-						data_time.push({
-							x: results.actual.x_hours,
-							y: results.actual.y_mins,
-							marker: {color: '#000'},
-							mode: 'markers',
-							type: 'scatter',
-							name: "Actual",
-						});
-
-						Plotly.newPlot('chart_time', data_time, {
-							xaxis: {title: "Time of Day (hours)"},
-							yaxis: {title: "Travelling Time (mins)"},
-							title:'Travelling Time (<%= params.stopA %> - <%= params.stopB %>, <%= params.yy %>/<%= params.mm %>/<%= params.dd %>)',
-						});
-
-						//Chart for Absolute Error
-						var data_error = [];
-						for (var i in results.modes){
-							var mode = results.modes[i];
-							data_error.push({
-								x: results.predicted[mode].x_hours,
-								y: results.predicted[mode].y_error,
-								mode: 'lines',
-								type: 'scatter',
-								name: mode,
-							});
+						var datasetLine = function (label, data, hue){
+							return {
+								label: label,
+								data: data,
+								showLine: true,
+								borderColor: (hue == null) ? "rgba(0, 0, 0, 0.8)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.8)",
+								backgroundColor: (hue == null) ? "rgba(0, 0, 0, 0.1)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.1)",
+								fill: false,
+								borderWidth: 2,
+								pointRadius: 0,
+								lineTension: 0,
+							};
 						}
 
-						Plotly.newPlot('chart_error', data_error, {
-							xaxis: {title: "Time of Day (hours)"},
-							yaxis: {title: "Prediction Error (mins)"},
-							title:'Prediction Error (<%= params.stopA %> - <%= params.stopB %>, <%= params.yy %>/<%= params.mm %>/<%= params.dd %>)',
+						var datasetPoint = function (label, data, hue){
+							return {
+								label: label,
+								data: data,
+								borderColor: (hue == null) ? "rgba(0, 0, 0, 0.8)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.9)",
+								backgroundColor: (hue == null) ? "rgba(0, 0, 0, 0.5)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.7)",
+								fill: false,
+								pointRadius: 3,
+								lineTension: 0,
+							};
+						}
+
+						//Travelling Time Chart
+						var dataset_time = [];
+						dataset_time.push(datasetPoint("Actual", results.time_actual));
+						for (var i in results.modes){
+							var hue = i / results.modes.length;
+							var mode = results.modes[i];
+							dataset_time.push(datasetLine(mode, results.time_predicted[mode], hue));
+						}
+
+						//Prediction Error Chart
+						var dataset_error = [];
+						for (var i in results.modes){
+							var hue = i / results.modes.length;
+							var mode = results.modes[i];
+							dataset_error.push(datasetLine(mode, results.prediction_error[mode], hue));
+						}
+						
+						//Draw Charts
+						var ctx_time = document.getElementById("chart_time").getContext("2d");
+						var chart_time = Chart.Scatter(ctx_time, {
+							data: {
+								datasets: dataset_time,
+							},
+							options: {
+								title: {
+									display: true,
+									text: 'Travelling Time (<%= params.stopA %> - <%= params.stopB %> , <%= params.yy %>/<%= params.mm %>/<%= params.dd %>)',
+									fontSize: 16,
+								},
+								legend: {
+                        			position: "right",
+                   				},
+								scales: {
+									xAxes: [{
+										display: true,
+										scaleLabel: {
+                              				display: true,
+											labelString: "Time of Day (Hours)",
+										},
+									}],
+									yAxes: [{
+										display: true,
+										scaleLabel: {
+                              				display: true,
+											labelString: "Travelling Time (Minutes)",
+										},
+									}],
+								},
+							}
 						});
+						var ctx_error = document.getElementById("chart_error").getContext("2d");
+						var chart_error = Chart.Scatter(ctx_error, {
+							data: {
+								datasets: dataset_error,
+							},
+							options: {
+								title: {
+									display: true,
+									text: 'Prediction Error (<%= params.stopA %> - <%= params.stopB %> , <%= params.yy %>/<%= params.mm %>/<%= params.dd %>)',
+									fontSize: 16,
+								},
+								legend: {
+                        			position: "right",
+                   				},
+								scales: {
+									xAxes: [{
+										display: true,
+										scaleLabel: {
+                              				display: true,
+											labelString: "Time of Day (Hours)",
+										},
+									}],
+									yAxes: [{
+										display: true,
+										scaleLabel: {
+                              				display: true,
+											labelString: "Prediction Error (Minutes)",
+										},
+									}],
+								},
+							}
+						});
+						
 					</script>
 
 				</div>
