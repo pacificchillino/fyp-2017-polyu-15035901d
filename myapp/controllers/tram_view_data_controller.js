@@ -122,6 +122,7 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 	var stopA = req.params.stopA;
 	var stopB = req.params.stopB;
 	var db_stop = "data_tram_" + stopA + "_" + stopB;
+	var sort_stop = {hours: 1};
 	var db_regr = "regression_tram";
 	//Table
 	var db_table = "data_tram_" + stopA + "_" + stopB;
@@ -130,7 +131,7 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 	var filter_regr = { stopA: stopA, stopB: stopB };
 	//Select from DB
 	if (global.db != null){
-		global.db.collection(db_stop).find(filter_stop).toArray(function(err, result) {
+		global.db.collection(db_stop).find(filter_stop).sort(sort_stop).toArray(function(err, result) {
 			global.db.collection(db_regr).find(filter_regr).toArray(function(err, result_regr) {
 				if (err) throw err;
 				for (var i in result){
@@ -147,10 +148,12 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 					//Manipulate result & Calculate Error
 					var error_count = {};
 					var error_total = {};
+					var error_square_total = {};
 					var error_worst_2d = {};
 					for (var mode in config.tram_regression_modes){
 						error_count[mode] = 0;
 						error_total[mode] = 0;
+						error_square_total[mode] = 0;
 						error_worst_2d[mode] = 0;
 					}
 					for (var i in result){
@@ -171,17 +174,21 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 								error_worst_2d[mode] = Math.max(error_worst_2d[mode], myError);
 								error_count[mode]++;
 								error_total[mode]+= myError;
+								error_square_total[mode]+= myError * myError;
 							}
 						}
 					}
 					var error_avg_2d = {};
+					var error_rms_2d = {};
 					var mode_count = 0;
 					for (var mode in config.tram_regression_modes){
 						mode_count++;
 						error_avg_2d[mode] = (error_total[mode] / error_count[mode]).toFixed(2);
+						error_rms_2d[mode] = Math.sqrt(error_square_total[mode] / error_count[mode]).toFixed(2);
 						error_worst_2d[mode] = error_worst_2d[mode].toFixed(2);
 						if (isNaN(error_avg_2d[mode])){
 							error_avg_2d[mode] = "";
+							error_rms_2d[mode] = "";
 							error_worst_2d[mode] = "";
 						}
 					}
@@ -200,7 +207,9 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 						params: req.params,
 						query: req.query,
 						result: result,
+						result_for_charts: JSON.stringify(result_for_charts(result)),
 						error_avg: error_avg_2d,
+						error_rms: error_rms_2d,
 						error_worst: error_worst_2d,
 						mode_count: mode_count,
 					};
@@ -209,6 +218,42 @@ tram_data_regr_result_2 = function (req, res, isAPI){
 			});
 		});
 	}
+};
+
+//Get results optimized for charts
+result_for_charts = function(result){
+	var data = {
+		modes: [],
+		predicted: {},
+		actual: {},
+	};
+	//For each mode
+	for (var mode in config.tram_regression_modes){
+		data.modes.push(mode);
+		data.predicted[mode] = {
+			x_hours: [],
+			y_mins: [],
+			y_error: [],
+		};
+		for (var i in result){
+			//Only obtain data with predictions
+			if (result[i].prediction_2d[mode] != ""){
+				data.predicted[mode].x_hours.push(result[i].hours.toFixed(4));
+				data.predicted[mode].y_mins.push(result[i].prediction_2d[mode]);
+				data.predicted[mode].y_error.push(result[i].prediction_error_2d[mode]);
+			}
+		}
+	};
+	//For actual
+	data.actual = {
+		x_hours: [],
+		y_mins: [],
+	};
+	for (var i in result){
+		data.actual.x_hours.push(result[i].hours.toFixed(4));
+		data.actual.y_mins.push(result[i].minsSpent);
+	}
+	return data;
 };
 
 /**

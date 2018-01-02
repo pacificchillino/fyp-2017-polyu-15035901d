@@ -41,93 +41,175 @@
 		<% if (result.length == 0){ %>
 			<p>Sorry, there are no entries.</p>
 		<% }else{ %>
-			<div class="table-responsive">          
-				<table class="table">
-					<thead>
-						<tr>
-							<th colspan="7">Input Variables</th>
-							<th rowspan="2">Actual</th>
-							<th colspan="<%= mode_count %>">Predicted Time Spent (and Error)</th>
-						</tr>
-					</thead>
-					<thead>
-						<tr>
-							<th>Weekday?</th>
-							<th>P.H.?</th>
-							<th>D.O.W.</th>
-							<th>Starting</th>
-							<th>(Normalized)</th>
-							<th>Rainfall</th>
-							<th>HKO Temp.</th>
-							<th>HKO Hum.</th>
-							<th>Time Spent</th>
-							<% for (var mode in error_avg){ %>
-								<th><%= mode %></th>
+
+			<ul class="nav nav-tabs">
+				<li class="active"><a data-toggle="tab" href="#num">Numerals</a></li>
+				<li><a data-toggle="tab" href="#chart">Charts</a></li>
+			</ul>
+
+			<div class="tab-content">
+
+				<!-- Numerals -->
+				<div id="num" class="tab-pane fade in active">
+					<div class="table-responsive">          
+						<table class="table">
+							<thead>
+								<tr>
+									<th colspan="7">Input Variables</th>
+									<th rowspan="2">Actual</th>
+									<th colspan="<%= mode_count %>">Predicted Time Spent (and Error)</th>
+								</tr>
+							</thead>
+							<thead>
+								<tr>
+									<th>Weekday?</th>
+									<th>P.H.?</th>
+									<th>D.O.W.</th>
+									<th>Starting</th>
+									<th>(Normalized)</th>
+									<th>Rainfall</th>
+									<th>HKO Temp.</th>
+									<th>HKO Hum.</th>
+									<th>Time Spent</th>
+									<% for (var mode in error_avg){ %>
+										<th><%= mode %></th>
+									<% } %>
+								</tr>
+							</thead>
+							<% for (var i in result){ %>
+								<tr>
+									<td><%= result[i].wkday ? "Yes" : "No" %></td>
+									<td><%= result[i].PH ? "Yes" : "No" %></td>
+									<td><%= ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][result[i].dayOfWk] %></td>
+									<td><%= result[i].starting %></td>
+									<td><%= result[i].starting_n %></td>
+									<td><%= result[i].rainfall %> mm</td>
+									<td><% if (typeof result[i].HKO_temp !== "undefined"){ %><%= result[i].HKO_temp %> ℃<% } %></td>
+									<td><% if (typeof result[i].HKO_hum !== "undefined"){ %><%= result[i].HKO_hum %> %<% } %></td>
+									<td><b><%= result[i].minsSpent %></b>′</td>
+									<% for (var mode in error_avg){ %>
+										<% if (result[i].prediction_2d[mode] == ""){ %>
+										<td>N/A</td>
+										<% }else{ %>
+										<%
+										var url = "/trams/prediction_section/" + params.stopA + "/" + params.stopB
+										+ "?dayOfWk=" + result[i].dayOfWk
+										+ "&PH=" + (result[i].PH ? "1" : "0")
+										+ "&hours=" + result[i].hours
+										+ "&rainfall=" + result[i].rainfall
+										+ "&HKO_temp=" + (typeof result[i].HKO_temp !== "undefined" ? result[i].HKO_temp : "") 
+										+ "&HKO_hum=" + (typeof result[i].HKO_hum !== "undefined" ? result[i].HKO_hum : "")
+										+ "#" + mode;
+										%>
+										<td><a href = "<%= url %>" target="_blank">
+											<%= result[i].prediction_2d[mode] %>′<br/>
+											<small>(<%= result[i].prediction_error_2d[mode] %>')</small>
+										</a></td>
+										<% } %>
+									<% } %>
+								</tr>
 							<% } %>
-						</tr>
-					</thead>
-					<% for (var i in result){ %>
-						<tr>
-							<td><%= result[i].wkday ? "Yes" : "No" %></td>
-							<td><%= result[i].PH ? "Yes" : "No" %></td>
-							<td><%= ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][result[i].dayOfWk] %></td>
-							<td><%= result[i].starting %></td>
-							<td><%= result[i].starting_n %></td>
-							<td><%= result[i].rainfall %> mm</td>
-							<td><% if (typeof result[i].HKO_temp !== "undefined"){ %><%= result[i].HKO_temp %> ℃<% } %></td>
-							<td><% if (typeof result[i].HKO_hum !== "undefined"){ %><%= result[i].HKO_hum %> %<% } %></td>
-							<td><b><%= result[i].minsSpent %></b>′</td>
-							<% for (var mode in error_avg){ %>
-								<% if (result[i].prediction_2d[mode] == ""){ %>
-								<td>N/A</td>
-								<% }else{ %>
-								<%
-								var url = "/trams/prediction_section/" + params.stopA + "/" + params.stopB
-								+ "?dayOfWk=" + result[i].dayOfWk
-								+ "&PH=" + (result[i].PH ? "1" : "0")
-								+ "&hours=" + result[i].hours
-								+ "&rainfall=" + result[i].rainfall
-								+ "&HKO_temp=" + (typeof result[i].HKO_temp !== "undefined" ? result[i].HKO_temp : "") 
-								+ "&HKO_hum=" + (typeof result[i].HKO_hum !== "undefined" ? result[i].HKO_hum : "")
-								+ "#" + mode;
-								%>
-								<td><a href = "<%= url %>" target="_blank">
-									<%= result[i].prediction_2d[mode] %>′<br/>
-									<small>(<%= result[i].prediction_error_2d[mode] %>')</small>
-								</a></td>
-								<% } %>
-							<% } %>
-						</tr>
-					<% } %>
-					<thead>
-						<tr>
-							<th colspan="9">Average Prediction Error: </th>
-							<% for (var mode in error_avg){ %>
-								<% if (error_avg[mode] == ""){ %>
-								<th>N/A</th>
-								<% }else{ %>
-								<th><%= error_avg[mode] %>'</th>
-								<% } %>
-							<% } %>
-						</tr>
-						<tr>
-						<th colspan="9">Worst Prediction Error: </th>
-							<% for (var mode in error_worst){ %>
-								<% if (error_worst[mode] == ""){ %>
-								<th>N/A</th>
-								<% }else{ %>
-								<th><%= error_worst[mode] %>'</th>
-								<% } %>
-							<% } %>
-							</tr>
-						<tr>
-							<th colspan="9"></th>
-							<% for (var mode in error_avg){ %>
-								<th><%= mode %></th>
-							<% } %>
-						</tr>
-					</thead>
-				</table>
+							<thead>
+								<tr>
+									<th colspan="9">Mean Absolute Error (MAE) of Prediction: </th>
+									<% for (var mode in error_avg){ %>
+										<% if (error_avg[mode] == ""){ %>
+										<th>N/A</th>
+										<% }else{ %>
+										<th><%= error_avg[mode] %>'</th>
+										<% } %>
+									<% } %>
+								</tr>
+								<tr>
+									<th colspan="9">Root Mean Square Error (RMSE) of Prediction: </th>
+									<% for (var mode in error_rms){ %>
+										<% if (error_rms[mode] == ""){ %>
+										<th>N/A</th>
+										<% }else{ %>
+										<th><%= error_rms[mode] %>'</th>
+										<% } %>
+									<% } %>
+								</tr>
+								<tr>
+								<th colspan="9">Worst Error of Prediction: </th>
+									<% for (var mode in error_worst){ %>
+										<% if (error_worst[mode] == ""){ %>
+										<th>N/A</th>
+										<% }else{ %>
+										<th><%= error_worst[mode] %>'</th>
+										<% } %>
+									<% } %>
+									</tr>
+								<tr>
+									<th colspan="9"></th>
+									<% for (var mode in error_avg){ %>
+										<th><%= mode %></th>
+									<% } %>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+
+				<!-- Chart -->
+				<div id="chart" class="tab-pane fade in active">
+					<div id = "chart_time"></div>
+					<div id = "chart_error"></div>
+
+					<script src = "/javascripts/plotly.min.js"></script>
+
+					<script language = "javascript">
+						var results = JSON.parse('<%- result_for_charts %>');
+
+						//Chart for Travelling Time
+						var data_time = [];
+						for (var i in results.modes){
+							var mode = results.modes[i];
+							data_time.push({
+								x: results.predicted[mode].x_hours,
+								y: results.predicted[mode].y_mins,
+								mode: 'lines',
+								type: 'scatter',
+								name: mode,
+							});
+						}
+						data_time.push({
+							x: results.actual.x_hours,
+							y: results.actual.y_mins,
+							marker: {color: '#000'},
+							mode: 'markers',
+							type: 'scatter',
+							name: "Actual",
+						});
+
+						Plotly.newPlot('chart_time', data_time, {
+							xaxis: {title: "Time of Day (hours)"},
+							yaxis: {title: "Travelling Time (mins)"},
+							title:'Travelling Time (<%= params.stopA %> - <%= params.stopB %>, <%= params.yy %>/<%= params.mm %>/<%= params.dd %>)',
+						});
+
+						//Chart for Absolute Error
+						var data_error = [];
+						for (var i in results.modes){
+							var mode = results.modes[i];
+							data_error.push({
+								x: results.predicted[mode].x_hours,
+								y: results.predicted[mode].y_error,
+								mode: 'lines',
+								type: 'scatter',
+								name: mode,
+							});
+						}
+
+						Plotly.newPlot('chart_error', data_error, {
+							xaxis: {title: "Time of Day (hours)"},
+							yaxis: {title: "Prediction Error (mins)"},
+							title:'Prediction Error (<%= params.stopA %> - <%= params.stopB %>, <%= params.yy %>/<%= params.mm %>/<%= params.dd %>)',
+						});
+					</script>
+
+				</div>
+
 			</div>
 
 			<div class="panel panel-default">
@@ -150,10 +232,10 @@
 				$("#date").val("<%= params.yy %>/<%= params.mm %>/<%= params.dd %>");
 				//Next & Prev day button
 				function btn_prev_day(){
-					window.location.href = "/trams/data_regr/<%= params.stopA %>/<%= params.stopB %>/<%= date_prev %>";
+					window.location.href = "/trams/data_regression/<%= params.stopA %>/<%= params.stopB %>/<%= date_prev %>";
 				}
 				function btn_next_day(){
-					window.location.href = "/trams/data_regr/<%= params.stopA %>/<%= params.stopB %>/<%= date_next %>";
+					window.location.href = "/trams/data_regression/<%= params.stopA %>/<%= params.stopB %>/<%= date_next %>";
 				}
 		</script>
 

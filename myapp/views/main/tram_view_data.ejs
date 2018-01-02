@@ -24,6 +24,18 @@
 
 	<% if (typeof params !== "undefined"){ %>
 
+		<script language = "javascript">
+				//Prefill data
+				$("#date").val("<%= params.yy %>/<%= params.mm %>/<%= params.dd %>");
+				//Next & Prev day button
+				function btn_prev_day(){
+					window.location.href = "/trams/data/<%= params.stopA %>/<%= params.stopB %>/<%= date_prev %>";
+				}
+				function btn_next_day(){
+					window.location.href = "/trams/data/<%= params.stopA %>/<%= params.stopB %>/<%= date_next %>";
+				}
+		</script>
+
 		<div class="panel panel-default">
 			<div class="panel-body">
 				<div class="row">
@@ -77,18 +89,6 @@
 				</table>
 			</div>
 		<% } %>
-
-		<script language = "javascript">
-				//Prefill data
-				$("#date").val("<%= params.yy %>/<%= params.mm %>/<%= params.dd %>");
-				//Next & Prev day button
-				function btn_prev_day(){
-					window.location.href = "/trams/data/<%= params.stopA %>/<%= params.stopB %>/<%= date_prev %>";
-				}
-				function btn_next_day(){
-					window.location.href = "/trams/data/<%= params.stopA %>/<%= params.stopB %>/<%= date_next %>";
-				}
-		</script>
 
 	<% } %>
 

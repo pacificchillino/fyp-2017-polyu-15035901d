@@ -57,6 +57,7 @@ exports.tram_eta_nonarrived_limit = 120;//secs					//For determination of arriva
 exports.cron_time_tram_get_eta = "0 * * * * *";					//Get ETA for all every minute
 exports.cron_time_tram_get_eta2 = "10,20,30,40,50 * * * * *";	//Get ETA for isTerminus: true every 10 seconds (except @min)
 exports.cron_time_tram_get_em = "5 */3 * * * *";				//Get emergency message every 3 minutes
+exports.cron_time_tram_clean_data = "30 2 * * *";				//Clean data at 2:30am
 exports.cron_time_tram_update_regression = "0 3 * * *";			//Update regression variables at 3am
 
 //Stops that ETA data are required

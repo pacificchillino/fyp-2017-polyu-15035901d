@@ -1,48 +1,23 @@
 <%
-function q(variable, compare){
-	if (typeof query != "undefined"){
-		if (typeof query[variable] != "undefined"){
-			return (query[variable] == compare) ? " selected" : "";
-		}
-	}
-	if (typeof querybox != "undefined"){
-		if (typeof querybox.def != "undefined"){
-			if (typeof querybox.def[variable] != "undefined"){
-				return (querybox.def[variable] == compare) ? " selected" : "";
-			}
-		}
-	}
-	return "";
-}
-
-function s(variable){
-	if (typeof query != "undefined"){
-		if (typeof query[variable] != "undefined"){
-			return query[variable];
-		}
-	}
-	if (typeof querybox != "undefined"){
-		if (typeof querybox.def != "undefined"){
-			if (typeof querybox.def[variable] != "undefined"){
-				return querybox.def[variable];
-			}
-		}
-	}
-	return "";
-}
-
-function p(variable){
+function params_query(){
+	var pq = {};
 	if (typeof params != "undefined"){
-		if (typeof params[variable] != "undefined"){
-			return params[variable];
+		for (var i in params){
+			pq[i] = params[i];
 		}
 	}
-	return "";
+	if (typeof query != "undefined"){
+		for (var i in query){
+			pq[i] = query[i];
+		}
+	}
+	return JSON.stringify(pq);
 }
 
 %>
 
 <script src = "/api/trams/prediction/from_to.js"></script>
+<script src = "/api/trams/prediction/def_data.js"></script>
 
 <script language = "javascript">
 
@@ -56,7 +31,6 @@ function p(variable){
 				$("#from").append('<option value="' + stop + '">' + caption + '</option>');
 			}
 		}
-		$("#from").val(params.from);
 	}
 
 	//To
@@ -71,8 +45,9 @@ function p(variable){
 					$("#to").append('<option value="' + stopB + '">' + caption + '</option>');
 				}
 			}
+		}else{
+			$("#to").append('<option value="">(Please select "From" first)</option>');
 		}
-		$("#to").val(params.to);
 	}
 
 	//Multi
@@ -80,34 +55,48 @@ function p(variable){
 		$('#multi').children().remove().end();
 		var stopA = $("#from").val();
 		var stopB = $("#to").val();
-		if (from_to_list.via[stopA] != null){
-			if (from_to_list.via[stopA][stopB] != null){
-				var nn0 = (from_to_list.via[stopA][stopB][0] != null);
-				var nn1 = (from_to_list.via[stopA][stopB][1] != null);
-				if (nn0 && nn1){
-					$("#multi").append('<option value="">-- Please Select --</option>');
-				}
-				if (nn0){
-					$("#multi").append('<option value="0">By one single prediction section</option>');
-				}
-				if (nn1){
-					$("#multi").append('<option value="1">By multiple prediction sections</option>');
-				}
+		if (from_to_list.via[stopA] != null && from_to_list.via[stopA][stopB] != null){
+			var nn0 = (from_to_list.via[stopA][stopB][0] != null);
+			var nn1 = (from_to_list.via[stopA][stopB][1] != null);
+			if (nn0 && nn1){
+				$("#multi").append('<option value="">-- Please Select --</option>');
 			}
+			if (nn0){
+				$("#multi").append('<option value="0">By one single prediction section</option>');
+			}
+			if (nn1){
+				$("#multi").append('<option value="1">By multiple prediction sections</option>');
+			}
+		}else{
+			$("#multi").append('<option value="">(Please select "From" & "To" first)</option>');
 		}
-		$("#multi").val(params.multi);
+	}
+
+	//Value
+	function value(variable){
+		if (params_query[variable] != null){
+			$("#" + variable).val(params_query[variable]);
+		}else if (default_data[variable] != null){
+			$("#" + variable).val(default_data[variable]);
+		}
 	}
 
 	//On Load
-	var params = {};
-	params.from = "<%= p('from') %>";
-	params.to = "<%= p('to') %>";
-	params.multi = "<%= p('multi') %>";
+	var params_query = JSON.parse('<%- params_query() %>');
 
 	$(function() {
 		options_from();
+		value("from");
 		options_to();
+		value("to");
 		options_multi();
+		value("multi");
+		value("dayOfWk");
+		value("PH");
+		value("hours");
+		value("rainfall");
+		value("HKO_temp");
+		value("HKO_hum");
 	});
 
 	//Submit
@@ -187,13 +176,13 @@ function p(variable){
 					<div class="col-sm-9 col-lg-4">
 						<select class="form-control" id="dayOfWk" onChange="checkSunday()">
 							<option value="">-- Please select --</option>
-							<option value = "1"<%= q("dayOfWk","1") %>>Monday</option>
-							<option value = "2"<%= q("dayOfWk","2") %>>Tuesday</option>
-							<option value = "3"<%= q("dayOfWk","3") %>>Wednesday</option>
-							<option value = "4"<%= q("dayOfWk","4") %>>Thursday</option>
-							<option value = "5"<%= q("dayOfWk","5") %>>Friday</option>
-							<option value = "6"<%= q("dayOfWk","6") %>>Saturday</option>
-							<option value = "0"<%= q("dayOfWk","0") %>>Sunday</option>
+							<option value = "1">Monday</option>
+							<option value = "2">Tuesday</option>
+							<option value = "3">Wednesday</option>
+							<option value = "4">Thursday</option>
+							<option value = "5">Friday</option>
+							<option value = "6">Saturday</option>
+							<option value = "0">Sunday</option>
 						</select>
 					</div>
 
@@ -202,33 +191,33 @@ function p(variable){
 					<div class="col-sm-9 col-lg-4">
 						<select class="form-control" id="PH" onChange="checkSunday()">
 							<option value="">-- Please select --</option>
-							<option value = "0"<%= q("PH","0") %>>No</option>
-							<option value = "1"<%= q("PH","1") %>>Yes</option>
+							<option value = "0">No</option>
+							<option value = "1">Yes</option>
 						</select>
 					</div>
 
 					<%# hours %>
 					<label class="control-label col-sm-3 col-lg-2" for="hours">Start Time (Hours):</label>
 					<div class="col-sm-9 col-lg-4">
-						<input class="form-control" type="text" id="hours" placeholder="hours or hh:mm:ss" value="<%= s('hours') %>">
+						<input class="form-control" type="text" id="hours" placeholder="hours or hh:mm:ss" value="">
 					</div>
 
 					<%# rainfall %>
 					<label class="control-label col-sm-3 col-lg-2" for="rainfall">Rainfall (mm):</label>
 					<div class="col-sm-9 col-lg-4">
-						<input class="form-control" type="text" id="rainfall" placeholder="in mm" value="<%= s('rainfall') %>">
+						<input class="form-control" type="text" id="rainfall" placeholder="in mm" value="">
 					</div>
 
 					<%# HKO_temp %>
 					<label class="control-label col-sm-3 col-lg-2" for="HKO_temp">HKO Temperature (℃):</label>
 					<div class="col-sm-9 col-lg-4">
-						<input class="form-control" type="text" id="HKO_temp" placeholder="in ℃" value="<%= s('HKO_temp') %>">
+						<input class="form-control" type="text" id="HKO_temp" placeholder="in ℃" value="">
 					</div>
 
 					<%# HKO_hum %>
 					<label class="control-label col-sm-3 col-lg-2" for="HKO_hum">HKO Humidity (%):</label>
 					<div class="col-sm-9 col-lg-4">
-						<input class="form-control" type="text" id="HKO_hum" placeholder="in %" value="<%= s('HKO_hum') %>">
+						<input class="form-control" type="text" id="HKO_hum" placeholder="in %" value="">
 					</div>
 					
 					<div class="control-label col-sm-12 col-lg-12">All fields are mandatory.</div>

@@ -83,9 +83,16 @@ router.get('/test/regr_test/:stopA/:stopB', function(req,res){
 	};
 });
 
-router.get('/test/regr_update', function(req,res){
+router.get('/test/tram_regr_update', function(req,res){
 	data_regression_tram.updateRegressions();
 	res.send("Update Regressions.");
+});
+
+//Tram Cleaning
+var data_clean_tram = require("../data_clean_tram.js");
+router.get('/test/tram_clean', function(req,res){
+	data_clean_tram.doCleaning();
+	res.send("Do cleaning.");
 });
 
 //The end

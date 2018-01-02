@@ -173,14 +173,19 @@ function default_data(){
 			count++;
 		}
 		if (count == 0){
-			def.rainfall = 0;
+			def.rainfall = "0";
 		}else{
-			def.rainfall = sum / count;
+			def.rainfall = (sum / count).toString();
 		}
 		//HKO Temp
-		def.HKO_temp = global.weather.HKO_temp;
+		def.HKO_temp = global.weather.HKO_temp.toString();
 		//HKO Hum
-		def.HKO_hum = global.weather.HKO_hum;
+		def.HKO_hum = global.weather.HKO_hum.toString();
+	}else{
+		//No data
+		def.rainfall = "";
+		def.HKO_temp = "";
+		def.HKO_hum = "";
 	}
 	//Return
 	return def;
@@ -298,6 +303,14 @@ exports.tram_pred_from_to_api = function(req, res){
 
 exports.tram_pred_from_to_api_js = function(req, res){
 	res.send("from_to_list = " + JSON.stringify(from_to_list));
+}
+
+exports.tram_pred_def_data_api = function(req, res){
+	res.send(JSON.stringify(default_data()));
+}
+
+exports.tram_pred_def_data_api_js = function(req, res){
+	res.send("default_data = " + JSON.stringify(default_data()));
 }
 
 exports.tram_pred_result_api = function(req, res){

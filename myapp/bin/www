@@ -97,6 +97,7 @@ function onListening() {
 
 var data_obtain = require("../data_obtain");
 var data_regression_tram = require("../data_regression_tram");
+var data_clean_tram = require("../data_clean_tram");
 
 /**
  * Socket.io connection --> global.io
@@ -169,6 +170,11 @@ cron.schedule(config.cron_time_tram_get_eta2, function(){
 //Obtain E.M. message
 cron.schedule(config.cron_time_tram_get_em, function(){
 	data_obtain.obtainTramEM();
+});
+
+//Clean data
+cron.schedule(config.cron_time_tram_clean_data, function(){
+	data_clean_tram.doCleaning();
 });
 
 //Update regression
