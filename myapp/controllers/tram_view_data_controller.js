@@ -86,7 +86,7 @@ tram_data_result_2 = function (req, res, isAPI){
 					dateNext.setDate(dateNow.getDate() + 1);
 					//Data
 					var data = {
-						title: "Prediction with Existing Tram Data",
+						title: "View Raw Data of Tram Travelling Time",
 						searchbox: tram_data_searchbox(),
 						date_prev: func.getYYYYMMDD(datePrev),
 						date_next: func.getYYYYMMDD(dateNext),
