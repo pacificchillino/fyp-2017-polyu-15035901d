@@ -185,7 +185,7 @@ exports.tram_est_sections = [
 		time_upper_limit: 150, time_lower_limit: 10,
 	},
 	{from: "WMT", to: "SKT",
-		rainfall: [{district: $WC, weight: 0.2},{district: $EA, weight: 0.8}],
+		rainfall: [{district: $CW, weight: 0.2},{district: $WC, weight: 0.3},{district: $EA, weight: 0.5}],
 		dest: ["SKT"],
 		via: ["27E","33E","37E","49E","57E","69E","81E","87E","93E"],
 		notVia: ["HVT_B", "HVT_K"],
