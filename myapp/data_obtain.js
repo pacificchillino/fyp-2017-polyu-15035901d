@@ -51,9 +51,10 @@ exports.obtainWeather = function(){
 	//Check if within period
 	//if (func.isDuringWeatherRecordingTime()){
 		//Socket Message
-		func.msg("Weather : Obtaining rainfall data",config.debug_color.weather);
+		func.msg("Weather : Obtaining weather data",config.debug_color.weather);
 		//Make new request
 		weather.getCurrent().then(function(data){
+
 			//Extract rainfall data
 			var updated = data.regional.updated_on.toString();
 			if (updated == weatherLastUpdate){
@@ -99,7 +100,7 @@ exports.obtainWeather = function(){
 					}
 				}
 				//Socket Message
-				func.msg("Weather : Rainfall data saved for " + config.rainfall_recorded.join(", "),config.debug_color.weather);
+				func.msg("Weather : Weather data saved for " + config.rainfall_recorded.join(", "),config.debug_color.weather);
 			}
 		}).catch(console.error);
 	//}

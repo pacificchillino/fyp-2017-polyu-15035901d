@@ -114,7 +114,7 @@ exports.tram_data_regr_result_api = function(req, res){
 	tram_data_regr_result_2(req, res, true);
 };
 
-tram_data_regr_result_2 = function (req, res, isAPI){
+var tram_data_regr_result_2 = function (req, res, isAPI){
 	/**
 	 * Params: stopA, stopB, yy, mm, dd
 	 */

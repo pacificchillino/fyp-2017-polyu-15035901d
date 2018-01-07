@@ -155,7 +155,7 @@ var from_to_list = getPredictionFromTos();
  * Default Values for Query Box
  */
 
-function default_data(){
+function getDefaultData(tramStop){
 	var now = new Date();
 	var def = {};
 	//Day of Week
@@ -166,16 +166,30 @@ function default_data(){
 	def.hours = func.getHMSOfDay(now);
 	//Rainfall
 	if (global.weather != null){
-		var sum = 0;
-		var count = 0;
-		for (var i in global.weather.rainfall){
-			sum += global.weather.rainfall[i];
-			count++;
+		//No tram stop specified
+		if (tramStop == null){
+			var sum = 0;
+			var count = 0;
+			for (var i in global.weather.rainfall){
+				sum += global.weather.rainfall[i];
+				count++;
+			}
+			if (count == 0){
+				def.rainfall = "0";
+			}else{
+				def.rainfall = (sum / count).toString();
+			}
 		}
-		if (count == 0){
-			def.rainfall = "0";
-		}else{
-			def.rainfall = (sum / count).toString();
+		//There is tram stop specified --> get corresponding district
+		else{
+			var myDistrict = config.tram_stops_for_eta[tramStop].district;
+			if (myDistrict == null){ //In case
+				def.rainfall = "0";
+			}else if (global.weather.rainfall[myDistrict] == null){
+				def.rainfall = "0";
+			}else{
+				def.rainfall = global.weather.rainfall[myDistrict].toString();
+			}
 		}
 		//HKO Temp
 		def.HKO_temp = global.weather.HKO_temp.toString();
@@ -198,7 +212,7 @@ function default_data(){
 function tram_data_sect_querybox(){
 	var querybox = {
 		sections: [],
-		def: default_data(),
+		def: getDefaultData(),
 	};
 	for (var i in config.tram_est_sections){
 		var from = config.tram_est_sections[i].from.split("_")[0];
@@ -306,11 +320,11 @@ exports.tram_pred_from_to_api_js = function(req, res){
 }
 
 exports.tram_pred_def_data_api = function(req, res){
-	res.send(JSON.stringify(default_data()));
+	res.send(JSON.stringify(getDefaultData()));
 }
 
 exports.tram_pred_def_data_api_js = function(req, res){
-	res.send("default_data = " + JSON.stringify(default_data()));
+	res.send("default_data = " + JSON.stringify(getDefaultData()));
 }
 
 exports.tram_pred_result_api = function(req, res){
@@ -326,10 +340,10 @@ exports.tram_pred_result_api = function(req, res){
 var tram_pred_result2 = function(req, result_regr){
 	//Declare vars
 	var sections = new Array();
-	var flag = true;
 	var stopA = req.params.from;
 	var stopB = req.params.to;
 	var multi = parseInt(req.params.multi);
+	var flag = true;
 	//Find if route available
 	var via = from_to_list.via[stopA][stopB][multi];
 	if (via == null){

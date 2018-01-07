@@ -62,23 +62,23 @@ exports.cron_time_tram_update_regression = "0 3 * * *";			//Update regression va
 
 //Stops that ETA data are required
 exports.tram_stops_for_eta = {
-	"KTT": {isTerminus: true, name: "Kennedy Town"},
-	"07E": {isTerminus: false, name: "Hill Road, Shek Tong Tsui"},
-	"WMT": {isTerminus: true, name: "Western Market, Sheung Wan"},
-	"19E": {isTerminus: false, name: "Macau Ferry, Sheung Wan"},
-	"27E": {isTerminus: false, name: "Pedder Street, Central"},
-	"33E": {isTerminus: false, name: "Murray Street, Central"},
-	"35E": {isTerminus: false, name: "Admiralty Station"},
-	"37E": {isTerminus: false, name: "Arsenal Street, Wan Chai"},
-	"49E": {isTerminus: false, name: "Canal Road, Causeway Bay"},
-	"HVT_B": {isTerminus: true, name: "Happy Valley"}, //To Shau Kei Wan
-	"HVT_K": {isTerminus: false, name: "Happy Valley"}, //To Kennedy Town
-	"57E": {isTerminus: false, name: "Victoria Park"},
-	"69E": {isTerminus: false, name: "North Point Road"},
-	"81E": {isTerminus: false, name: "Finnie Street, Quarry Bay"},
-	"87E": {isTerminus: false, name: "Kornhill, Tai Koo"},
-	"93E": {isTerminus: false, name: "Tai On Street, Sai Wan Ho"},
-	"SKT": {isTerminus: false, name: "Shau Kei Wan"},
+	"KTT": {isTerminus: true, name: "Kennedy Town", district: $CW},
+	"07E": {isTerminus: false, name: "Hill Road, Shek Tong Tsui", district: $CW},
+	"WMT": {isTerminus: true, name: "Western Market, Sheung Wan", district: $CW},
+	"19E": {isTerminus: false, name: "Macau Ferry, Sheung Wan", district: $CW},
+	"27E": {isTerminus: false, name: "Pedder Street, Central", district: $CW},
+	"33E": {isTerminus: false, name: "Murray Street, Central", district: $CW},
+	"35E": {isTerminus: false, name: "Admiralty Station", district: $CW},
+	"37E": {isTerminus: false, name: "Arsenal Street, Wan Chai", district: $WC},
+	"49E": {isTerminus: false, name: "Canal Road, Causeway Bay", district: $WC},
+	"HVT_B": {isTerminus: true, name: "Happy Valley", district: $WC}, //To Shau Kei Wan
+	"HVT_K": {isTerminus: false, name: "Happy Valley", district: $WC}, //To Kennedy Town
+	"57E": {isTerminus: false, name: "Victoria Park", district: $WC},
+	"69E": {isTerminus: false, name: "North Point Road", district: $EA},
+	"81E": {isTerminus: false, name: "Finnie Street, Quarry Bay", district: $EA},
+	"87E": {isTerminus: false, name: "Kornhill, Tai Koo", district: $EA},
+	"93E": {isTerminus: false, name: "Tai On Street, Sai Wan Ho", district: $EA},
+	"SKT": {isTerminus: false, name: "Shau Kei Wan", district: $EA},
 };
 
 //Combined from/to available for prediction service
@@ -200,7 +200,22 @@ exports.tram_est_sections = [
 exports.tram_regression_modes = {
 	"default": {
 		name: "Default",
-		remarks: "Time of Day: Hourly Mean ; Day Classification: Weekday or Not ; Other Factors: Rainfall Only (Linear)",
+		remarks: "Time of Day: Hourly Mean ; Day Classification: Weekday or Not ; Other Factors: Rainfall",
+		time_of_day_hourly_mean: true,
+		day_classification_by_weekday: true,
+		regression_variables_count: 2,
+		regression_variables_label: ["R","r"],
+		regression_variables_remarks: ["R: Rainfall (in mm)","r: [1 if there is rainfall, 0 else]"],
+		regression_variables: function(data){
+			return [
+				data.rainfall,
+				(data.rainfall > 0) ? 1 : 0,
+			];
+		},
+	},
+	"rain_l": {
+		name: "Other Factors: Rainfall: Linear only",
+		remarks: "",
 		time_of_day_hourly_mean: true,
 		day_classification_by_weekday: true,
 		regression_variables_count: 1,
@@ -212,18 +227,17 @@ exports.tram_regression_modes = {
 			];
 		},
 	},
-	"rain_q": {
-		name: "Other Factors: Rainfall: Quadratic",
+	"rain_b": {
+		name: "Other Factors: Rainfall: Binary only",
 		remarks: "",
 		time_of_day_hourly_mean: true,
 		day_classification_by_weekday: true,
-		regression_variables_count: 2,
-		regression_variables_label: ["R<sup>2</sup>","R"],
-		regression_variables_remarks: ["R: Rainfall (in mm)"],
+		regression_variables_count: 1,
+		regression_variables_label: ["r"],
+		regression_variables_remarks: ["r: [1 if there is rainfall, 0 else]"],
 		regression_variables: function(data){
 			return [
-				data.rainfall*data.rainfall,
-				data.rainfall,
+				(data.rainfall > 0) ? 1 : 0,
 			];
 		},
 	},
@@ -232,39 +246,14 @@ exports.tram_regression_modes = {
 		remarks: "",
 		time_of_day_hourly_mean: true,
 		day_classification_by_weekday: true,
-		regression_variables_count: 3,
-		regression_variables_label: ["R", "K", "H"],
-		regression_variables_remarks: ["R: Rainfall (in mm)","K: HKO Temperature (in ℃)","H: HKO Humidity (in %)"],
+		regression_variables_count: 4,
+		regression_variables_label: ["R", "r", "T", "H"],
+		regression_variables_remarks: ["R: Rainfall (in mm)","r: [1 if there is rainfall, 0 else]","T: HKO Temperature (in ℃)","H: HKO Humidity (in %)"],
 		regression_variables: function(data){
 			if (data.HKO_temp != null && data.HKO_hum != null){
 				return [
 					data.rainfall,
-					data.HKO_temp,
-					data.HKO_hum,
-				];
-			}else{
-				return null;
-			}
-		},
-	},
-	"hko_q": {
-		name: "Other Factors: Rainfall, HKO Temperature & Humidity (Quadratic)",
-		remarks: "",
-		time_of_day_hourly_mean: true,
-		day_classification_by_weekday: true,
-		regression_variables_count: 9,
-		regression_variables_label: ["R<sup>2</sup>", "K<sup>2</sup>", "H<sup>2</sup>", "R K", "R H", "K H", "R", "K", "H"],
-		regression_variables_remarks: ["R: Rainfall (in mm)","K: HKO Temperature (in ℃)","H: HKO Humidity (in %)"],
-		regression_variables: function(data){
-			if (data.HKO_temp != null && data.HKO_hum != null){
-				return [
-					data.rainfall * data.rainfall,
-					data.HKO_temp * data.HKO_temp,
-					data.HKO_hum * data.HKO_hum,
-					data.rainfall * data.HKO_temp,
-					data.rainfall * data.HKO_hum,
-					data.HKO_temp * data.HKO_hum,
-					data.rainfall,
+					(data.rainfall > 0) ? 1 : 0,
 					data.HKO_temp,
 					data.HKO_hum,
 				];
@@ -278,12 +267,13 @@ exports.tram_regression_modes = {
 		remarks: "Public holidays are considered as Sundays.",
 		time_of_day_hourly_mean: true,
 		day_classification_by_weekday: false,
-		regression_variables_count: 1,
-		regression_variables_label: ["R"],
-		regression_variables_remarks: ["R: Rainfall (in mm)"],
+		regression_variables_count: 2,
+		regression_variables_label: ["R","r"],
+		regression_variables_remarks: ["R: Rainfall (in mm)","r: [1 if there is rainfall, 0 else]"],
 		regression_variables: function(data){
 			return [
 				data.rainfall,
+				(data.rainfall > 0) ? 1 : 0,
 			];
 		},
 	},
@@ -292,8 +282,8 @@ exports.tram_regression_modes = {
 		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 4.",
 		time_of_day_hourly_mean: false,
 		day_classification_by_weekday: true,
-		regression_variables_count: 5,
-		regression_variables_label: ["t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R"],
+		regression_variables_count: 6,
+		regression_variables_label: ["t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R","r"],
 		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
 		regression_variables: function(data){
 			var tod = data.hours / 24;
@@ -304,6 +294,7 @@ exports.tram_regression_modes = {
 				arr.unshift(m);
 			}
 			arr.push(data.rainfall);
+			arr.push((data.rainfall > 0) ? 1 : 0);
 			return arr;
 		},
 	},
@@ -312,8 +303,8 @@ exports.tram_regression_modes = {
 		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 6.",
 		time_of_day_hourly_mean: false,
 		day_classification_by_weekday: true,
-		regression_variables_count: 7,
-		regression_variables_label: ["t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R"],
+		regression_variables_count: 8,
+		regression_variables_label: ["t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R","r"],
 		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
 		regression_variables: function(data){
 			var tod = data.hours / 24;
@@ -324,6 +315,7 @@ exports.tram_regression_modes = {
 				arr.unshift(m);
 			}
 			arr.push(data.rainfall);
+			arr.push((data.rainfall > 0) ? 1 : 0);
 			return arr;
 		},
 	},
@@ -332,8 +324,8 @@ exports.tram_regression_modes = {
 		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 8.",
 		time_of_day_hourly_mean: false,
 		day_classification_by_weekday: true,
-		regression_variables_count: 9,
-		regression_variables_label: ["t<sup>8</sup>","t<sup>7</sup>","t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R"],
+		regression_variables_count: 10,
+		regression_variables_label: ["t<sup>8</sup>","t<sup>7</sup>","t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R","r"],
 		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
 		regression_variables: function(data){
 			var tod = data.hours / 24;
@@ -344,6 +336,7 @@ exports.tram_regression_modes = {
 				arr.unshift(m);
 			}
 			arr.push(data.rainfall);
+			arr.push((data.rainfall > 0) ? 1 : 0);
 			return arr;
 		},
 	},
