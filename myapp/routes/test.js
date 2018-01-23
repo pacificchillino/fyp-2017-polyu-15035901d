@@ -61,37 +61,10 @@ router.get('/test/api/weather', function(req,res){
   }).catch(console.error);
 });
 
-//Tram Regression Test
-
-var data_regression_tram = require("../data_regression_tram.js");
-router.get('/test/regr_test/:stopA/:stopB', function(req,res){
-	//Select from DB
-	var stopA = req.params.stopA;
-	var stopB = req.params.stopB;
-	var db_table = "data_tram_" + stopA + "_" + stopB;
-	if (global.db != null){
-		global.db.collection(db_table).find({}).toArray(function(err, result) {
-			if (err) throw err;
-			if(result.length > 0){
-				res.send(JSON.stringify(
-					data_regression_tram.doRegressionForSection(stopA, stopB, result)
-				));
-			}else{
-				res.send("Error");
-			};
-		});
-	};
-});
-
-router.get('/test/tram_regr_update', function(req,res){
-	data_regression_tram.updateRegressions();
-	res.send("Update Regressions.");
-});
-
 //Tram Cleaning
-var data_clean_tram = require("../data_clean_tram.js");
-router.get('/test/tram_clean', function(req,res){
-	data_clean_tram.doCleaning();
+var data_update_tram = require("../data_update_tram.js");
+router.get('/test/tram_update', function(req,res){
+	data_update_tram.doCleaning();
 	res.send("Do cleaning.");
 });
 

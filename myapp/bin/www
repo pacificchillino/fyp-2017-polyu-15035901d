@@ -95,9 +95,11 @@ function onListening() {
  * Includes
  */
 
-var data_obtain = require("../data_obtain");
+var what_day = require("../what_day.js");
+var data_obtain_weather = require("../data_obtain_weather");
+var data_obtain_tram = require("../data_obtain_tram");
 var data_regression_tram = require("../data_regression_tram");
-var data_clean_tram = require("../data_clean_tram");
+var data_update_tram = require("../data_update_tram");
 
 /**
  * Socket.io connection --> global.io
@@ -114,21 +116,31 @@ MongoClient.connect(func.getMongoURL(), function(err, mydb) {
 	if (err) throw err;
 	global.db = mydb;
 	//Init
-	data_obtain.init(false);
+	initAll(false);
 	console.log("DB connection successful");
 });
+
+/**
+ * Initiate (at start of server OR date turnover)
+ */
+
+function initAll(isDateTurnover){
+	data_obtain_weather.init(isDateTurnover);
+	data_obtain_tram.init(isDateTurnover);
+	what_day.getToday();
+}
 
 /**
  * Crons
  */
 
-//Cuckoo reminder
-cron.schedule('0 * * * *', function(){
-	func.msg("Cuckoo!", config.debug_color.hour);
+//Date turnover
+cron.schedule(config.cron_time_date_turnover, function(){
+	initAll(true);
 });
 
-//Every 5 
-cron.schedule('*/5 * * * *', function(){
+//Report global data Every minute
+cron.schedule('* * * * *', function(){
 	var msg2 = {
 		dayType: global.dayType,
 		dayOfWeek: global.dayOfWeek,
@@ -137,6 +149,7 @@ cron.schedule('*/5 * * * *', function(){
 		isPH: global.isPH,
 		exceptionHourStart: global.exceptionHourStart,
 		exceptionHourEnd: global.exceptionHourEnd,
+		weather: global.weather,
 	};
 	func.msg2("The time now is " + func.getHMOfDay(), JSON.stringify(msg2), config.debug_color.hour);
 });
@@ -145,56 +158,34 @@ cron.schedule('*/5 * * * *', function(){
  * Weather
  */
 cron.schedule(config.cron_time_weather_obtain, function(){
-	data_obtain.obtainWeather();
+	data_obtain_weather.obtainWeather();
 });
 
 /**
  * Trams
  */
 
-//Date turnover
-cron.schedule(config.cron_time_date_turnover, function(){
-	data_obtain.init(true);
-});
-
 //Obtain data for isTerminus: false
 cron.schedule(config.cron_time_tram_get_eta, function(){
-	data_obtain.obtainTramETA(false);
+	data_obtain_tram.obtainTramETA(false);
 });
 
 //Obtain data for isTerminus: true
 cron.schedule(config.cron_time_tram_get_eta2, function(){
-	data_obtain.obtainTramETA(true);
+	data_obtain_tram.obtainTramETA(true);
 });
 
 //Obtain E.M. message
 cron.schedule(config.cron_time_tram_get_em, function(){
-	data_obtain.obtainTramEM();
+	data_obtain_tram.obtainTramEM();
 });
 
-//Clean data
+//Update data
 cron.schedule(config.cron_time_tram_clean_data, function(){
-	data_clean_tram.doCleaning();
+	data_update_tram.doCleaning();
 });
 
 //Update regression
 cron.schedule(config.cron_time_tram_update_regression, function(){
 	data_regression_tram.updateRegressions();
-});
-
-//Reminders
-cron.schedule(config.cron_time_tram_start, function(){
-	func.msg("Tram : Starts data recording", config.debug_color.hour);
-});
-cron.schedule(config.cron_time_tram_end, function(){
-	func.msg("Tram : Ends recordings of new tram entries", config.debug_color.hour);
-});
-cron.schedule(config.cron_time_tram_cutoff, function(){
-	func.msg("Tram : Cutoffs all tram recordings", config.debug_color.hour);
-});
-cron.schedule(config.cron_time_weather_start, function(){
-	func.msg("Weather : Starts data recording", config.debug_color.hour);
-});
-cron.schedule(config.cron_time_weather_end, function(){
-	func.msg("Weather : Ends data recording", config.debug_color.hour);
 });

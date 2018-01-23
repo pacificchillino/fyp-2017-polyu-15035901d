@@ -194,7 +194,14 @@ exports.tram_est_sections = [
 ];
 
 /**
- * Tram Regressions
+ * Prediction Modes
+ */
+exports.prediction_modes = {
+	
+};
+
+/**
+ * Tram Regressions, obsolete
  */
 
 exports.tram_regression_modes = {

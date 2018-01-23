@@ -2,122 +2,19 @@ var config = require("./config.js");
 var func = require("./func.js");
 var _ = require('underscore');
 
-var HongKongWeather = require('./include/hongkong-weather.js');
-var weather = new HongKongWeather();
-
 var HongKongTrams = require("./include/hongkong-trams.js");
 var trams = new HongKongTrams();
 
 var TramRecorder = require("./TramRecorder.js");
 
-var what_day = require("./what_day.js");
-
-/**
- * Variables used in this module
- */
-
-//Weather
-var weatherLastUpdate = "";		//Time of last weather update
-var rainfall = null;			//Rainfall data, e.g. rainfall["Wan Chai"]
-var HKO_temp = null;			//HKO Temperature
-var HKO_hum = null;				//HKO Humidity
-
-
-//Trams
+//Variables
 var tramStops = [];				//Array of all tram stops
 var tramStops2 = [];			//Array of tram stops for isTerminus : true
 var tramsETA = {};				//ETA data, e.g. tramsETA["50W"].now, tramsETA["50W"].prev
 var tramRecorders = [];			//Object to host TramRecorder instances
 var tramEM = {};				//Emergency message data
 
-/**
- * Initialize - either when starting the server or date turnover
- */
 exports.init = function(isDateTurnover){
-	initForWeather(isDateTurnover);
-	initForTrams(isDateTurnover);
-	initForRoads(isDateTurnover);
-	what_day.getToday();
-};
-
-/**
- * Obtain weather data
- */
-
-function initForWeather(isDateTurnover){
-}
-
-exports.obtainWeather = function(){
-	//Check if within period
-	//if (func.isDuringWeatherRecordingTime()){
-		//Socket Message
-		func.msg("Weather : Obtaining weather data",config.debug_color.weather);
-		//Make new request
-		weather.getCurrent().then(function(data){
-
-			//Extract rainfall data
-			var updated = data.regional.updated_on.toString();
-			if (updated == weatherLastUpdate){
-				//NO Updates
-				//Socket Message
-				func.msg("Weather : No updates yet",config.debug_color.weather);
-			}else{
-				//HAVE Updates
-				weatherLastUpdate = updated;
-				//Rainfall
-				rainfall = {};
-				_.each(config.rainfall_recorded, function(place) {
-					var index = _.findIndex(data.rainfall, {station: place});
-					//No rainfall if index is -1
-					rainfall[place] = (index == -1) ? 0 : func.getRainFallAmount(data.rainfall[index].mm);
-				});
-				//H.K.O.
-				HKO_temp = parseInt(data.regional.degrees_c);
-				HKO_hum = parseInt(data.regional.humidity_pct);
-				//Insert to database
-				var entry = {
-					date: data.regional.updated_on,
-					rainfall: rainfall,
-					HKO_temp: HKO_temp,
-					HKO_hum: HKO_hum,
-				};
-				global.weather = entry;
-				var filter = {date: data.regional.updated_on};
-				//var filter = {date: data.regional.updated_on};
-				if (global.db != null){
-					if (func.isSavingDBAllowed()){
-						//First prevent duplications
-						var tableName = func.getTableName("data_weather_rainfall");
-						global.db.collection(tableName).findOne(filter, function(err, result) {
-							if (err) throw err;
-							if (result == null){
-								//No duplications --> insert to database
-								global.db.collection(tableName).insertOne(entry,
-									function(err, res) { if (err) throw err; }
-								);
-							}
-						});
-					}
-				}
-				//Socket Message
-				func.msg("Weather : Weather data saved for " + config.rainfall_recorded.join(", "),config.debug_color.weather);
-			}
-		}).catch(console.error);
-	//}
-};
-
-/**
- * Obtain road speed
- */
-
-function initForRoads(isDateTurnover){
-
-}
-
-/**
- * Obtain tram ETA
- */
-function initForTrams(isDateTurnover){
 	//Socket Message
 	func.msg(isDateTurnover ? "Data Obtain : Day changed. Re-initialized." : "Data Obtain : Initialized.", config.debug_color.hour);
 
@@ -159,6 +56,10 @@ function initForTrams(isDateTurnover){
 	//Emergency Message
 	obtainTramEM_2();
 }
+
+/**
+ * Obtain tram ETA
+ */
 
 function etaObtainedFunction(eta){
 	//Prevent from errorenous ETAs
@@ -233,7 +134,7 @@ function obtainTramETA_2(isTerminus){
 			//Socket Message
 			func.msg("Tram : ETA data obtained",config.debug_color.tram);
 			//Do only when having rainfall data
-			if (rainfall != null){
+			if (otherDataOkay()){
 				for (var i in tramRecorders){
 					//Filter out TramRecorders which "from" isTerminus
 					if (tramRecorders[i].stopA_isTerminus){
@@ -255,7 +156,7 @@ function obtainTramETA_2(isTerminus){
 			//Socket Message
 			func.msg("Tram : ETA data obtained",config.debug_color.tram);
 			//Do only when having rainfall data
-			if (rainfall != null){
+			if (otherDataOkay()){
 				for (var i in tramRecorders){
 					var flushable = false;
 					//StopA: Ensure having no data errors --> feed data to TramRecorder instance
@@ -335,14 +236,6 @@ function obtainTramETA_2(isTerminus){
 	}
 }
 
-function getOtherData(){
-	return {
-		rainfall: rainfall,
-		HKO_temp: HKO_temp,
-		HKO_hum: HKO_hum,
-	};
-}
-
 /**
  * Obtain tram emergency message --> if there is E.M., stop recording for that stop
  */
@@ -377,4 +270,20 @@ function emObtainedFunction(emsg){
 function emObtainFailedFunction(err){
 	//Socket Message
 	func.msg("Tram : Error obtaining emergency message for stop " + this.stop, config.debug_color.error);
+}
+
+/**
+ * Other Data
+ */
+
+function getOtherData(){
+	return {
+		rainfall: global.weather.rainfall,
+		HKO_temp: global.weather.HKO_temp,
+		HKO_hum: global.weather.HKO_hum,
+	};
+}
+
+function otherDataOkay(){
+	return (global.weather != null);
 }

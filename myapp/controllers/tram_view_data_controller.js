@@ -77,6 +77,7 @@ tram_data_result_2 = function (req, res, isAPI){
 					for (var i in result){
 						result[i].starting = func.getHMSByHours(result[i].hours);
 						result[i].minsSpent = result[i].tt_mins.toFixed(2);
+						result[i].rainfall = result[i].rainfall.toFixed(2);
 						result[i].ending = func.getHMSByHours(result[i].hours + result[i].tt_mins / 60);
 					}
 					var dateNow = new Date(req.params.yy-0, req.params.mm-1, req.params.dd-0);
@@ -160,6 +161,7 @@ var tram_data_regr_result_2 = function (req, res, isAPI){
 						result[i].starting = func.getHMSByHours(result[i].hours);
 						result[i].starting_n = (result[i].hours / 24).toFixed(4);
 						result[i].minsSpent = result[i].tt_mins.toFixed(2);
+						result[i].rainfall = result[i].rainfall.toFixed(2);
 						result[i].prediction_2d = {};
 						result[i].prediction_error_2d = {};
 						for (var mode in config.tram_regression_modes){
