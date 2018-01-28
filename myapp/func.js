@@ -13,6 +13,7 @@ exports.msg = function(message, color){
 		};
 		global.io.emit('msg', data);
 	}
+	console.log(message);
 };
 
 exports.msg2 = function(message, message2, color){
@@ -26,6 +27,7 @@ exports.msg2 = function(message, message2, color){
 		};
 		global.io.emit('msg2', data);
 	}
+	console.log(message);
 }
 
 /**
@@ -167,6 +169,48 @@ exports.isDuringWeatherRecordingTime = function(date){
 	if (exports.isDuringExceptionTime()) return false;
 	return (hours >= starting && hours < ending);
 };
+
+/** 
+ * Day Classifications
+ */
+
+exports.getDayClassByWeekdayOrNot = function(data){
+	if (data.PH == true){
+		return "w0";
+	}else if(!data.wkday){
+		return "w0";
+	}else{
+		return "w1";
+	}
+};
+
+exports.dayClassListByWeekdayOrNot = ["w0", "w1"];
+
+exports.getDayClassByDayOfWeek = function(data){
+	if (data.PH == true){
+		return "d0";
+	}else{
+		return "d" + data.dayOfWk;
+	}
+};
+
+exports.dayClassListByDayOfWeek = ["d0", "d1", "d2", "d3", "d4", "d5", "d6"];
+
+exports.getDayClass = function(data, isDayOfWeek){
+	if (isDayOfWeek){
+		return exports.getDayClassByDayOfWeek(data);
+	}else{
+		return exports.getDayClassByWeekdayOrNot(data);
+	}
+}
+
+exports.getDayClassList = function(isDayOfWeek){
+	if (isDayOfWeek){
+		return exports.dayClassListByWeekdayOrNot;
+	}else{
+		return exports.dayClassListByDayOfWeek;
+	}
+}
 
 /**
  * Misc

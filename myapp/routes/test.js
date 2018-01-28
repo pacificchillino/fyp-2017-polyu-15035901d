@@ -12,9 +12,8 @@ var trams = new HongKongTrams();
  * /test/api/trams/updates
  * /test/api/trams/em/:stop
  * /test/api/weather
- * /test/regr_test/:stopA/:stopB
- * /test/regr_update
- */
+ * /test/prediction/:collection/:yyyy/:mm/:dd/:model/:mode
+*/
 
 //-- ETA
 function trams_eta_bystop(req, res, isJSON){
@@ -61,11 +60,22 @@ router.get('/test/api/weather', function(req,res){
   }).catch(console.error);
 });
 
-//Tram Cleaning
-var data_update_tram = require("../data_update_tram.js");
-router.get('/test/tram_update', function(req,res){
-	data_update_tram.doCleaning();
-	res.send("Do cleaning.");
+//Prediction Test
+router.get('/test/prediction/:collection/:yyyy/:mm/:dd/:model/:mode', function(req,res){
+	var mySC = req.params.collection;
+	var myDate = req.params.yyyy+"/"+req.params.mm+"/"+req.params.dd;
+	var myModel = req.params.model;
+	var myMode = req.params.mode;
+	global.db.collection(mySC).find({date: myDate}).toArray(function(err, data) {
+		res.send(JSON.stringify(
+			global.prediction.predict(mySC, myModel, myMode, data)
+		));
+	});
+});
+
+router.get('/test/prediction/init', function(req,res){
+	global.prediction.init();
+	res.send("Init");
 });
 
 //The end

@@ -16,6 +16,7 @@ exports.disable_test_db = true; //No saving data into test tables when using loc
 
 exports.debug_color = {
 	hour: "blue",
+	prediction: "violet",
 	bus: "#900",
 	tram: "#0C0",
 	tram2: "#060",
@@ -36,7 +37,23 @@ exports.timezone = 8;
 const $CW = "Central & Western District";
 const $WC = "Wan Chai";
 const $EA = "Eastern District";
-exports.rainfall_recorded = [$CW, $WC, $EA];
+const $SO = "Southern District";
+const $KT = "Kwun Tong";
+const $WT = "Wong Tai Sin";
+const $KC = "Kowloon City";
+const $YM = "Yau Tsim Mong";
+const $SS = "Sham Shui Po";
+const $SK = "Sai Kung";
+const $ST = "Sha Tin";
+const $TP = "Tai Po";
+const $NO = "North District";
+const $KW = "Kwai Tsing";
+const $TW = "Tsuen Wan";
+const $TM = "Tuen Mun";
+const $YL = "Yuen Long";
+const $IS = "Islands";
+const $IS2 = "Islands District";
+exports.rainfall_recorded = [$CW, $WC, $EA, $SO, $KT, $WT, $KC, $YM, $SS, $SK, $ST, $TP, $NO, $KW, $TW, $TM, $YL, $IS, $IS2];
 exports.cron_time_weather_obtain = "30 * * * * *";				//Obtain weather data at 30th second of each minute
 exports.weather_time_start = 5.5;//hours						//Omit weather recordings beginning before 5:30am
 exports.cron_time_weather_start = "15 5 * * *";
@@ -57,7 +74,10 @@ exports.tram_eta_nonarrived_limit = 120;//secs					//For determination of arriva
 exports.cron_time_tram_get_eta = "0 * * * * *";					//Get ETA for all every minute
 exports.cron_time_tram_get_eta2 = "10,20,30,40,50 * * * * *";	//Get ETA for isTerminus: true every 10 seconds (except @min)
 exports.cron_time_tram_get_em = "5 */3 * * * *";				//Get emergency message every 3 minutes
+
+ //to be deleted after update, 2018/1/24
 exports.cron_time_tram_clean_data = "30 2 * * *";				//Clean data at 2:30am
+ //to be deleted after update, 2018/1/24
 exports.cron_time_tram_update_regression = "0 3 * * *";			//Update regression variables at 3am
 
 //Stops that ETA data are required
@@ -201,7 +221,7 @@ exports.prediction_modes = {
 };
 
 /**
- * Tram Regressions, obsolete
+ * Tram Regressions, obsolete //to be deleted after update, 2018/1/24
  */
 
 exports.tram_regression_modes = {

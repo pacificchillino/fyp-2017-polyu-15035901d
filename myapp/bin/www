@@ -98,8 +98,10 @@ function onListening() {
 var what_day = require("../what_day.js");
 var data_obtain_weather = require("../data_obtain_weather");
 var data_obtain_tram = require("../data_obtain_tram");
-var data_regression_tram = require("../data_regression_tram");
-var data_update_tram = require("../data_update_tram");
+global.prediction = require("../prediction.js");
+
+var data_regression_tram = require("../data_regression_tram"); //to be deleted after update, 2018/1/24
+var data_update_tram = require("../data_update_tram"); //to be deleted after update, 2018/1/24
 
 /**
  * Socket.io connection --> global.io
@@ -127,6 +129,7 @@ MongoClient.connect(func.getMongoURL(), function(err, mydb) {
 function initAll(isDateTurnover){
 	data_obtain_weather.init(isDateTurnover);
 	data_obtain_tram.init(isDateTurnover);
+	global.prediction.init();
 	what_day.getToday();
 }
 
@@ -181,11 +184,11 @@ cron.schedule(config.cron_time_tram_get_em, function(){
 });
 
 //Update data
-cron.schedule(config.cron_time_tram_clean_data, function(){
+cron.schedule(config.cron_time_tram_clean_data, function(){ //to be deleted after update, 2018/1/24
 	data_update_tram.doCleaning();
 });
 
 //Update regression
-cron.schedule(config.cron_time_tram_update_regression, function(){
+cron.schedule(config.cron_time_tram_update_regression, function(){ //to be deleted after update, 2018/1/24
 	data_regression_tram.updateRegressions();
 });
