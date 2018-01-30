@@ -100,8 +100,11 @@ function initForOneSectCollection(){
 	var mySC = sectCollectionList[sc];
 	//Socket msg
 	func.msg("Initializing predictions for " + mySC +" (" + (sc+1) + " of " + sectCollectionList.length + ")", config.debug_color.prediction);
+	//Set up filter to exclude today data
+	var todayString = func.getYYYYMMDD(new Date());
+	var filter = {date: {$lt: todayString}};
 	//Find from MongoDB
-	global.db.collection(mySC).find({}).toArray(function(err, data) {
+	global.db.collection(mySC).find(filter).toArray(function(err, data) {
 		//Initialize for Each Model
 		for (var m in models){
 			func.msg("--> " + models[m].name, config.debug_color.prediction);
