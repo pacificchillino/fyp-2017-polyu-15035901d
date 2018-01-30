@@ -100,9 +100,6 @@ var data_obtain_weather = require("../data_obtain_weather");
 var data_obtain_tram = require("../data_obtain_tram");
 global.prediction = require("../prediction.js");
 
-var data_regression_tram = require("../data_regression_tram"); //to be deleted after update, 2018/1/24
-var data_update_tram = require("../data_update_tram"); //to be deleted after update, 2018/1/24
-
 /**
  * Socket.io connection --> global.io
  */
@@ -181,14 +178,4 @@ cron.schedule(config.cron_time_tram_get_eta2, function(){
 //Obtain E.M. message
 cron.schedule(config.cron_time_tram_get_em, function(){
 	data_obtain_tram.obtainTramEM();
-});
-
-//Update data
-cron.schedule(config.cron_time_tram_clean_data, function(){ //to be deleted after update, 2018/1/24
-	data_update_tram.doCleaning();
-});
-
-//Update regression
-cron.schedule(config.cron_time_tram_update_regression, function(){ //to be deleted after update, 2018/1/24
-	data_regression_tram.updateRegressions();
 });

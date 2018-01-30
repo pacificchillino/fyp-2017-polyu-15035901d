@@ -1,7 +1,9 @@
 var config = require("./config.js");
 var func = require("./func.js");
 
-exports.name = "Hybrid Kalman Filtering / Regression Models";
+var MLR = require("ml-regression-multivariate-linear");
+
+exports.name = "Hybrid Kalman Filtering & Regression Models";
 exports.description = "Hybrid use of Kalman Filters for time of days, and regressions for other input parameters.";
 exports.modes = {
 	"default": {
@@ -57,10 +59,11 @@ exports.modes = {
 /**
  * Variables:
  * - lastUpdate
- * - average_tt["sectCollection"]
+ * - predictors["sectCollection"]["mode"]["class"]
  */
 
 var lastUpdate;
+var predictors = new Object();
 
 /**
  * Method for Obtaining Last Update Time
@@ -76,11 +79,52 @@ exports.getLastUpdate = function(){
 
 exports.init = function(sectCollection, data){
 	lastUpdate = new Date();
+	predictors[sectCollection] = new Object();
+	//For each mode
+	for (var mode in exports.modes){
+		var inputs = new Object();
+		var outputs = new Object();
+		var myClassList = exports.modes[mode].classList;
+		//Determine Regression & Kalman Mode
+		var myRegressionMode = exports.modes[mode].regressionMode;
+		var myKalmanMode = exports.modes[mode].kalmanMode;
+		//For each class
+		for (var i in myClassList){
+			var myClass = myClassList[i];
+			inputs[myClass] = new Array();
+			outputs[myClass] = new Array();
+		}
+		//Feed inputs and outputs
+		for (var i in data){
+			var myInput = global.prediction.getModel("regression").getRegressionVariables(myRegressionMode, data[i]);
+			var kalmanFiltered = global.prediction.getModel("kalman").getMean(sectCollection, myKalmanMode, data[i]);
+			var myOutput = [data[i].tt_mins / kalmanFiltered];
+			var myClass = exports.modes[mode].classification(data[i]);
+			if (myInput != null){
+				inputs[myClass].push(myInput);
+				outputs[myClass].push(myOutput);
+			}
+		}
+		//Construct MLR for each class
+		predictors[sectCollection][mode] = new Object();
+		for (var i in myClassList){
+			var myClass = myClassList[i];
+			predictors[sectCollection][mode][myClass] = new MLR(inputs[myClass], outputs[myClass]);
+		}
+	}
 };
 
 /**
  * Method for Making a Prediction for a Section
  */
 exports.predict = function(sectCollection, mode, inputData){
-
+	var myRegressionMode = exports.modes[mode].regressionMode;
+	var myKalmanMode = exports.modes[mode].kalmanMode;
+	var myClass = exports.modes[mode].classification(inputData);
+	var myRegressionInput = global.prediction.getModel("regression").getRegressionVariables(myRegressionMode, inputData);
+	var kalmanFiltered = global.prediction.getModel("kalman").getMean(sectCollection, myKalmanMode, inputData);
+	var myRegressionOutput = predictors[sectCollection][mode][myClass].predict(myRegressionInput);
+	if (kalmanFiltered == null) return null;
+	else if (myRegressionInput[0] == null) return null;
+	else return myRegressionOutput[0] * kalmanFiltered;
 };

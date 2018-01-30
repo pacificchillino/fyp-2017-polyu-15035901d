@@ -9,10 +9,14 @@ var models = {
 	"historical": require("./prediction_historical.js"),
 	"kalman": require("./prediction_kalman.js"),
 	"regression": require("./prediction_regression.js"),
-	//"hybrid": require("./prediction_kr_hybrid.js"),
+	"hybrid": require("./prediction_kr_hybrid.js"),
 	"knn": require("./prediction_knn.js"),
 	//"neural": require("./prediction_neural.js"),
 };
+
+exports.getModel = function(model){
+	return models[model];
+}
 
 var modelList = [];
 for (var m in models){
@@ -33,37 +37,49 @@ for (var i in config.tram_est_sections){
 }
 
 /**
- * Get Model & Modes Options List
- * optionsList[model].id
- * optionsList[model].name
- * optionsList[model].description
- * optionsList[model].modes[mode].id
- * optionsList[model].modes[mode].name
- * optionsList[model].modes[mode].description
+ * Get Model List (id, name, description)
  */
 
-function getOptionsList(){
-	var optionsList = [];
+exports.getModels = function(){
+	var list = [];
 	for (var myModel in models){
-		var modes = [];
-		for (var myMode in models[myModel].modes){
-			modes.push({
-				id: myMode,
-				name: models[myModel].modes[myMode].name,
-				description: models[myModel].modes[myMode].description,
-			});
-		}
-		optionsList.push({
+		list.push({
 			id: myModel,
 			name: models[myModel].name,
 			description: models[myModel].description,
-			modes: modes,
 		});
 	}
-	return optionsList;
+	return list;
+};
+
+exports.getAModel = function(myModel){
+	if (models[myModel] != null){
+		return {
+			id: myModel,
+			name: models[myModel].name,
+			description: models[myModel].description,
+		};
+	}
 }
 
-exports.optionsList = getOptionsList();
+/**
+ * Get Mode List (id, name, description)
+ */
+
+exports.getModes = function(model){
+	var list = [];
+	if (models[model] != null){
+		for (var myMode in models[model].modes){
+			list.push({
+				id: myMode,
+				name: models[model].modes[myMode].name,
+				description: models[model].modes[myMode].description,
+			});
+		}
+		return list;
+	}
+	return [];
+}
 
 /** 
  * Init

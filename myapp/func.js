@@ -93,6 +93,11 @@ exports.getHMSmsOfDay = function(date){ //HH:MM:SS.000 , where HH < 24
 	return exports.getHMSOfDay(date)+"."+ms;
 };
 
+exports.getHoursByHM = function(str){
+	var splitup = HHMM.split(":");
+	return parseInt(splitup[0]) + parseInt(splitup[1])/60;
+}
+
 exports.isDuringTramRecordingTimeA = function(date){ //Tram: Starting of section
 	if (date == null) date = new Date();
 	var hours = date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600;

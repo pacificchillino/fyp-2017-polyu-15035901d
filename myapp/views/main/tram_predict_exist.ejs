@@ -1,0 +1,248 @@
+<%- include('header'); %>
+
+	<%# Search Box --------------------------------------------------------------------- %>
+
+	<%
+	function section(compare){
+		if (typeof params === "undefined"){
+			return "";
+		}else{
+			return (params.stopA+"/"+params.stopB == compare) ? " selected" : "";
+		}
+	}
+
+	function model(compare){
+		if (typeof params === "undefined"){
+			return "";
+		}else{
+			return (params.model == compare) ? " selected" : "";
+		}
+	}
+	%>
+	<div class="panel panel-default">
+		<div class="panel-heading"><b><%= title %></b></div>
+		<div class="panel-body">
+			<form>
+				<div class="form-group">
+					<div class="row">
+						<%# Section %>
+						<label class="control-label col-sm-3 col-lg-2" for="section">Select section:</label>
+						<div class="col-sm-9 col-lg-4">
+							<select class="form-control" id="section">
+								<option value="">-- Please select --</option>
+								<% for (var i in searchbox.sections){ %>
+								<option value = "<%= searchbox.sections[i].from_to %>"<%= section(searchbox.sections[i].from_to) %>><%= searchbox.sections[i].caption %></option>
+								<% } %>
+							</select>
+						</div>
+						<%# Filter: Date %>
+						<label class="control-label col-sm-3 col-lg-2" for="date">Date:</label>
+						<div class="col-sm-9 col-lg-4">
+								<input type="text" class="datepicker form-control" id="date">
+						</div>
+						<%# Prediction Model %>
+						<label class="control-label col-sm-3 col-lg-2" for="model">Prediction Model:</label>
+						<div class="col-sm-9 col-lg-4">
+							<select class="form-control" id="model">
+								<option value="">-- Please select --</option>
+								<% for (var i in searchbox.models){ %>
+								<option value = "<%= searchbox.models[i].id %>"<%= model(searchbox.models[i].id) %>><%= searchbox.models[i].name %></option>
+								<% } %>
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<br/>
+						<button type="button" class="btn-block btn-default" onclick="searchbox_submit();">View</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script language = "javascript">
+		//Date & Time Pickers
+		$('.datepicker').pickadate({format: 'yyyy/mm/dd'});
+		$("#date").val("<%= global.dateStr %>");
+		//Submit
+		function searchbox_submit(){
+			if ($("#section").val() != "" && $("#date").val() != "" && $("#model").val() != ""){
+				//Valid
+				var URL = "/trams/predict_exist/" + $("#section").val() + "/" + $("#date").val() + "/" + $("#model").val();
+				//Go to new URL
+				window.location.href = URL;
+			}
+		}
+	</script>
+
+	<%# Search Box Ends --------------------------------------------------------------------- %>
+
+	<style>
+		.table td {text-align: center;}
+		.table th {text-align: center;}
+		.table {font-size:0.8em;}
+	</style>
+
+	<% if (typeof params == "undefined"){ %>
+	<p>
+		<h4>Prediction Models:</h4>
+		<ol>
+			<% for (var i in searchbox.models){ %>
+			<li>
+				<strong><%= searchbox.models[i].name %>:</strong><br/><%= searchbox.models[i].description %>
+			</li>
+			<% } %>
+		</ol>
+	</p>
+	<% }else{ %>
+
+		<script language = "javascript">
+			//Prefill data
+			$("#date").val("<%= params.yy %>/<%= params.mm %>/<%= params.dd %>");
+			//Next & Prev day button
+			function btn_prev_day(){
+				window.location.href = "/trams/predict_exist/<%= params.stopA %>/<%= params.stopB %>/<%= date_prev %>/<%= params.model %>";
+			}
+			function btn_next_day(){
+				window.location.href = "/trams/predict_exist/<%= params.stopA %>/<%= params.stopB %>/<%= date_next %>/<%= params.model %>";
+			}
+		</script>
+
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="row">
+					<div class="col-sm-6 col-lg-6">
+						<button type="button" class="btn-block btn-default" onclick="btn_prev_day();">Prev Day (<%= date_prev %>)</button>
+					</div>
+					<div class="col-sm-6 col-lg-6">
+						<button type="button" class="btn-block btn-default" onclick="btn_next_day();">Next Day (<%= date_next %>)</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<% if (typeof params == "undefined"){ %>
+
+			<h4>Prediction Models:</h4>
+			<ol>
+				<% for (var i in searchbox.models){ %>
+				<li>
+					<strong><%= searchbox.models[i].name %>:</strong><br/><%= searchbox.models[i].description %>
+				</li>
+				<% } %>
+			</ol>
+
+				<% }else if (searchbox.modes.length == 0){ %>
+
+			<p>Sorry, model is not found.</p>
+
+		<% }else{ %>
+
+			<h3><%= params.stopA %> - <%= params.stopB %> (<%= params.yy %>/<%= params.mm %>/<%= params.dd %>)</h2>
+
+			<ul class="nav nav-tabs">
+				<li><a data-toggle="tab" href="#desc">Prediction Modes</a></li>
+				<li class="active"><a data-toggle="tab" href="#num">Numerals</a></li>
+				<li><a data-toggle="tab" href="#chart">Charts</a></li>
+			</ul>
+
+			<div class="tab-content">
+				<%# Description ------------------------------------------------------------------------ %>
+				<div id="desc" class="tab-pane fade">
+						<h4>Prediction Modes for <%= searchbox.myModel.name %>:</h4>
+						<ol>
+							<% for (var i in searchbox.modes){ %>
+							<li>
+								<strong><%= searchbox.modes[i].name %>:</strong> <small>(<%= searchbox.modes[i].id %>)</small><br/>
+								<%= searchbox.modes[i].description %>
+							</li>
+							<% } %>
+						</ol>
+				</div>
+				<%# Numerals ------------------------------------------------------------------------ %>
+				<div id="num" class="tab-pane fade in active">
+					<div class="table-responsive">          
+						<table class="table">
+							<thead>
+								<tr>
+									<th colspan="8">Input Variables</th>
+									<th>Actual</th>
+									<th colspan="<%= searchbox.modes.length %>">Predicted</th>
+								</tr>
+								<tr>
+									<th>Weekday?</th>
+									<th>P.H.?</th>
+									<th>D.O.W.</th>
+									<th>Starting</th>
+									<th>(Normalized)</th>
+									<th>Rainfall</th>
+									<th>HKO Temp.</th>
+									<th>HKO Hum.</th>
+									<th>Mins Spent</th>
+									<% for (var j in searchbox.modes){ %>
+									<th><%= searchbox.modes[j].id %></th>
+									<% } %>
+								</tr>
+							</thead>
+							<% for (var i in actual){ %>
+							<tr>
+								<td><%= actual[i].wkday ? "Yes" : "No" %></td>
+								<td><%= actual[i].PH ? "Yes" : "No" %></td>
+								<td><%= ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][actual[i].dayOfWk] %></td>
+								<td><%= actual[i].starting %></td>
+								<td><%= actual[i].starting_normalized %></td>
+								<td><%= actual[i].rainfall %> mm</td>
+								<td><% if (typeof actual[i].HKO_temp !== "undefined"){ %><%= actual[i].HKO_temp %> ℃<% } %></td>
+								<td><% if (typeof actual[i].HKO_hum !== "undefined"){ %><%= actual[i].HKO_hum %> %<% } %></td>
+								<td><b><%= actual[i].minsSpent %></b>′</td>
+								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
+								<td><%= predicted[myMode].predicted2[i] %>'</td>
+								<% } %>
+							</tr>
+							<% } %>
+							<tfoot>
+								<tr>
+									<th colspan="9">Minimum Error of Prediction:</th>
+									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
+									<th><%= predicted[myMode].minError2 %>'</th>
+									<% } %>	
+								</tr>
+								<tr>
+									<th colspan="9">Worst Error of Prediction:</th>
+									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
+									<th><%= predicted[myMode].maxError2 %>'</th>
+									<% } %>
+								</tr>
+								<tr>
+									<th colspan="9">Mean Absolute Error (MAE) of Prediction:</th>
+									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
+									<th><%= predicted[myMode].MAE2 %>'</th>
+									<% } %>
+								</tr>
+								<tr>
+									<th colspan="9">Root Mean Square Error (RMSE) of Prediction:</th>
+									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
+									<th><%= predicted[myMode].RMSE2 %>'</th>
+									<% } %>
+								</tr>
+								<tr>
+									<th colspan="9"></th>
+									<% for (var j in searchbox.modes){ %>
+									<th><%= searchbox.modes[j].id %></th>
+									<% } %>	
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+				<%# Charts ------------------------------------------------------------------------ %>
+				<div id="chart" class="tab-pane fade">
+
+				</div>
+			</div>
+			
+		<% } %>
+
+	<% } %>
+
+<%- include('footer'); %>

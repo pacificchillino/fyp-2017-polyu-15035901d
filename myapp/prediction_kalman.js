@@ -6,9 +6,9 @@ var KalmanFilter = require('kalmanjs').default;
 exports.name = "Kalman Filtering Model";
 exports.description = "Using Kalman Filters to fit travelling time with respect to day of time.";
 
-var defaultFilter = {R: 0.01, Q: 5};
-var lessSensitiveFilter = {R: 0.01, Q: 2};
-var moreSensitiveFilter = {R: 0.01, Q: 10};
+var defaultFilter = {R: 0.01, Q: 2};
+var lessSensitiveFilter = {R: 0.01, Q: 1};
+var moreSensitiveFilter = {R: 0.01, Q: 4};
 var defaultSamplingInterval = 60;
 var moreFreqSamplingInterval = 10;
 var lessFreqSamplingInterval = 300;
