@@ -126,6 +126,16 @@ function initForOneSectCollection(){
  * Prediction
  */
 
+/**
+ * [[predictOne]]
+ * 
+ * Inputs:
+ * - sectCollection: Mongo Collection for the Section (either bus or tram)
+ * - model: Prediction model used
+ * - mode: Prediction mode (respect to the model) used
+ * - data: input data
+ */
+
 exports.predictOne = function(sectCollection, model, mode, data){
 	if (models[model] != null){ if (models[model].modes[mode] != null){
 		return models[model].predict(sectCollection, mode, inputData);
@@ -234,14 +244,3 @@ exports.predict = function(sectCollection, model, mode, dataArray){
 	}
 	return null;
 };
-
-/**
- * [[predictOne]]
- * 
- * Inputs:
- * - sectCollection: Mongo Collection for the Section (either bus or tram)
- * - model: Prediction model used
- * - mode: Prediction mode (respect to the model) used
- * - data: input data
- */
-

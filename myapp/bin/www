@@ -98,6 +98,7 @@ function onListening() {
 var what_day = require("../what_day.js");
 var data_obtain_weather = require("../data_obtain_weather");
 var data_obtain_tram = require("../data_obtain_tram");
+var data_clean_tram = require("../data_clean_tram");
 global.prediction = require("../prediction.js");
 
 /**
@@ -178,4 +179,9 @@ cron.schedule(config.cron_time_tram_get_eta2, function(){
 //Obtain E.M. message
 cron.schedule(config.cron_time_tram_get_em, function(){
 	data_obtain_tram.obtainTramEM();
+});
+
+//Clean data
+cron.schedule(config.cron_time_tram_clean_data, function(){
+	data_clean_tram.doCleaning();
 });

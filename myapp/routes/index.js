@@ -15,8 +15,8 @@ var tram_view_data_controller = require('../controllers/tram_view_data_controlle
 //var tram_prediction_controller = require('../controllers/tram_prediction_controller');
 
 router.get('/trams/view_data', tram_view_data_controller.tram_data);
-router.get('/trams/data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result);
-router.get('/api/trams/data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result_api);
+router.get('/trams/view_data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result);
+router.get('/api/trams/view_data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result_api);
 
 router.get('/trams/predict_exist', tram_view_data_controller.tram_data_predict_exist);
 router.get('/trams/predict_exist/:stopA/:stopB/:yy/:mm/:dd/:model', tram_view_data_controller.tram_data_predict_exist_result);

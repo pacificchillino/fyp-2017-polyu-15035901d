@@ -177,6 +177,7 @@ var tram_data_predict_exist_result = function (req, res, isAPI){
 						query: req.query,
 						actual: result,
 						predicted: predict_result,
+						data_for_chart: JSON.stringify(result_for_time_chart(modes, result, predict_result)),
 						count: count,
 					};
 					res.render('main/tram_predict_exist', data);
@@ -186,11 +187,37 @@ var tram_data_predict_exist_result = function (req, res, isAPI){
 	}
 };
 
-//Get results optimized for charts
-var result_for_charts = function(result){
-
-};
-
 /**
- * Misc
+ * For Charting
  */
+
+var result_for_time_chart = function(modeList, actual, predicted){
+	var data = {
+		modes: [],
+		actual: [],
+		predicted: {},
+	};
+	//For each mode
+	for (var i in modeList){
+		var mode = modeList[i].id;
+		data.modes.push(mode);
+		data.predicted[mode] = [];
+		for (var j in predicted[mode].predicted){
+			//Only obtain data with predictions
+			if (predicted[mode].predicted[j] != null){
+				data.predicted[mode].push({
+					x: actual[j].hours.toFixed(4) -0,
+					y: predicted[mode].predicted[j].toFixed(3) -0,
+				});
+			}
+		}
+	};
+	//For actual
+	for (var j in actual){
+		data.actual.push({
+			x: actual[j].hours.toFixed(4) -0,
+			y: actual[j].tt_mins.toFixed(3) -0,
+		});
+	}
+	return data;
+};

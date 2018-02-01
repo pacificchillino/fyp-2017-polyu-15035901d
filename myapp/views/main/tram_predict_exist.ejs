@@ -202,12 +202,6 @@
 							<% } %>
 							<tfoot>
 								<tr>
-									<th colspan="9">Minimum Error of Prediction:</th>
-									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-									<th><%= predicted[myMode].minError2 %>'</th>
-									<% } %>	
-								</tr>
-								<tr>
 									<th colspan="9">Worst Error of Prediction:</th>
 									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
 									<th><%= predicted[myMode].maxError2 %>'</th>
@@ -237,8 +231,87 @@
 				</div>
 				<%# Charts ------------------------------------------------------------------------ %>
 				<div id="chart" class="tab-pane fade">
+					<div style="width: 100%">
+						<canvas id="chart_time"></canvas>
+					</div>
+					<script src = "/javascripts/Chart.bundle.min.js"></script>
+
+					<script language = "javascript">
+
+						var chart_data = JSON.parse('<%- data_for_chart %>');
+
+						var datasetLine = function (label, data, hue){
+							return {
+								label: label,
+								data: data,
+								showLine: true,
+								borderColor: (hue == null) ? "rgba(0, 0, 0, 0.8)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.8)",
+								backgroundColor: (hue == null) ? "rgba(0, 0, 0, 0.1)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.1)",
+								fill: false,
+								borderWidth: 2,
+								pointRadius: 0,
+								lineTension: 0,
+							};
+						}
+
+						var datasetPoint = function (label, data, hue){
+							return {
+								label: label,
+								data: data,
+								borderColor: (hue == null) ? "rgba(0, 0, 0, 0.8)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.9)",
+								backgroundColor: (hue == null) ? "rgba(0, 0, 0, 0.5)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.7)",
+								fill: false,
+								pointRadius: 3,
+								lineTension: 0,
+							};
+						}
+
+						//Travelling Time Chart
+						var dataset_time = [];
+						dataset_time.push(datasetPoint("Actual", chart_data.actual));
+						for (var i in chart_data.modes){
+							var hue = i / chart_data.modes.length;
+							var mode = chart_data.modes[i];
+							dataset_time.push(datasetLine(mode, chart_data.predicted[mode], hue));
+						}
+
+						var ctx_time = document.getElementById("chart_time").getContext("2d");
+						var chart_time = Chart.Scatter(ctx_time, {
+							data: {
+								datasets: dataset_time,
+							},
+							options: {
+								title: {
+									display: true,
+									text: 'Travelling Time (<%= params.stopA %> - <%= params.stopB %> , <%= params.yy %>/<%= params.mm %>/<%= params.dd %>)',
+									fontSize: 16,
+								},
+								legend: {
+                        			position: "top",
+                   				},
+								scales: {
+									xAxes: [{
+										display: true,
+										scaleLabel: {
+                              				display: true,
+											labelString: "Time of Day (Hours)",
+										},
+									}],
+									yAxes: [{
+										display: true,
+										scaleLabel: {
+                              				display: true,
+											labelString: "Travelling Time (Minutes)",
+										},
+									}],
+								},
+							}
+						});
+
+					</script>
 
 				</div>
+				<%# End of Tabs ------------------------------------------------------------------------ %>
 			</div>
 			
 		<% } %>
