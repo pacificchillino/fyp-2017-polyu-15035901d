@@ -132,13 +132,18 @@
 				<% } %>
 			</ol>
 
-				<% }else if (searchbox.modes.length == 0){ %>
+		<% }else if (searchbox.modes.length == 0){ %>
 
 			<p>Sorry, model is not found.</p>
 
+		<% }else if (count == 0){ %>
+
+			<p>Sorry, no data found.</p>
+
 		<% }else{ %>
 
-			<h3><%= params.stopA %> - <%= params.stopB %> (<%= params.yy %>/<%= params.mm %>/<%= params.dd %>)</h2>
+			<h3>Section: <%= params.stopA %> - <%= params.stopB %></h3>
+			<p>Date: <%= params.yy %>/<%= params.mm %>/<%= params.dd %></p>
 
 			<ul class="nav nav-tabs">
 				<li><a data-toggle="tab" href="#desc">Prediction Modes</a></li>
@@ -202,12 +207,6 @@
 							<% } %>
 							<tfoot>
 								<tr>
-									<th colspan="9">Worst Error of Prediction:</th>
-									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-									<th><%= predicted[myMode].maxError2 %>'</th>
-									<% } %>
-								</tr>
-								<tr>
 									<th colspan="9">Mean Absolute Error (MAE) of Prediction:</th>
 									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
 									<th><%= predicted[myMode].MAE2 %>'</th>
@@ -217,6 +216,12 @@
 									<th colspan="9">Root Mean Square Error (RMSE) of Prediction:</th>
 									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
 									<th><%= predicted[myMode].RMSE2 %>'</th>
+									<% } %>
+								</tr>
+								<tr>
+									<th colspan="9">Worst Error of Prediction:</th>
+									<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
+									<th><%= predicted[myMode].maxError2 %>'</th>
 									<% } %>
 								</tr>
 								<tr>

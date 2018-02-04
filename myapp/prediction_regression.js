@@ -224,6 +224,10 @@ exports.init = function(sectCollection, data){
 exports.predict = function(sectCollection, mode, inputData){
 	var myClass = exports.modes[mode].classification(inputData);
 	var myInput = exports.modes[mode].regression_variables(inputData);
-	var myOutput = predictors[sectCollection][mode][myClass].predict(myInput);
-	return myOutput[0];
+	if (myInput != null){
+		var myOutput = predictors[sectCollection][mode][myClass].predict(myInput);
+		return myOutput[0];
+	}else{
+		return null;
+	}
 };

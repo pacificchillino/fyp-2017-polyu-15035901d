@@ -6,21 +6,33 @@ var func = require("../func.js");
  */
 
 var searchbox = function(model){
-	var searchbox = {
-		sections: [],
+	return {
+		sections: tram_sections(),
 		models: global.prediction.getModels(),
 		myModel: (model != null) ? global.prediction.getAModel(model) : null,
 		modes: (model != null) ? global.prediction.getModes(model) : [],
 	};
+}
+
+var tram_sections = function(){
+	var arr = [];
 	for (var i in config.tram_est_sections){
 		var from = config.tram_est_sections[i].from.split("_")[0];
 		var to = config.tram_est_sections[i].to.split("_")[0];
-		searchbox.sections.push({
+		arr.push({
+			from: from,
+			to: to,
 			from_to: from + "/" + to,
+			from_name: config.tram_stops_for_eta[config.tram_est_sections[i].from].name,
+			to_name: config.tram_stops_for_eta[config.tram_est_sections[i].to].name,
 			caption: from + " to " + to + " (" + config.tram_stops_for_eta[config.tram_est_sections[i].from].name + " to " + config.tram_stops_for_eta[config.tram_est_sections[i].to].name + ")",
 		});
 	}
-	return searchbox;
+	return arr;
+}
+
+exports.tram_sections_api = function(req, res){
+	res.send(JSON.stringify(tram_sections()));
 }
 
 /**
@@ -220,4 +232,80 @@ var result_for_time_chart = function(modeList, actual, predicted){
 		});
 	}
 	return data;
+};
+
+/**
+ * Prediction with Existing Data (Weekly) - Search Box only
+ */
+
+exports.tram_data_predict_week = function(req, res){
+	var data = {
+		title: "Trams: Travelling Time Prediction Error Summary with Weekly Data",
+		searchbox: searchbox(),
+	};
+	res.render('main/tram_predict_week', data);
+};
+
+/**
+ * Prediction with Existing Data (Weekly) - Results
+ */
+
+exports.tram_data_predict_week_result = function(req, res){
+	tram_data_predict_week_result(req, res, false);
+};
+
+exports.tram_data_predict_week_result_api = function(req, res){
+	tram_data_predict_week_result(req, res, true);
+};
+
+var tram_data_predict_week_result = function (req, res, isAPI){
+	//Get list of dates
+	var yy = req.params.yy - 0;
+	var mm = req.params.mm - 1;
+	var dd = req.params.dd - 0;
+	if (!isNaN(yy) && !isNaN(mm) && !isNaN(dd)){
+		//Valid Dates
+		var firstDay = func.getYYYYMMDD(new Date(yy, mm, dd - 6));
+		var lastDay = func.getYYYYMMDD(new Date(yy, mm, dd));
+	}else{
+		//Invalid Dates
+		var firstDay = "0000/00/00";
+		var lastDay = "0000/00/00";
+	}
+	//Table
+	var db_table = "data_tram_" + req.params.stopA + "_" + req.params.stopB;
+	//Filter
+	var filter = { date: { $gte: firstDay, $lte: lastDay } };
+	//Select from DB
+	if (global.db != null){
+		global.db.collection(db_table).find(filter).toArray(function(err, result) {
+			if (err) throw err;
+			//Get prediction result
+			var sectCollection = db_table;
+			var model = req.params.model;
+			var modes = global.prediction.getModes(model);
+			var summary = {};
+			for (var i in modes){
+				myMode = modes[i].id;
+				summary[myMode] = global.prediction.predictionErrorSummaryByDate(sectCollection, model, myMode, result);
+			}
+			if (isAPI){
+				//Return API
+				res.send(summary);
+			}else{
+				//Render
+				var data = {
+					title: "Trams: Travelling Time Prediction Error Summary with Weekly Data",
+					searchbox: searchbox(model),
+					params: req.params,
+					query: req.query,
+					firstDay: firstDay,
+					lastDay: lastDay,
+					summary: summary,
+					count: result.length,
+				};
+				res.render('main/tram_predict_week', data);
+			}
+		});
+	}
 };

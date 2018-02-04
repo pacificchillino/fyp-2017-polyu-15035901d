@@ -81,6 +81,18 @@ exports.getModes = function(model){
 	return [];
 }
 
+/**
+ * Get hierarical mode / model list
+ */
+exports.getModelAndModes = function(){
+	var data = exports.getModels();
+	for (var i in data){
+		var myModel = data[i].id;
+		data[i].modes = exports.getModes(myModel);
+	}
+	return data;
+};
+
 /** 
  * Init
  */
@@ -177,10 +189,10 @@ exports.predict = function(sectCollection, model, mode, dataArray){
 				actual: [],			actual2: [],
 				predicted: [],		predicted2: [],
 				error: [],			error2: [],
-				maxError: false,	maxError2: false,
-				minError: false,	minError2: false,
-				MAE: 0,				MAE2: false,
-				RMSE: 0,			RMSE2: false,
+				maxError: false,	maxError2: "",
+				minError: false,	minError2: "",
+				MAE: 0,				MAE2: "",
+				RMSE: 0,			RMSE2: "",
 			};
 			var validCount = 0;
 			//For each data
@@ -238,6 +250,138 @@ exports.predict = function(sectCollection, model, mode, dataArray){
 			}
 			//Update counter
 			result.validCount = validCount;
+			//Return result
+			return result;
+		}}
+	}
+	return null;
+};
+
+/**
+ * [[predictionErrorSummaryByDate]]
+ * 
+ * Inputs:
+ * - sectCollection: Mongo Collection for the Section (either bus or tram)
+ * - model: Prediction model used
+ * - mode: Prediction mode (respect to the model) used
+ * - dataArray: Array of input data items
+ * 
+ * Output result:
+ * - result.overall.count
+ * - result.overall.validCount
+ * - result.overall.maxError[2]
+ * - result.overall.minError[2]
+ * - result.overall.MAE[2]
+ * - result.overall.RMSE[2]
+ * - result.byDate.[date].maxError[2]
+ * - result.byDate.[date].minError[2]
+ * - result.byDate.[date].MAE[2]
+ * - result.byDate.[date].RMSE[2]
+ * - result.byDate.[date].count
+ * - result.byDate.[date].validCount
+ * - result.computationTime
+ * - result.computationTimeAvgAll[2]
+ * - result.computationTimeAvgValid[2]
+ */
+
+exports.predictionErrorSummaryByDate = function(sectCollection, model, mode, dataArray){
+	//Check if it has been initiated.
+	if (hasBeenInitiated){
+		//Check if the model and the mode exists
+		if (models[model] != null){ if (models[model].modes[mode] != null){
+			//Declare result object
+			var resultTemplate = function(){
+				return {
+					count: 0,
+					validCount: 0,
+					maxError: false,	maxError2: "",
+					minError: false,	minError2: "",
+					MAE: 0,				MAE2: "",
+					RMSE: 0,			RMSE2: "",
+				};
+			};
+			var result = {
+				overall: resultTemplate(),
+				byDate: {},
+			};
+			//Mark start time
+			var startComputationTime = new Date();
+			//For each data
+			for (var i in dataArray){
+				var data = dataArray[i];
+				var date = dataArray[i].date;
+				//Predicted Result
+				var predicted = models[model].predict(sectCollection, mode, dataArray[i]);
+				var actual = dataArray[i].tt_mins;
+				//Increment Counter
+				result.overall.count++;
+				if (result.byDate[date] == null){
+					result.byDate[date] = resultTemplate();
+				}
+				result.byDate[date].count++;
+				//Valid
+				if (predicted != null){
+					//Error
+					var error = Math.abs(actual - predicted);
+					var error2 = error.toFixed(2);
+					//Max & Min Error
+					if (result.overall.maxError == false || error > result.overall.maxError){
+						result.overall.maxError = error;
+						result.overall.maxError2 = error2;
+					}
+					if (result.byDate[date].maxError == false || error > result.byDate[date].maxError){
+						result.byDate[date].maxError = error;
+						result.byDate[date].maxError2 = error2;
+					}
+					if (result.overall.minError == false || error < result.overall.minError){
+						result.overall.minError = error;
+						result.overall.minError2 = error2;
+					}
+					if (result.byDate[date].minError == false || error < result.byDate[date].minError){
+						result.byDate[date].minError = error;
+						result.byDate[date].minError2 = error2;
+					}
+					//MAE & RMSE
+					result.overall.MAE += error;
+					result.byDate[date].MAE += error;
+					result.overall.RMSE += error * error;
+					result.byDate[date].RMSE += error * error;
+					//Increment counter
+					result.overall.validCount ++;
+					result.byDate[date].validCount ++;
+				};
+			};
+			//Mark computation time
+			var endComputationTime = new Date();
+			result.computationTime = endComputationTime.getTime() - startComputationTime.getTime();
+			result.computationTimeAvgAll = result.computationTime / result.overall.count;
+			if (result.overall.count > 0){
+				result.computationTimeAvgAll2 = (result.computationTimeAvgAll * 1000).toFixed(4);
+			}else{
+				result.computationTimeAvgAll2 = "";
+			}
+			result.computationTimeAvgValid = result.computationTime / result.overall.validCount;
+			if (result.overall.validCount > 0){
+				result.computationTimeAvgValid2 = (result.computationTimeAvgValid * 1000).toFixed(4);
+			}else{
+				result.computationTimeAvgValid2 = "";
+			}
+			//Summarize
+			var summarizeOne = function(item){
+				if (item.MAE != false){
+					item.MAE = item.MAE / item.validCount;
+					item.MAE2 = item.MAE.toFixed(2);
+				}
+				if (item.RMSE != false){
+					item.RMSE = Math.sqrt(item.RMSE / item.validCount);
+					item.RMSE2 = item.RMSE.toFixed(2);
+				}
+				return item;
+			}
+			result.overall = summarizeOne(result.overall);
+			for (var myDate in result.byDate){
+				result.byDate[myDate] = summarizeOne(result.byDate[myDate]);
+			}
 			//Return result
 			return result;
 		}}
