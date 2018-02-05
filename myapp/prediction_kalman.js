@@ -203,7 +203,12 @@ function intepolateSeries(series){
 exports.getMean = function (sectCollection, mode, data){
 	var myClass = exports.getClass(mode, data);
 	var mySegment = Math.round(rotateHours(data.hours) * 3600 / exports.modes[mode].samplingInterval);
-	return average_tt[sectCollection][mode][myClass][mySegment];
+	if (average_tt[sectCollection] != null){
+		if (average_tt[sectCollection][mode] != null){
+			return average_tt[sectCollection][mode][myClass][mySegment];
+		}
+	}
+	return null;
 };
 
 /**

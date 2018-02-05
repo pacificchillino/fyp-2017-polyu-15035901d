@@ -118,6 +118,14 @@ exports.init = function(sectCollection, data){
  * Method for Making a Prediction for a Section
  */
 exports.predict = function(sectCollection, mode, inputData){
+	//Do validation first
+	if (exports.modes[mode] == null){
+		return null;
+	}
+	if (predictors[sectCollection] == null){
+		return null;
+	}
+	//Do prediction
 	var myRegressionMode = exports.modes[mode].regressionMode;
 	var myKalmanMode = exports.modes[mode].kalmanMode;
 	var myClass = exports.modes[mode].classification(inputData);

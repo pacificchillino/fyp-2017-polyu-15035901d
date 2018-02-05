@@ -76,5 +76,10 @@ exports.init = function(sectCollection, data){
 exports.predict = function(sectCollection, mode, inputData){
 	//Determine the day class
 	var myClass = exports.modes[mode].classification(inputData);
-	return average_tt[sectCollection][mode][myClass];
+	if (average_tt[sectCollection] != null){
+		if (average_tt[sectCollection][mode] != null){
+			return average_tt[sectCollection][mode][myClass];
+		}
+	}
+	return null;
 };

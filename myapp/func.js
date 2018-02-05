@@ -77,7 +77,7 @@ exports.getHMSByHours = function(hours){
 	var HH = ten(Math.floor(hours) % 24);
 	var MM = ten(Math.floor((hours * 60)) % 60);
 	var SS = ten(Math.floor((hours * 3600)) % 60);
-	return HH+":"+MM+"("+SS+")";
+	return HH+":"+MM+":"+SS;
 };
 
 exports.getHMByHours = function(hours){
@@ -111,11 +111,11 @@ exports.getHours = function($str){
 	}
 	if (isPlainNumber){
 		var parsed = $str - 0;
-		return (isNaN(parsed)) ? 0 : parsed;
+		return (isNaN(parsed)) ? null : parsed;
 	}else{
 		switch(str.length){
 			case 0: //empty
-			return 0;
+			return null;
 			break;
 			case 1: //h
 			return parseInt(str);

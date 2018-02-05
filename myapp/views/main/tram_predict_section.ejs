@@ -10,6 +10,29 @@
 			return (params.stopA+"/"+params.stopB == compare) ? " selected" : "";
 		}
 	}
+	function DOW(compare){
+		if (typeof query === "undefined"){
+			return "";
+		}else{
+			return (query.dow + "" == compare + "") ? " selected" : "";
+		}
+	}
+	function PH(compare){
+		if (typeof query === "undefined"){
+			return "";
+		}else{
+			return (query.ph + "" == compare + "") ? " selected" : "";
+		}
+	}
+	function q($q){
+		if (typeof query === "undefined"){
+			return "";
+		}else if (typeof query[$q] === "undefined"){
+			return "";
+		}else{
+			return query[$q];
+		}
+	}
 	%>
 	<div class="panel panel-default">
 		<div class="panel-heading"><b><%= title %></b></div>
@@ -35,13 +58,13 @@
 						<div class="col-sm-9 col-lg-4">
 							<select class="form-control" id="dow" onchange="dow_changed();">
 								<option value="">[Today]</option>
-								<option value = "0">Sunday</option>
-								<option value = "1">Monday</option>
-								<option value = "2">Tuesday</option>
-								<option value = "3">Wednesday</option>
-								<option value = "4">Thursday</option>
-								<option value = "5">Friday</option>
-								<option value = "6">Saturday</option>
+								<option value = "0"<%= DOW(0) %>>Sunday</option>
+								<option value = "1"<%= DOW(1) %>>Monday</option>
+								<option value = "2"<%= DOW(2) %>>Tuesday</option>
+								<option value = "3"<%= DOW(3) %>>Wednesday</option>
+								<option value = "4"<%= DOW(4) %>>Thursday</option>
+								<option value = "5"<%= DOW(5) %>>Friday</option>
+								<option value = "6"<%= DOW(6) %>>Saturday</option>
 							</select>
 						</div>
 						<%# P.H. %>
@@ -49,29 +72,29 @@
 						<div class="col-sm-9 col-lg-4">
 							<select class="form-control" id="ph" onchange="dow_changed();">
 								<option value="">[Today]</option>
-								<option value = "1">Yes</option>
-								<option value = "0">No</option>
+								<option value = "1"<%= PH(1) %>>Yes</option>
+								<option value = "0"<%= PH(0) %>>No</option>
 							</select>
 						</div>
 						<%# Filter: Hours %>
 						<label class="control-label col-sm-3 col-lg-2" for="time">Time:</label>
 						<div class="col-sm-9 col-lg-4">
-								<input type="text" class="form-control" id="time" placeholder="(in hours or 'hh:mm:ss')">
+								<input type="text" class="form-control" id="time" placeholder="(in hours or 'hh:mm:ss')" value="<%= q('time') %>">
 						</div>
 						<%# Filter: Rainfall %>
 						<label class="control-label col-sm-3 col-lg-2" for="rainfall">Rainfall (mm):</label>
 						<div class="col-sm-9 col-lg-4">
-								<input type="text" class="form-control" id="rainfall">
+								<input type="text" class="form-control" id="rainfall" value="<%= q('rainfall') %>">
 						</div>
 						<%# Filter: HKO Temp %>
 						<label class="control-label col-sm-3 col-lg-2" for="HKO_temp">HKO Temperature (℃):</label>
 						<div class="col-sm-9 col-lg-4">
-								<input type="text" class="form-control" id="HKO_temp">
+								<input type="text" class="form-control" id="HKO_temp" value="<%= q('hkotemp') %>">
 						</div>
 						<%# Filter: HKO Humidity %>
 						<label class="control-label col-sm-3 col-lg-2" for="HKO_hum">HKO Humidity (%):</label>
 						<div class="col-sm-9 col-lg-4">
-								<input type="text" class="form-control" id="HKO_hum">
+								<input type="text" class="form-control" id="HKO_hum" value="<%= q('hkohum') %>">
 						</div>
 					</div>
 					<div class="row">
@@ -115,5 +138,43 @@
 	</script>
 	
 	<%# Search Box Ends --------------------------------------------------------------------- %>
+
+	<% if (typeof params != "undefined"){ %>
+
+		<% for (i in models_n_modes){ var myModel = models_n_modes[i].id; %>
+
+		<h3 id="<%= myModel %>"><%= models_n_modes[i].name %> <small>(<%= myModel %>)</small></h3>
+		<p><%= models_n_modes[i].description %></p>
+
+		<div class="panel panel-default">
+			<div class="panel-body">
+
+			<% for (j in models_n_modes[i].modes){ var myMode = models_n_modes[i].modes[j].id; %>
+
+			<h4 id="<%= myModel+"_"+myMode %>"><%= models_n_modes[i].modes[j].name %> <small>(<%= myMode %>)</small></h4>
+
+				<% if (result[myModel][myMode].mins2 == ""){ %>
+					
+				<p>Sorry, no prediction results.</p>
+
+				<% }else{ %>
+
+				<p><%= models_n_modes[i].modes[j].description %></p>
+				
+				<div class="well"><strong>
+					Predicted travelling time: <span style="font-size: 1.5em;"><%= result[myModel][myMode].mins2 %> mins</span>
+					<br/><small>(Begins at: <%= result[myModel][myMode].start_time %>; Ends at: <%= result[myModel][myMode].end_time %>)</small>
+				</strong></div>
+
+				<% } %>
+
+			<% } %>
+
+			</div>
+		</div>
+
+		<% } %>
+	
+	<% } %>
 
 <%- include('footer'); %>

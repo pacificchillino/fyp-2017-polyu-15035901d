@@ -139,6 +139,13 @@ exports.init = function(sectCollection, data){
  * Method for Making a Prediction for a Section
  */
 exports.predict = function(sectCollection, mode, inputData){
+	//Validate first
+	if (varLists[sectCollection] == null){
+		return null;
+	}
+	if (exports.modes[mode] == null){
+		return null;
+	}
 	//Set up my vector
 	var myVarList = mapDataToVarList(inputData);
 	//Obtain my mode info

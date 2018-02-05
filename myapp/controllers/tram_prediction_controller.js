@@ -44,6 +44,11 @@ var fillInQuery = function(query, stopA, stopB){
 			query.hkohum = global.weather.HKO_hum;
 		}}
 	}
+	//Sunday should be public holiday
+	if (query.dow == 0){
+		query.ph = 1;
+	}
+	//Return
 	return query;
 };
 
@@ -58,13 +63,21 @@ var getInputVariables = function(query, stopA, stopB){ //query must be processed
 	if (query.rainfall == null) return null;
 	if (query.hkotemp == null) return null;
 	if (query.hkohum == null) return null;
+	var hours = func.getHours(query.time);
+	var rainfall = query.rainfall - 0;
+	var HKO_temp = query.hkotemp - 0;
+	var HKO_hum = query.hkohum - 0;
+	if (hours == null) return null;
+	if (isNaN(rainfall)) return null;
+	if (isNaN(HKO_temp)) return null;
+	if (isNaN(HKO_hum)) return null;
 	return {
 		PH: (query.ph == 1),
 		dayOfWk: query.dow,
-		hours: func.getHours(query.time),
-		rainfall: query.rainfall,
-		HKO_temp: query.hkotemp,
-		HKO_hum: query.hkohum,
+		hours: hours,
+		rainfall: rainfall,
+		HKO_temp: HKO_temp,
+		HKO_hum: HKO_hum,
 	}
 };
 

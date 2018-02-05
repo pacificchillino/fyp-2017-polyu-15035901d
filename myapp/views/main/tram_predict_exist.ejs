@@ -197,11 +197,25 @@
 								<td><%= actual[i].starting %></td>
 								<td><%= actual[i].starting_normalized %></td>
 								<td><%= actual[i].rainfall %> mm</td>
-								<td><% if (typeof actual[i].HKO_temp !== "undefined"){ %><%= actual[i].HKO_temp %> ℃<% } %></td>
-								<td><% if (typeof actual[i].HKO_hum !== "undefined"){ %><%= actual[i].HKO_hum %> %<% } %></td>
+								<%
+								if (typeof actual[i].HKO_temp == "undefined"){
+									actual[i].HKO_temp = "";
+								}
+								if (typeof actual[i].HKO_hum  == "undefined"){
+									actual[i].HKO_hum  = "";
+								}
+								%>
+								<td><%= actual[i].HKO_temp %> ℃</td>
+								<td><%= actual[i].HKO_hum %> %</td>
 								<td><b><%= actual[i].minsSpent %></b>′</td>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= predicted[myMode].predicted2[i] %>'</td>
+								<td>
+									<% if (predicted[myMode].predicted2[i] == ""){ %>
+										N/A
+									<% }else{ %>
+										<a href = "/trams/predict_sect/<%=params.stopA%>/<%=params.stopB%>?time=<%=actual[i].starting%>&dow=<%=actual[i].dayOfWk%>&ph=<%=actual[i].PH?1:0%>&rainfall=<%=actual[i].rainfall%>&hkotemp=<%=actual[i].HKO_temp%>&hkohum=<%=actual[i].HKO_hum%>#<%=params.model%>_<%=myMode%>"><%= predicted[myMode].predicted2[i] %>'</a>
+									<% } %>
+								</td>
 								<% } %>
 							</tr>
 							<% } %>
