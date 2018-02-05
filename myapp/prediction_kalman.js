@@ -145,9 +145,7 @@ exports.init = function(sectCollection, data){
 			//Apply Kalman Filter (skip the null values)
 			var myFilter = new KalmanFilter(exports.modes[mode].filter);
 			for (var j = 0; j < average_tt[sectCollection][mode][myClass].length; j++){
-				if (average_tt[sectCollection][mode][myClass][j] != null){
-					average_tt[sectCollection][mode][myClass][j] = myFilter.filter(average_tt[sectCollection][mode][myClass][j]);
-				}
+				average_tt[sectCollection][mode][myClass][j] = myFilter.filter(average_tt[sectCollection][mode][myClass][j]);
 			}
 		}
 		//
@@ -161,8 +159,14 @@ exports.init = function(sectCollection, data){
 function intepolateSeries(series){
 	//Indices for intepolation
 	var A, B;
-	//Scan all of the series
+	var b_left, b_right;
+	//Intepolate between b_left and b_right
 	for (var i = 1; i < series.length; i++){
+		//Determine left, right boundaries
+		if (series[i] != null){
+			if (b_left == null) b_left = i;
+			b_right = i;
+		}
 		//value --> null: A
 		if (series[i-1] != null && series[i] == null){
 			A = i-1;
@@ -180,6 +184,15 @@ function intepolateSeries(series){
 			}
 		}
 	}
+	//Fill in null values left of b_left
+	for (var i = 0; i < b_left; i++){
+		series[i] = series[b_left];
+	}
+	//Fill in null values right of b_right
+	for (var i = b_right + 1; i < series.length; i++){
+		series[i] = series[b_right];
+	}
+	//Return
 	return series;
 }
 

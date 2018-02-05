@@ -12,7 +12,7 @@ router.get('/', function(req, res, next) {
  */
 
 var tram_view_data_controller = require('../controllers/tram_view_data_controller');
-//var tram_prediction_controller = require('../controllers/tram_prediction_controller');
+var tram_prediction_controller = require('../controllers/tram_prediction_controller');
 
 router.get('/trams/view_data', tram_view_data_controller.tram_data);
 router.get('/trams/view_data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result);
@@ -21,10 +21,14 @@ router.get('/trams/predict_exist/:stopA/:stopB/:yy/:mm/:dd/:model', tram_view_da
 router.get('/trams/predict_week', tram_view_data_controller.tram_data_predict_week);
 router.get('/trams/predict_week/:stopA/:stopB/:yy/:mm/:dd/:model', tram_view_data_controller.tram_data_predict_week_result);
 
+router.get('/trams/predict_sect', tram_prediction_controller.tram_data_predict_sect);
+router.get('/trams/predict_sect/:stopA/:stopB', tram_prediction_controller.tram_data_predict_sect_result);
+
 //API
 router.get('/api/trams/view_data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result_api);
 router.get('/api/trams/predict_exist/:stopA/:stopB/:yy/:mm/:dd/:model', tram_view_data_controller.tram_data_predict_exist_result_api);
-router.get('/api/trams/predict_week/:stopA/:stopB/:yy/:mm/:dd/:model', tram_view_data_controller.tram_data_predict_week_result_api);
+//router.get('/api/trams/predict_week/:stopA/:stopB/:yy/:mm/:dd/:model', tram_view_data_controller.tram_data_predict_week_result_api);
+router.get('/api/trams/predict_sect/:stopA/:stopB', tram_prediction_controller.tram_data_predict_sect_result_api);
 
 router.get('/api/list/tram_sections', tram_view_data_controller.tram_sections_api);
 router.get('/api/list/prediction_models', function(req, res){

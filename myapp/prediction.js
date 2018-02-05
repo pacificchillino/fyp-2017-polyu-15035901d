@@ -145,13 +145,17 @@ function initForOneSectCollection(){
  * - sectCollection: Mongo Collection for the Section (either bus or tram)
  * - model: Prediction model used
  * - mode: Prediction mode (respect to the model) used
- * - data: input data
+ * - data: input data (can be without tt_mins)
  */
 
 exports.predictOne = function(sectCollection, model, mode, data){
-	if (models[model] != null){ if (models[model].modes[mode] != null){
-		return models[model].predict(sectCollection, mode, inputData);
-	}}
+	//Check if it has been initiated.
+	if (hasBeenInitiated){
+		//Check if the model and the mode exists
+		if (models[model] != null){ if (models[model].modes[mode] != null){
+			return models[model].predict(sectCollection, mode, data);
+		}}
+	}
 	return null;
 };
 
@@ -162,7 +166,7 @@ exports.predictOne = function(sectCollection, model, mode, data){
  * - sectCollection: Mongo Collection for the Section (either bus or tram)
  * - model: Prediction model used
  * - mode: Prediction mode (respect to the model) used
- * - dataArray: Array of input data items
+ * - dataArray: Array of input data items (with tt_mins)
  * 
  * Output result:
  * - result.actual[i]: Actual Value

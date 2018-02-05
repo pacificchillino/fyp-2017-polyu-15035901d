@@ -162,59 +162,59 @@ function obtainTramETA_2(isTerminus){
 					//StopA: Ensure having no data errors --> feed data to TramRecorder instance
 					if (!tramsETA[tramRecorders[i].stopA].hasError){
 						//No E.M.
-						if (tramEM[tramRecorders[i].stopA] == false){
+						//if (tramEM[tramRecorders[i].stopA] == false){
 							tramRecorders[i].feedData({
 								type: "A",
 								tramData: tramsETA[tramRecorders[i].stopA],
 								otherData: getOtherData(),
 							});
-						}
+						//}
 						//Has E.M.
-						else{
-							flushable = true;
-						};
+						//else{
+						//	flushable = true;
+						//};
 					}
 					//StopB: Ensure having no data errors --> feed data to TramRecorder instance
 					if (tramRecorders[i].stopB2 == null){
 						//Without B2
 						if (!tramsETA[tramRecorders[i].stopB].hasError){
 							//No E.M.
-							if (tramEM[tramRecorders[i].stopB] == false){
+							//if (tramEM[tramRecorders[i].stopB] == false){
 								tramRecorders[i].feedData({
 									type: "B",
 									tramData: tramsETA[tramRecorders[i].stopB],
 									otherData: getOtherData(),
 								});
-							}
+							//}
 							//Has E.M.
-							else{
-								flushable = true;
-							};
+							//else{
+							//	flushable = true;
+							//};
 						}
 					}else{
 						//With B2
 						if ((!tramsETA[tramRecorders[i].stopB].hasError) && (!tramsETA[tramRecorders[i].stopB2].hasError)){
 							//No E.M.
-							if (tramEM[tramRecorders[i].stopB] == false && tramEM[tramRecorders[i].stopB2] == false){
+							//if (tramEM[tramRecorders[i].stopB] == false && tramEM[tramRecorders[i].stopB2] == false){
 								tramRecorders[i].feedData({
 									type: "B",
 									tramData: tramsETA[tramRecorders[i].stopB],
 									tramData2: tramsETA[tramRecorders[i].stopB2],
 									otherData: getOtherData(),
 								});
-							}
+							//}
 							//Has E.M.
-							else{
-								flushable = true;
-							};
+							//else{
+							//	flushable = true;
+							//};
 						}
 					}
 					//via - if E.M. happens in such stops, flush the recorder
-					for (var j in tramRecorders[i].via){
-						if (tramEM[tramRecorders[i].via[j]] != false){
-							flushable = true;
-						}
-					}
+					//for (var j in tramRecorders[i].via){
+					//	if (tramEM[tramRecorders[i].via[j]] != false){
+					//		flushable = true;
+					//	}
+					//}
 					if (flushable){ //Flush (clear all running data) in the recorder
 						tramRecorders[i].flush();
 					}

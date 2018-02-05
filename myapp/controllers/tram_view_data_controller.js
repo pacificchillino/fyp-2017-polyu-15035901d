@@ -7,32 +7,15 @@ var func = require("../func.js");
 
 var searchbox = function(model){
 	return {
-		sections: tram_sections(),
+		sections: func.getTramSectionsList(),
 		models: global.prediction.getModels(),
 		myModel: (model != null) ? global.prediction.getAModel(model) : null,
 		modes: (model != null) ? global.prediction.getModes(model) : [],
 	};
 }
 
-var tram_sections = function(){
-	var arr = [];
-	for (var i in config.tram_est_sections){
-		var from = config.tram_est_sections[i].from.split("_")[0];
-		var to = config.tram_est_sections[i].to.split("_")[0];
-		arr.push({
-			from: from,
-			to: to,
-			from_to: from + "/" + to,
-			from_name: config.tram_stops_for_eta[config.tram_est_sections[i].from].name,
-			to_name: config.tram_stops_for_eta[config.tram_est_sections[i].to].name,
-			caption: from + " to " + to + " (" + config.tram_stops_for_eta[config.tram_est_sections[i].from].name + " to " + config.tram_stops_for_eta[config.tram_est_sections[i].to].name + ")",
-		});
-	}
-	return arr;
-}
-
 exports.tram_sections_api = function(req, res){
-	res.send(JSON.stringify(tram_sections()));
+	res.send(JSON.stringify(func.getTramSectionsList()));
 }
 
 /**

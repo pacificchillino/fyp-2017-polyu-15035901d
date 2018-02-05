@@ -96,7 +96,48 @@ exports.getHMSmsOfDay = function(date){ //HH:MM:SS.000 , where HH < 24
 exports.getHoursByHM = function(str){
 	var splitup = HHMM.split(":");
 	return parseInt(splitup[0]) + parseInt(splitup[1])/60;
-}
+};
+
+exports.getHours = function($str){
+	var str = "";
+	var isPlainNumber = true;
+	for (var i = 0; i < $str.length; i++){
+		var c = $str.charAt(i);
+		if (c >= "0" && c <= "9"){
+			str = str + c;
+		}else if (c != "."){
+			isPlainNumber = false;
+		}
+	}
+	if (isPlainNumber){
+		var parsed = $str - 0;
+		return (isNaN(parsed)) ? 0 : parsed;
+	}else{
+		switch(str.length){
+			case 0: //empty
+			return 0;
+			break;
+			case 1: //h
+			return parseInt(str);
+			break;
+			case 2: //hh
+			return parseInt(str);
+			break;
+			case 3: //hmm
+			return parseInt(str.charAt(0)) + parseInt(str.charAt(1) + str.charAt(2)) / 60;
+			break;
+			case 4: //hhmm
+			return parseInt(str.charAt(0) + str.charAt(1)) + parseInt(str.charAt(2) + str.charAt(3)) / 60;
+			break;
+			case 5: //hmmss
+			return parseInt(str.charAt(0)) + parseInt(str.charAt(1) + str.charAt(2)) / 60 + parseInt(str.charAt(3) + str.charAt(4)) / 3600;
+			break;
+			default: //hhmmss
+			return (parseInt(str.charAt(0) + str.charAt(1)) + parseInt(str.charAt(2) + str.charAt(3)) / 60 + parseInt(str.charAt(4) + str.charAt(5)) / 3600) % 86400;
+			break;
+		}
+	}
+};
 
 exports.isDuringTramRecordingTimeA = function(date){ //Tram: Starting of section
 	if (date == null) date = new Date();
@@ -182,7 +223,7 @@ exports.isDuringWeatherRecordingTime = function(date){
 exports.getDayClassByWeekdayOrNot = function(data){
 	if (data.PH == true){
 		return "w0";
-	}else if(!data.wkday){
+	}else if(data.dayOfWk != 6 && data.dayOfWk != 0){
 		return "w0";
 	}else{
 		return "w1";
@@ -230,3 +271,43 @@ exports.ten = function(number){
 };
 
 ten = exports.ten;
+
+/**
+ * Trams
+ */
+
+exports.getTramSectionsList = function(){
+	var arr = [];
+	for (var i in config.tram_est_sections){
+		var from = config.tram_est_sections[i].from.split("_")[0];
+		var to = config.tram_est_sections[i].to.split("_")[0];
+		arr.push({
+			from: from,
+			to: to,
+			from_to: from + "/" + to,
+			from_name: config.tram_stops_for_eta[config.tram_est_sections[i].from].name,
+			to_name: config.tram_stops_for_eta[config.tram_est_sections[i].to].name,
+			caption: from + " to " + to + " (" + config.tram_stops_for_eta[config.tram_est_sections[i].from].name + " to " + config.tram_stops_for_eta[config.tram_est_sections[i].to].name + ")",
+		});
+	}
+	return arr;
+};
+
+exports.getRainfallByTramSection = function(stopA, stopB){ //HVT not HVT_B
+	//Get rainfall weightings
+	var weightings = [];
+	for (var i in config.tram_est_sections){
+		if (config.tram_est_sections[i].from.split("_")[0] == stopA){
+			if (config.tram_est_sections[i].to.split("_")[0] == stopB){
+				weightings = config.tram_est_sections[i].rainfall;
+			}
+		}
+	}
+	var sum = 0;
+	for (var i in weightings){
+		if (global.weather.rainfall[weightings[i].district] != null){
+			sum += global.weather.rainfall[weightings[i].district] * weightings[i].weight;
+		}
+	}
+	return sum;
+};
