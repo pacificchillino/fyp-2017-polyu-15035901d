@@ -39,12 +39,7 @@ exports.init = function(isDateTurnover){
 	if (!isDateTurnover){
 		//Fresh Start
 		for (var i = 0; i < config.tram_est_sections.length; i++){
-			var obj = config.tram_est_sections[i];
-			if (obj.to2 == null){
-				tramRecorders.push(new TramRecorder(i, obj.from, obj.to));
-			}else{
-				tramRecorders.push(new TramRecorder(i, obj.from, obj.to, obj.to2));
-			}
+			tramRecorders.push(new TramRecorder(i, config.tram_est_sections[i]));
 		}
 	}else{
 		//Date turnover

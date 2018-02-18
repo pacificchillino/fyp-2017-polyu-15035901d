@@ -81,34 +81,38 @@ exports.cron_time_tram_clean_data = "30 2 * * *";				//Clean data at 2:30am
 exports.cron_time_tram_update_regression = "0 3 * * *";			//Update regression variables at 3am
 
 //Stops that ETA data are required
+const $E = "Eastbound";
+const $W = "Westbound";
+
 exports.tram_stops_for_eta = {
-	"KTT": {isTerminus: true, name: "Kennedy Town", district: $CW},
-	"07E": {isTerminus: false, name: "Hill Road, Shek Tong Tsui", district: $CW},
-	"WMT": {isTerminus: true, name: "Western Market, Sheung Wan", district: $CW},
-	"19E": {isTerminus: false, name: "Macau Ferry, Sheung Wan", district: $CW},
-	"27E": {isTerminus: false, name: "Pedder Street, Central", district: $CW},
-	"33E": {isTerminus: false, name: "Murray Street, Central", district: $CW},
-	"35E": {isTerminus: false, name: "Admiralty Station", district: $CW},
-	"37E": {isTerminus: false, name: "Arsenal Street, Wan Chai", district: $WC},
-	"49E": {isTerminus: false, name: "Canal Road, Causeway Bay", district: $WC},
-	"HVT_B": {isTerminus: true, name: "Happy Valley", district: $WC}, //To Shau Kei Wan
-	"HVT_K": {isTerminus: false, name: "Happy Valley", district: $WC}, //To Kennedy Town
-	"57E": {isTerminus: false, name: "Victoria Park", district: $WC},
-	"69E": {isTerminus: false, name: "North Point Road", district: $EA},
-	"81E": {isTerminus: false, name: "Finnie Street, Quarry Bay", district: $EA},
-	"87E": {isTerminus: false, name: "Kornhill, Tai Koo", district: $EA},
-	"93E": {isTerminus: false, name: "Tai On Street, Sai Wan Ho", district: $EA},
-	"SKT": {isTerminus: false, name: "Shau Kei Wan", district: $EA},
+	"KTT": 		{direction: $E, isTerminus: true, name: "Kennedy Town", district: $CW},
+	"07E": 		{direction: $E, isTerminus: false, name: "Hill Road, Shek Tong Tsui", district: $CW},
+	"WMT": 		{direction: $E, isTerminus: true, name: "Western Market, Sheung Wan", district: $CW},
+	"19E": 		{direction: $E, isTerminus: false, name: "Macau Ferry, Sheung Wan", district: $CW},
+	"27E": 		{direction: $E, isTerminus: false, name: "Pedder Street, Central", district: $CW},
+	"33E": 		{direction: $E, isTerminus: false, name: "Murray Street, Central", district: $CW},
+	"35E": 		{direction: $E, isTerminus: false, name: "Admiralty Station", district: $CW},
+	"37E": 		{direction: $E, isTerminus: false, name: "Arsenal Street, Wan Chai", district: $WC},
+	"49E": 		{direction: $E, isTerminus: false, name: "Canal Road, Causeway Bay", district: $WC},
+	"HVT":		{direction: "", name: "Happy Valley"},
+	"HVT_B": 	{direction: $E, isTerminus: true, name: "Happy Valley", district: $WC}, //To Shau Kei Wan
+	"HVT_K": 	{direction: $W, isTerminus: false, name: "Happy Valley", district: $WC}, //To Kennedy Town
+	"57E": 		{direction: $E, isTerminus: false, name: "Victoria Park", district: $WC},
+	"69E": 		{direction: $E, isTerminus: false, name: "North Point Road", district: $EA},
+	"81E": 		{direction: $E, isTerminus: false, name: "Finnie Street, Quarry Bay", district: $EA},
+	"87E": 		{direction: $E, isTerminus: false, name: "Kornhill, Tai Koo", district: $EA},
+	"93E": 		{direction: $E, isTerminus: false, name: "Tai On Street, Sai Wan Ho", district: $EA},
+	"SKT": 		{direction: $W, isTerminus: false, name: "Shau Kei Wan", district: $EA},
 };
 
 //Combined from/to available for prediction service
 exports.tram_prediction_from_to = [
-	{between: ["KTT","07E","19E","27E","35E","49E","57E","69E","81E","87E","93E","SKT"]},
-	{from: ["KTT","07E","19E","27E","35E","49E"], to: ["HVT_B"]},
-	{from: ["HVT_B"], to: ["49E","57E","69E","81E","87E","93E","SKT"]},
-	{from: ["WMT"], to: ["SKT"]},
-	{from: ["KTT"], to: ["HVT_B"]},
-	{from: ["HVT_B"], to: ["SKT"]},
+	{between: ["KTT","07E","19E","27E","35E","49E","57E","69E","81E","87E","93E","SKT"]}, //Between Kennedy Town and Shaukeiwan
+	{from: ["KTT","07E","19E","27E","35E","49E"], to: ["HVT"]}, //Between Kennedy Town and Happy Valley
+	{from: ["HVT"], to: ["49E","57E","69E","81E","87E","93E","SKT"]}, //Between Hapy Valley and Shaukeiwan
+	{from: ["WMT"], to: ["SKT"]}, //Full-trip Section: Western Market to Shaukeiwan
+	{from: ["KTT"], to: ["HVT"]}, //Full-trip Section: Kennedy Town to Happy Valley
+	{from: ["HVT"], to: ["SKT"]}, //Full-trip Section: Happy Valley to Shau Kei Wan
 ];
 
 exports.tram_prediction_options = ["KTT","07E","WMT","19E","27E","35E","49E","HVT_B","57E","69E","81E","87E","93E","SKT"];
@@ -141,13 +145,13 @@ exports.tram_est_sections = [
 		dest: ["HVT_B","HVT_K","CBT","NPT","ED","SKT"],
 		time_upper_limit: 60, time_lower_limit: 1,
 	},
-	{from: "49E", to: "HVT_B", to2: "HVT_K",
+	{from: "49E", to: "HVT_B", to2: "HVT_K", to_alt: "HVT",
 		rainfall: [{district: $WC, weight: 1}],
 		dest: ["HVT_B","HVT_K"],
 		notVia: ["57E"],
 		time_upper_limit: 60, time_lower_limit: 1,
 	},
-	{from: "HVT_B", to: "49E",
+	{from: "HVT_B", to: "49E", from_alt: "HVT",
 		rainfall: [{district: $WC, weight: 1}],
 		dest: ["CBT","NPT","ED","SKT"],
 		time_upper_limit: 60, time_lower_limit: 1,
@@ -190,14 +194,14 @@ exports.tram_est_sections = [
 		time_upper_limit: 60, time_lower_limit: 1,
 	},
 	//Full-length sections
-	{from: "KTT", to: "HVT_B", to2: "HVT_K",
+	{from: "KTT", to: "HVT_B", to2: "HVT_K", to_alt: "HVT",
 		rainfall: [{district: $CW, weight: 0.6},{district: $WC, weight: 0.4}],
 		dest: ["HVT_B","HVT_K"],
 		via: ["07E","19E","27E","33E","37E","49E"],
 		notVia: ["57E"],
 		time_upper_limit: 150, time_lower_limit: 10,
 	},
-	{from: "HVT_B", to: "SKT",
+	{from: "HVT_B", to: "SKT", from_alt: "HVT",
 		rainfall: [{district: $WC, weight: 0.2},{district: $EA, weight: 0.8}],
 		dest: ["SKT"],
 		via: ["49E","57E","69E","81E","87E","93E"],
@@ -212,159 +216,3 @@ exports.tram_est_sections = [
 		time_upper_limit: 180, time_lower_limit: 10,
 	},
 ];
-
-/**
- * Prediction Modes
- */
-exports.prediction_modes = {
-	
-};
-
-/**
- * Tram Regressions, obsolete //to be deleted after update, 2018/1/24
- */
-
-exports.tram_regression_modes = {
-	"default": {
-		name: "Default",
-		remarks: "Time of Day: Hourly Mean ; Day Classification: Weekday or Not ; Other Factors: Rainfall",
-		time_of_day_hourly_mean: true,
-		day_classification_by_weekday: true,
-		regression_variables_count: 2,
-		regression_variables_label: ["R","r"],
-		regression_variables_remarks: ["R: Rainfall (in mm)","r: [1 if there is rainfall, 0 else]"],
-		regression_variables: function(data){
-			return [
-				data.rainfall,
-				(data.rainfall > 0) ? 1 : 0,
-			];
-		},
-	},
-	"rain_l": {
-		name: "Other Factors: Rainfall: Linear only",
-		remarks: "",
-		time_of_day_hourly_mean: true,
-		day_classification_by_weekday: true,
-		regression_variables_count: 1,
-		regression_variables_label: ["R"],
-		regression_variables_remarks: ["R: Rainfall (in mm)"],
-		regression_variables: function(data){
-			return [
-				data.rainfall,
-			];
-		},
-	},
-	"rain_b": {
-		name: "Other Factors: Rainfall: Binary only",
-		remarks: "",
-		time_of_day_hourly_mean: true,
-		day_classification_by_weekday: true,
-		regression_variables_count: 1,
-		regression_variables_label: ["r"],
-		regression_variables_remarks: ["r: [1 if there is rainfall, 0 else]"],
-		regression_variables: function(data){
-			return [
-				(data.rainfall > 0) ? 1 : 0,
-			];
-		},
-	},
-	"hko_l": {
-		name: "Other Factors: Rainfall, HKO Temperature & Humidity (Linear)",
-		remarks: "",
-		time_of_day_hourly_mean: true,
-		day_classification_by_weekday: true,
-		regression_variables_count: 4,
-		regression_variables_label: ["R", "r", "T", "H"],
-		regression_variables_remarks: ["R: Rainfall (in mm)","r: [1 if there is rainfall, 0 else]","T: HKO Temperature (in ℃)","H: HKO Humidity (in %)"],
-		regression_variables: function(data){
-			if (data.HKO_temp != null && data.HKO_hum != null){
-				return [
-					data.rainfall,
-					(data.rainfall > 0) ? 1 : 0,
-					data.HKO_temp,
-					data.HKO_hum,
-				];
-			}else{
-				return null;
-			}
-		},
-	},
-	"dow": {
-		name: "Day Classification: Day of Week",
-		remarks: "Public holidays are considered as Sundays.",
-		time_of_day_hourly_mean: true,
-		day_classification_by_weekday: false,
-		regression_variables_count: 2,
-		regression_variables_label: ["R","r"],
-		regression_variables_remarks: ["R: Rainfall (in mm)","r: [1 if there is rainfall, 0 else]"],
-		regression_variables: function(data){
-			return [
-				data.rainfall,
-				(data.rainfall > 0) ? 1 : 0,
-			];
-		},
-	},
-	"time_4": {
-		name: "Time of Day: 4-Degree Polynomial Fitting",
-		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 4.",
-		time_of_day_hourly_mean: false,
-		day_classification_by_weekday: true,
-		regression_variables_count: 6,
-		regression_variables_label: ["t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R","r"],
-		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
-		regression_variables: function(data){
-			var tod = data.hours / 24;
-			var m = 1;
-			var arr = [];
-			for (var i = 0; i < 4; i++){
-				m *= tod;
-				arr.unshift(m);
-			}
-			arr.push(data.rainfall);
-			arr.push((data.rainfall > 0) ? 1 : 0);
-			return arr;
-		},
-	},
-	"time_6": {
-		name: "Time of Day: 6-Degree Polynomial Fitting",
-		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 6.",
-		time_of_day_hourly_mean: false,
-		day_classification_by_weekday: true,
-		regression_variables_count: 8,
-		regression_variables_label: ["t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R","r"],
-		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
-		regression_variables: function(data){
-			var tod = data.hours / 24;
-			var m = 1;
-			var arr = [];
-			for (var i = 0; i < 6; i++){
-				m *= tod;
-				arr.unshift(m);
-			}
-			arr.push(data.rainfall);
-			arr.push((data.rainfall > 0) ? 1 : 0);
-			return arr;
-		},
-	},
-	"time_8": {
-		name: "Time of Day: 8-Degree Polynomial Fitting",
-		remarks: "Time of day is mapped to 0 ~ 1, than converted to variables from degree 1 to 8.",
-		time_of_day_hourly_mean: false,
-		day_classification_by_weekday: true,
-		regression_variables_count: 10,
-		regression_variables_label: ["t<sup>8</sup>","t<sup>7</sup>","t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R","r"],
-		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)"],
-		regression_variables: function(data){
-			var tod = data.hours / 24;
-			var m = 1;
-			var arr = [];
-			for (var i = 0; i < 8; i++){
-				m *= tod;
-				arr.unshift(m);
-			}
-			arr.push(data.rainfall);
-			arr.push((data.rainfall > 0) ? 1 : 0);
-			return arr;
-		},
-	},
-};

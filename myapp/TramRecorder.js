@@ -17,16 +17,16 @@ var _ = require('underscore');
 
 //Constructor Function
 
-function TramRecorder(_index, _stopA, _stopB, _stopB2) {
+function TramRecorder(_index, _obj) {
 	//Initialize
 	this.index = _index;
-	this.stopA = _stopA;
-	this.stopA$ = _stopA.split("_")[0];
-	this.stopA_isTerminus = config.tram_stops_for_eta[_stopA].isTerminus;
-	this.stopB = _stopB;
-	this.stopB$ = _stopB.split("_")[0];
-	if (_stopB2 != null){
-		this.stopB2 = _stopB2;
+	this.stopA = _obj.from;
+	this.stopA$ = (_obj.from_alt != null) ? _obj.from_alt : _obj.from;
+	this.stopA_isTerminus = config.tram_stops_for_eta[this.stopA].isTerminus;
+	this.stopB = _obj.to;
+	this.stopB$ = (_obj.to_alt != null) ? _obj.to_alt : _obj.to;
+	if (_obj.to2 != null){
+		this.stopB2 = _obj.to2;
 	}
 	if (config.tram_est_sections[_index].via != null){
 		this.via = config.tram_est_sections[_index].via;

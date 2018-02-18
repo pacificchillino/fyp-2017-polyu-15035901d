@@ -13,8 +13,9 @@ var doCleaningOfASection2 = function(){
 	//Connect to database
 	if (global.db != null){
 		//for (var i in config.tram_est_sections){
-			var stopA = config.tram_est_sections[cleaningPointer].from.split("_")[0];
-			var stopB = config.tram_est_sections[cleaningPointer].to.split("_")[0];
+			var _obj = config.tram_est_sections[cleaningPointer];
+			var stopA = (_obj.from_alt != null) ? _obj.from_alt : _obj.from;
+			var stopB = (_obj.to_alt != null) ? _obj.to_alt : _obj.to;
 			var sort = {date: 1, hours: 1};
 			var db_table = "data_tram_" + stopA + "_" + stopB;
 			global.db.collection(db_table).find({}).sort(sort).toArray(doCleaningOfASection.bind(

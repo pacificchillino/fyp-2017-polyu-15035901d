@@ -77,24 +77,24 @@
 							</select>
 						</div>
 						<%# Filter: Hours %>
-						<label class="control-label col-sm-3 col-lg-2" for="time">Time:</label>
+						<label class="control-label col-sm-3 col-lg-2" for="time">Time: <small>(hours / hh:mm:ss)</small></label>
 						<div class="col-sm-9 col-lg-4">
-								<input type="text" class="form-control" id="time" placeholder="(in hours or 'hh:mm:ss')" value="<%= q('time') %>">
+								<input type="text" class="form-control" id="time" placeholder="[Current Time]" value="<%= q('time') %>">
 						</div>
 						<%# Filter: Rainfall %>
 						<label class="control-label col-sm-3 col-lg-2" for="rainfall">Rainfall (mm):</label>
 						<div class="col-sm-9 col-lg-4">
-								<input type="text" class="form-control" id="rainfall" value="<%= q('rainfall') %>">
+								<input type="text" class="form-control" id="rainfall" placeholder="[Current Rainfall]" value="<%= q('rainfall') %>">
 						</div>
 						<%# Filter: HKO Temp %>
 						<label class="control-label col-sm-3 col-lg-2" for="HKO_temp">HKO Temperature (℃):</label>
 						<div class="col-sm-9 col-lg-4">
-								<input type="text" class="form-control" id="HKO_temp" value="<%= q('hkotemp') %>">
+								<input type="text" class="form-control" id="HKO_temp" placeholder="[Current Temperature]" value="<%= q('hkotemp') %>">
 						</div>
 						<%# Filter: HKO Humidity %>
 						<label class="control-label col-sm-3 col-lg-2" for="HKO_hum">HKO Humidity (%):</label>
 						<div class="col-sm-9 col-lg-4">
-								<input type="text" class="form-control" id="HKO_hum" value="<%= q('hkohum') %>">
+								<input type="text" class="form-control" id="HKO_hum" placeholder="[Current Humidity]" value="<%= q('hkohum') %>">
 						</div>
 					</div>
 					<div class="row">

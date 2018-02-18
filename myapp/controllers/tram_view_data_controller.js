@@ -14,10 +14,6 @@ var searchbox = function(model){
 	};
 }
 
-exports.tram_sections_api = function(req, res){
-	res.send(JSON.stringify(func.getTramSectionsList()));
-}
-
 /**
  * View Tram Raw Data - Search Box only
  */
@@ -52,7 +48,7 @@ var tram_data_result = function(req, res, isAPI){
 				if (err) throw err;
 				if (isAPI){
 					//Return API
-					res.send(JSON.stringify(result));
+					res.send(JSON.stringify({result: result}));
 				}else{
 					//Manipulate result
 					for (var i in result){
@@ -144,8 +140,10 @@ var tram_data_predict_exist_result = function (req, res, isAPI){
 				if (isAPI){
 					//Return API
 					res.send({
-						actual: result,
-						predicted: predict_result,
+						result:{
+							actual: result,
+							predicted: predict_result,
+						},
 					});
 				}else{
 					//Prev and Next Date

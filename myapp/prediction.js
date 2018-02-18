@@ -6,11 +6,11 @@ var func = require("./func.js");
  */
 
 var models = {
-	"historical": require("./prediction_historical.js"),
 	"kalman": require("./prediction_kalman.js"),
 	"regression": require("./prediction_regression.js"),
 	"hybrid": require("./prediction_kr_hybrid.js"),
 	"knn": require("./prediction_knn.js"),
+	"historical": require("./prediction_historical.js"),
 	//"neural": require("./prediction_neural.js"),
 };
 
@@ -31,8 +31,9 @@ var sectCollectionList = [];
 
 //Trams
 for (var i in config.tram_est_sections){
-	var from = config.tram_est_sections[i].from.split("_")[0];
-	var to = config.tram_est_sections[i].to.split("_")[0];
+	var _obj = config.tram_est_sections[i];
+	var from = (_obj.from_alt != null) ? _obj.from_alt : _obj.from;
+	var to = (_obj.to_alt != null) ? _obj.to_alt : _obj.to;
 	sectCollectionList.push("data_tram_" + from + "_" + to);
 }
 
