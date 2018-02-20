@@ -7,7 +7,7 @@ var func = require("../func.js");
 
 var searchbox = function(model){
 	return {
-		sections: func.getTramSectionsList(),
+		sections: global.tramSectionsList,
 		models: global.prediction.getModels(),
 		myModel: (model != null) ? global.prediction.getAModel(model) : null,
 		modes: (model != null) ? global.prediction.getModes(model) : [],

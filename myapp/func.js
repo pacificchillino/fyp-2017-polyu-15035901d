@@ -139,6 +139,11 @@ exports.getHours = function($str){
 	}
 };
 
+exports.getHoursByDate = function (date){
+	if (date == null) date = new Date();
+	return date.getHours() + date.getMinutes() / 60 + date.getSeconds() / 3600 + date.getMilliseconds() / 3600000;
+};
+
 exports.isDuringTramRecordingTimeA = function(date){ //Tram: Starting of section
 	if (date == null) date = new Date();
 	var hours = date.getHours() + date.getMinutes()/60 + date.getSeconds()/3600;
@@ -272,143 +277,18 @@ exports.ten = function(number){
 
 ten = exports.ten;
 
-/**
- * Trams
- */
-
-var tramSectionsList;
-
-exports.getTramSectionsList = function(){
-	if (tramSectionsList == null){
-		var arr = [];
-		for (var i in config.tram_est_sections){
-			var _obj = config.tram_est_sections[i];
-			var from = (_obj.from_alt != null) ? _obj.from_alt : _obj.from;
-			var to = (_obj.to_alt != null) ? _obj.to_alt : _obj.to;
-			arr.push({
-				from: from,
-				to: to,
-				from_to: from + "/" + to,
-				from_name: config.tram_stops_for_eta[config.tram_est_sections[i].from].name,
-				to_name: config.tram_stops_for_eta[config.tram_est_sections[i].to].name,
-				caption: from + " to " + to + " (" + config.tram_stops_for_eta[config.tram_est_sections[i].from].name + " to " + config.tram_stops_for_eta[config.tram_est_sections[i].to].name + ")",
-			});
-		}
-		tramSectionsList = arr;
-	}
-	return tramSectionsList;
-};
-
-var tramPredictionServiceFromToList;
-
-exports.getTramPredictionServiceFromToList = function(){
-	//Do only when the list is empty
-	if (tramPredictionServiceFromToList == null){
-		tramPredictionServiceFromToList = {};
-		//Function to add item to array
-		var addToList = function(viaStops){
-			//Obtain section
-			var stopA = viaStops[0];
-			var stopB = viaStops[viaStops.length - 1];
-			var isMulti = (viaStops.length == 2) ? 0 : 1;
-			//Get Name & Direction of stop A
-			var stopNameA = config.tram_stops_for_eta[stopA].name;
-			var stopNameB = config.tram_stops_for_eta[stopB].name;
-			var directionA = config.tram_stops_for_eta[stopA].direction;
-			var directionB = config.tram_stops_for_eta[stopB].direction;
-			//Add to array
-			if (tramPredictionServiceFromToList[stopA] == null){
-				tramPredictionServiceFromToList[stopA] = {
-					name: stopNameA,
-					direction: directionA,
-					to: {},
-				};
-			}
-			if (tramPredictionServiceFromToList[stopA].to[stopB] == null){
-				tramPredictionServiceFromToList[stopA].to[stopB] = {
-					name: stopNameB,
-					direction: directionB,
-				};
-			}
-			if (tramPredictionServiceFromToList[stopA].to[stopB][isMulti] == null){
-				tramPredictionServiceFromToList[stopA].to[stopB][isMulti] = viaStops;
-			}
-		};
-		//Read tram_prediction_from_to
-		for (var i in config.tram_prediction_from_to){
-			var entry = config.tram_prediction_from_to[i];
-			//Type 1: between
-			if (entry.between){
-				for (var j = 0; j < entry.between.length - 1; j++){
-					for (var k = j+1; k < entry.between.length; k++){
-						addToList(entry.between.slice(j, k+1));
-					}
-				}
-			}
-			//Type 2: from, to
-			else{
-				for (var j = 0; j < entry.from.length; j++){
-					for (var k = 0; k < entry.to.length; k++){
-						var arr1 = entry.from.slice(j);
-						var arr2 = entry.to.slice(0, k+1);
-						addToList(arr1.concat(arr2));
-					}
-				}
-			}
-		}
-	}
-	return tramPredictionServiceFromToList;
-};
-
-exports.getTramPredictionServiceFromList = function(){
-	exports.getTramPredictionServiceFromToList(); //Initialize if in need
-	var list = {};
-	for (var i in tramPredictionServiceFromToList){
-		list[i] = {
-			name: tramPredictionServiceFromToList[i].name,
-			direction: tramPredictionServiceFromToList[i].direction,
-		};
-	}
-	return list;
-};
-
-exports.getTramPredictionServiceToList = function(from){
-	exports.getTramPredictionServiceFromToList(); //Initialize if in need
-	if (tramPredictionServiceFromToList[from] == null){
+exports.emptyObjectIfNull = function(obj){
+	if (obj == null){
 		return {};
 	}else{
-		return tramPredictionServiceFromToList[from].to;
+		return obj;
 	}
 };
 
-exports.getTramPredictionServiceFromToSections = function(from, to, multi){
-	exports.getTramPredictionServiceFromToList(); //Initialize if in need
-	if (tramPredictionServiceFromToList[from] == null){
-		return [];
-	}else if (tramPredictionServiceFromToList[from].to[to] == null){
-		return [];
-	}else if (tramPredictionServiceFromToList[from].to[to][multi] == null){
+exports.emptyArrayIfNull = function(arr){
+	if (arr == null){
 		return [];
 	}else{
-		return tramPredictionServiceFromToList[from].to[to][multi];
+		return arr;
 	}
-};
-
-exports.getRainfallByTramSection = function(stopA, stopB){ //HVT not HVT_B
-	//Get rainfall weightings
-	var weightings = [];
-	for (var i in config.tram_est_sections){
-		if (config.tram_est_sections[i].from.split("_")[0] == stopA){
-			if (config.tram_est_sections[i].to.split("_")[0] == stopB){
-				weightings = config.tram_est_sections[i].rainfall;
-			}
-		}
-	}
-	var sum = 0;
-	for (var i in weightings){
-		if (global.weather.rainfall[weightings[i].district] != null){
-			sum += global.weather.rainfall[weightings[i].district] * weightings[i].weight;
-		}
-	}
-	return sum;
 };

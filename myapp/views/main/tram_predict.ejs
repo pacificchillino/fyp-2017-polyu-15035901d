@@ -109,7 +109,7 @@
 
 	<script language = "javascript">
 		//Parse From/To List
-		var from_to = JSON.parse('<%- searchbox.from_to_json %>');
+		var from_to = JSON.parse('<%- searchbox.menu_json %>');
 
 		//from, to, multi
 		//
@@ -118,8 +118,7 @@
 			$("#from").children().remove();
 			$('#from').append($('<option>', {value: "", text : "-- Please Select --"}));
 			$.each(from_to, function (i, item) {
-				var text = item.name + ((item.direction != "") ? (" (" + item.direction + ")") : "") + " (" + i + ")";
-				$('#from').append($('<option>', {value: i, text : text}));
+				$('#from').append($('<option>', {value: i, text : i}));
 			});
 			to_update();
 		};
@@ -130,9 +129,8 @@
 				$('#to').append($('<option>', {value: "", text : "(Please choose \"from\" first)"}));
 			}else{
 				$('#to').append($('<option>', {value: "", text : "-- Please Select --"}));
-				$.each(from_to[from].to, function (i, item) {
-					var text = item.name + ((item.direction != "") ? (" (" + item.direction + ")") : "") + " (" + i + ")";
-					$('#to').append($('<option>', {value: i, text : text}));
+				$.each(from_to[from], function (i, item) {
+					$('#to').append($('<option>', {value: i, text : i}));
 				});
 			}
 			multi_update();
@@ -144,16 +142,20 @@
 			if (from == "" || to == ""){
 				$('#isMulti').append($('<option>', {value: "", text : "(Please choose \"to\" first)"}));
 			}else{
-				var isSingleEnabled = (from_to[from].to[to]["0"] != null);
-				var isMultiEnabled = (from_to[from].to[to]["1"] != null);
+				var isSingleEnabled = (from_to[from][to]["0"]);
+				var isMultiEnabled = (from_to[from][to]["1"]);
+				var from_id = from_to[from][to].from;
+				var to_id = from_to[from][to].to;
 				if (isSingleEnabled && isMultiEnabled){
 					$('#isMulti').append($('<option>', {value: "", text : "-- Please Select --"}));
 				}
 				if (isSingleEnabled){
-					$('#isMulti').append($('<option>', {value: "0", text : "Single Section"}));
+					var value = from_id + "/" + to_id + "/0";
+					$('#isMulti').append($('<option>', {value: value, text : "Single Section"}));
 				}
 				if (isMultiEnabled){
-					$('#isMulti').append($('<option>', {value: "1", text : "Multiple Sections"}));
+					var value = from_id + "/" + to_id + "/1";
+					$('#isMulti').append($('<option>', {value: value, text : "Multiple Sections"}));
 				}
 			}
 		}
@@ -169,9 +171,9 @@
 
 		//Submit
 		function searchbox_submit(){
-			if ($("#from").val() != "" && $("#to").val() != "" && $("#isMulti").val() != ""){
+			if ($("#isMulti").val() != ""){
 				//Valid
-				var URL = "/trams/predict/" + $("#from").val() + "/" + $("#to").val() + "/" + $("#isMulti").val();
+				var URL = "/trams/predict/" + $("#isMulti").val();
 				//Input Factors
 				var params = [];
 				if ($("#dow").val() != "") params.push("dow=" + encodeURI($("#dow").val()));
@@ -195,11 +197,19 @@
 	<% if (typeof params != "undefined"){ %>
 		<script language = "javascript">
 			//Prefill params
-			$('#from').val("<%= params.from %>");
-			to_update();
-			$('#to').val("<%= params.to %>");
-			multi_update();
-			$('#isMulti').val("<%= params.isMulti %>");
+			for (var i in from_to){
+				for (var j in from_to[i]){
+					if (from_to[i][j].from == "<%= params.from %>" && from_to[i][j].to == "<%= params.to %>"){
+						$('#from').val(i);
+						to_update();
+						$('#to').val(j);
+						multi_update();
+						$('#isMulti').val("<%= params.from %>/<%= params.to %>/<%= params.isMulti %>");
+						j = from_to[i].length;
+						i = from_to.length;
+					}
+				}
+			}
 
 			//Model / Mode Selector
 			function mm_update(){
@@ -246,29 +256,31 @@
 
 					<div class="col-sm-0 col-md-2 col-lg-3"></div>
 					<div class="col-sm-12 col-md-8 col-lg-6">
-						<table class="table" style="text-align:center;">
-							<tr>
-								<td><strong><%= sections[0].name %></strong></td>
-								<td><strong><%= myResult[0].time_start %></strong></td>
-							</tr>
-							<% for (var n = 1 ; n < sections.length; n++){ %>
-							<tr>
-								<td>⇊</td>
-								<td><%= myResult[n-1].mins2 %> mins</td>
-							</tr>
-							<% if(n == sections.length - 1){ %>
-							<tr>
-								<td><strong><%= sections[n].name %></strong></td>
-								<td><strong><%= myResult[n-1].time_end %></strong></td>
-							</tr>
-							<% }else{ %>
-							<tr>
-								<td><%= sections[n].name %></td>
-								<td><%= myResult[n-1].time_end %></td>
-							</tr>
-							<% } %>
-							<% } %>
-						</table>
+						<div class="table-responsive">     
+							<table class="table" style="text-align:center;">
+								<tr>
+									<td><strong><%= sections[0].name %></strong></td>
+									<td><strong><%= myResult[0].time_start %></strong></td>
+								</tr>
+								<% for (var n = 1 ; n < sections.length; n++){ %>
+								<tr>
+									<td>⇊</td>
+									<td><%= myResult[n-1].mins2 %> mins</td>
+								</tr>
+								<% if(n == sections.length - 1){ %>
+								<tr>
+									<td><strong><%= sections[n].name %></strong></td>
+									<td><strong><%= myResult[n-1].time_end %></strong></td>
+								</tr>
+								<% }else{ %>
+								<tr>
+									<td><%= sections[n].name %></td>
+									<td><%= myResult[n-1].time_end %></td>
+								</tr>
+								<% } %>
+								<% } %>
+							</table>
+						</div>
 					</div>
 					<div class="col-sm-0 col-md-2 col-lg-3"></div>
 

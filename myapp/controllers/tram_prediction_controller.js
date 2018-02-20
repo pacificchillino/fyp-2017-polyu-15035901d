@@ -1,5 +1,10 @@
 var config = require("../config.js");
 var func = require("../func.js");
+var func_tram_service = require("../func_tram_service.js");
+var _ = require('underscore');
+
+var HongKongTrams = require("../include/hongkong-trams.js");
+var trams = new HongKongTrams();
 
 /**
  * Common Function
@@ -24,7 +29,7 @@ var fillInQuery = function(_query, stopA, stopB){
 	}
 	if (query.rainfall == null){
 		if (global.weather != null){ if (global.weather.rainfall != null){
-			query.rainfall = func.getRainfallByTramSection(stopA, stopB);
+			query.rainfall = func_tram_service.getRainfallByTramSection(stopA, stopB);
 		}}
 	}
 	if (query.hkotemp == null){
@@ -94,7 +99,7 @@ var predictForTram = function(stopA, stopB, model, mode, data){
 
 var searchbox_predict_sect = function(model){
 	return {
-		sections: func.getTramSectionsList(),
+		sections: global.tramSectionsList,
 	};
 }
 
@@ -273,7 +278,7 @@ exports.tram_data_predict_sect_result_api_m2 = function (req, res){
 
 var searchbox_predict = function(model){
 	return {
-		from_to_json: JSON.stringify(func.getTramPredictionServiceFromToList()),
+		menu_json: JSON.stringify(global.tramPredictionServiceMenu),
 	};
 }
 
@@ -340,7 +345,7 @@ var tram_data_predict_result_getSections = function (req){
 	var from = req.params.from;
 	var to = req.params.to;
 	var isMulti = req.params.isMulti;
-	var stops = func.getTramPredictionServiceFromToSections(from, to, isMulti);
+	var stops = func_tram_service.getTramPredictionServiceFromToSections(from, to, isMulti);
 	var list = [];
 	for (var i in stops){
 		var stop = stops[i];
@@ -455,31 +460,216 @@ exports.tram_data_predict_result_api_m2 = function (req, res){
  * Predict ETA
  */
 
-exports.tram_data_predict_eta = function (req, res){
+var searchbox_eta = function(model){
+	return {
+		stops: global.tramETAServiceMenu,
+	};
+}
 
+exports.tram_data_predict_eta = function (req, res){
+	var data = {
+		title: "Trams: ETA with Predictions",
+		searchbox: searchbox_eta(),
+	};
+	res.render('main/tram_predict_eta', data);
 };
 
 exports.tram_data_predict_eta_result = function (req, res){
-	tram_data_predict_eta(req, res, false);
+	tram_data_predict_eta_result(req, res, false);
 };
 
 exports.tram_data_predict_eta_result_api = function (req, res){
-	tram_data_predict_eta(req, res, true);
+	tram_data_predict_eta_result(req, res, true);
 };
 
-var tram_data_predict_eta_result = function (req, res, isAPI){
-	
+var tram_data_predict_eta_result = function (req, res, isAPI, model, mode){ //model, mode are optional
+	var result = {};
+	var EM = {};
+	//Obtain Data
+	var promises = new Array();
+	//Get Models and Modes
+	var models_nm = global.prediction.getModelAndModes();
+	//Obtain ETAs
+	var stop_name = req.params.stop_name;
+	var etaObtainedFunction = function(eta){
+		result[this.stop].eta = eta;
+		//Predict for each ETA
+		for (var i in result[this.stop].eta){
+			result[this.stop].eta[i] = tram_data_predict_eta_result_each(this.stop, result[this.stop].eta[i], model, mode);
+		}
+	};
+	var etaObtainFailedFunction = function(){
+		result[this.stop].eta = [];
+	};
+	var emObtainedFunction = function(message){
+		EM[this.stop] = message;
+	};
+	var emObtainFailedFunction = function(message){
+		EM[this.stop] = "";
+	};
+	for (var direction in global.tramETAServiceMenu[stop_name]){
+		var stop = global.tramETAServiceMenu[stop_name][direction];
+		//ETA
+		result[stop] = {};
+		result[stop].direction = direction;
+		result[stop].isTerminus = config.tram_stops_for_eta[stop].isTerminus;
+		promises.push(
+			trams.getNextTramETA(stop).then(
+				etaObtainedFunction.bind({stop: stop})
+			).catch(
+				etaObtainFailedFunction.bind({stop: stop})
+			)
+		);
+		//Emergency Message
+		promises.push(
+			trams.getEmergencyMessageForTramStop(stop).then(
+				emObtainedFunction.bind({stop: stop})
+			).catch(
+				emObtainFailedFunction.bind({stop: stop})
+			)
+		);
+	}
+	//Return list
+	Promise.all(promises).then(function(){
+		if (!isAPI){
+			var data = {
+				title: "Trams: ETA with Predictions",
+				params: req.params,
+				query: req.query,
+				searchbox: searchbox_eta(),
+				models_n_modes: models_nm,
+				result: result,
+				EM: EM,
+			}
+			res.render('main/tram_predict_eta', data);
+		}else{
+			var data = {
+				params: req.params,
+				result: result,
+				EM: EM,
+			}
+			res.send(JSON.stringify(data));
+		}
+	});
 };
 
 //API only
 exports.tram_data_predict_eta_result_api_m1 = function (req, res){
-	
+	tram_data_predict_eta_result(req, res, true, req.params.model, null);
 };
 
 exports.tram_data_predict_eta_result_api_m2 = function (req, res){
-	
+	tram_data_predict_eta_result(req, res, true, req.params.model, req.params.mode);
 };
 
-var tram_data_predict_eta_sub = function (req, model, mode){
-	
+//Predict for each ETA item
+var tram_data_predict_eta_result_each = function(stop, eta, model, mode){
+	var result = Object.assign({}, eta);
+	result.sections = [];
+	result.predicted = {};
+	//isTerminus
+	var isTerminus = config.tram_stops_for_eta[stop].isTerminus;
+	var dest = eta.dest_stop_code;
+	//Find stop list
+	var stops = [stop];
+	var nextStopFound = true;
+	while (nextStopFound){
+		nextStopFound = false;
+		var recentStop = stops[stops.length - 1];
+		console.log(recentStop);
+		for (var i = 0; i < config.tram_est_sections.length; i++){
+			var item = config.tram_est_sections[i];
+			//Matches from
+			if (item.from == recentStop || item.from_alt == recentStop){
+				//Not special section
+				if (item.isSpecialSection != true){
+					//Matches destination
+					if (_.indexOf(item.dest, dest) != -1){
+						stops[stops.length - 1] = (item.from_alt != null) ? item.from_alt : item.from;
+						stops.push((item.to_alt != null) ? item.to_alt : item.to);
+						nextStopFound = true;
+						i = config.tram_est_sections.length; //Break loop
+					}
+				}
+			}
+		}
+	};
+	//Do prediction
+	var basisTime = func.getHoursByDate();
+	if (!isTerminus){ //For non-terminus, take ETA time
+		basisTime += eta.arrive_in_second / 3600;
+	}
+	//Prediction Function (model, mode, stops, time)
+	var predictSub = function(model, mode){
+		var result_sub = [];
+		var hours = basisTime;
+		var cum_mins = 0;
+		for (var i = 1; i < stops.length; i++){
+			var stopA = stops[i-1];
+			var stopB = stops[i];
+			var queries = fillInQuery({}, stopA, stopB);
+			var input = getInputVariables(queries);
+			if (input == null){
+				i = stops.length;
+			}else{
+				//Start prediction
+				input.hours = hours;
+				var mins = predictForTram(stopA, stopB, model, mode, input);
+				if (mins == null){
+					i = stops.length;
+				}else{
+					cum_mins += mins;
+					var hours_new = hours + mins / 60;
+					result_sub.push({
+						hours_start: hours,
+						hours_end: hours_new,
+						time_start: func.getHMSByHours(hours),
+						time_end: func.getHMSByHours(hours_new),
+						mins: mins,
+						mins2: mins.toFixed(2),
+						cum_mins: cum_mins,
+						cum_mins2: cum_mins.toFixed(2),
+					});
+					hours = hours_new;
+				}
+			}
+		}
+		return result_sub;
+	};
+	//Get Stop List
+	for (var i in stops){
+		var stop_id = stops[i];
+		result.sections.push({
+			id: stop_id,
+			name: config.tram_stops_for_eta[stop_id].name,
+			direction: config.tram_stops_for_eta[stop_id].direction,
+		});
+	}
+	//Get Models and Modes
+	var models_nm = global.prediction.getModelAndModes();
+	//Type 1: all models & modes
+	if (model == null){
+		for (var i in models_nm){
+			var myModel = models_nm[i].id;
+			result.predicted[myModel] = {};
+			for (var j in models_nm[i].modes){
+				var myMode = models_nm[i].modes[j].id;
+				result.predicted[myModel][myMode] = predictSub(myModel, myMode);
+			}
+		}
+	}
+	//Type 2: all modes in a model
+	else if (mode == null){
+		var modes = global.prediction.getModes(model);
+		for (var j in modes){
+			var myMode = modes[j].id;
+			result.predicted[myMode] = predictSub(model, myMode);
+		}
+	}
+	//Type 3: a specific mode in a model
+	else{
+		result.predicted = predictSub(model, mode);
+	}
+	//Return
+	return result;
 };

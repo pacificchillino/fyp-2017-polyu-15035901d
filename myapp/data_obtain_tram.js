@@ -26,10 +26,12 @@ exports.init = function(isDateTurnover){
 	//Trams: initialize variables
 	for (var stop in config.tram_stops_for_eta){
 		//Update tramStops, tramStops2
-		if (config.tram_stops_for_eta[stop].isTerminus){
-			tramStops2.push(stop);
+		if (!config.tram_stops_for_eta[stop].isDummy){
+			if (config.tram_stops_for_eta[stop].isTerminus){
+				tramStops2.push(stop);
+			}
+			tramStops.push(stop);
 		}
-		tramStops.push(stop);
 		//Update tramsETA
 		tramsETA[stop] = {};
 		tramsETA[stop].hasError = false;

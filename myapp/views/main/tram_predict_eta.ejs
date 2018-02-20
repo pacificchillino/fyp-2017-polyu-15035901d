@@ -1,0 +1,171 @@
+<%- include('header'); %>
+
+	<%# Search Box --------------------------------------------------------------------- %>
+
+	<%
+	function stops(compare){
+		if (typeof params === "undefined"){
+			return "";
+		}else{
+			return (params.stop_name + "" == compare + "") ? " selected" : "";
+		}
+	}
+	%>
+	<div class="panel panel-default">
+		<div class="panel-heading"><b><%= title %></b></div>
+		<div class="panel-body">
+			<form>
+				<div class="form-group">
+					<div class="row">
+						<%# Section %>
+						<label class="control-label col-sm-3 col-lg-3" for="stop">Stop:</label>
+						<div class="col-sm-9 col-lg-9">
+							<select class="form-control" id="stop">
+								<option value="">-- Please select --</option>
+								<% for (var stop in searchbox.stops){ %>
+								<option value = "<%= stop %>"<%= stops(stop) %>><%= stop %></option>
+								<% } %>
+							</select>
+						</div>
+						<div class="col-sm-12 col-lg-12">
+							<br/>
+							<button type="button" class="btn-block btn-default" onclick="searchbox_submit();">View ETA and Predictions</button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script language = "javascript">
+		//Submit
+		function searchbox_submit(){
+			if ($("#stop").val() != ""){
+				//Valid
+				var URL = "/trams/predict_eta/" + encodeURIComponent($("#stop").val());
+				//Go to new URL
+				window.location.href = URL;
+			}
+		}
+	</script>
+	
+	<%# Search Box Ends --------------------------------------------------------------------- %>
+
+	<% if (typeof params != "undefined"){ %>
+
+		<script language = "javascript">
+			//Model / Mode Selector
+			function mm_update(){
+				var mm = $("#mm").val();
+				$(".eta_row").hide();
+				$(".eta_row_" + mm).show();
+			}
+			$(function(){
+				mm_update();
+			});
+		</script>
+
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<%# Section %>
+				<label class="control-label col-sm-12 col-lg-4" for="mm">Prediction Model &amp; Mode:</label>
+				<div class="col-sm-12 col-lg-8">
+					<select class="form-control" id="mm" onchange="mm_update();">
+						<% for (i in models_n_modes){ var myModel = models_n_modes[i].id; %>
+						<% for (j in models_n_modes[i].modes){ var myMode = models_n_modes[i].modes[j].id; %>
+							<option value = "<%= myModel %>_<%= myMode %>"><%= models_n_modes[i].name %> : <%= models_n_modes[i].modes[j].name %></option>
+						<% } %><% } %>
+					</select>
+				</div>
+			</div>
+		</div>
+			
+		<h3><%= params.stop_name %></h3>
+		
+		<% for (var stop_code in result){ %>
+
+			<h4><%= result[stop_code].direction %> (<%= stop_code %>)</h4>
+
+			<% if (!result[stop_code].eta.length){ %>
+
+				<p>Sorry, no ETAs available.</p>
+
+			<% }else{ %>
+
+			<% if (EM[stop_code].length > 0){ %>
+			<div class="alert alert-warning">
+				<p><strong>Special Messages:</strong></p>
+				<% for (var i in EM[stop_code]){ %>
+				<p><%= EM[stop_code][i].msg_en %></p>
+				<% } %>
+			</div> 
+			<% } %>
+
+			<div class="table-responsive">     
+				<table class="table">
+					<tr>
+						<th>#</th>
+						<th>Tram No.</th>
+						<th>Destination</th>
+						<th>ETA here</th>
+						<th>Stop</th>
+						<th>Predicted Arrival<% if (result[stop_code].isTerminus){ %>#<% } %></th>
+					</tr>
+					<% for (var n in result[stop_code].eta){ %>
+					<% for (var i in models_n_modes){ var myModel = models_n_modes[i].id; %>
+					<% for (var j in models_n_modes[i].modes){ var myMode = models_n_modes[i].modes[j].id; %>
+					<% var noOfPredictions = result[stop_code].eta[n].predicted[myModel][myMode].length; %>
+					<tr class = "eta_row eta_row_<%= myModel %>_<%= myMode %>">
+						<td><%= result[stop_code].eta[n].seq %></td>
+						<td>#<%= result[stop_code].eta[n].tram_id %></td>
+						<td><%= result[stop_code].eta[n].tram_dest_en %></td>
+						<% var secs = Math.floor(result[stop_code].eta[n].arrive_in_second); %>
+						<% if (result[stop_code].eta[n].arrive_in_second > 0){ %>
+							<td><%= Math.floor(secs/60) %> m <%= secs%60 %> s</td>
+						<% }else{ %>
+							<td>(Arrived <%= Math.floor(-secs/60) %> m <%= (-secs)%60 %> s)</td>
+						<% } %>
+						<% if (noOfPredictions == 0){ %>
+						<td colspan="2">(Sorry, no predictions)</td>
+						<% }else{ %>
+						<td><%= result[stop_code].eta[n].sections[0].name %></td>
+						<td>
+							<% if (result[stop_code].isTerminus){ %>
+							0.00 mins
+							<% }else{ %>
+							<%= result[stop_code].eta[n].predicted[myModel][myMode][0].time_start %> (0.00 mins)
+							<% } %>
+						</td>
+						<% } %>
+
+					</tr>
+					<% for (var a = 0; a < noOfPredictions; a++){ %>
+					<tr class = "eta_row eta_row_<%= myModel %>_<%= myMode %>">
+						<td colspan="4"></td>
+						<td><%= result[stop_code].eta[n].sections[a+1].name %></td>
+						<td>
+							<% if (result[stop_code].isTerminus){ %>
+							<%= result[stop_code].eta[n].predicted[myModel][myMode][a].cum_mins2 %> mins
+							<% }else{ %>
+							<%= result[stop_code].eta[n].predicted[myModel][myMode][a].time_end %> (<%= result[stop_code].eta[n].predicted[myModel][myMode][a].cum_mins2 %> mins)
+							<% } %>
+						</td>
+					</tr>
+					<% } %>
+					<% } %>
+					<% } %>
+					<% } %>
+				</table>
+			</div>
+
+			<% if (result[stop_code].isTerminus){ %>
+				<p># Since the ETA for terminus stops does not reflect the departing time, predictions are done by assuming immediate departures.</p>
+			<% } %>
+
+			<% } %>
+
+		<% } %>
+
+	<% } %>
+
+<%- include('footer'); %>

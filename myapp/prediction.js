@@ -6,22 +6,20 @@ var func = require("./func.js");
  */
 
 var models = {
+	"historical": require("./prediction_historical.js"),
 	"kalman": require("./prediction_kalman.js"),
 	"regression": require("./prediction_regression.js"),
 	"hybrid": require("./prediction_kr_hybrid.js"),
 	"knn": require("./prediction_knn.js"),
-	"historical": require("./prediction_historical.js"),
 	//"neural": require("./prediction_neural.js"),
 };
+
+var modelList = ["hybrid", "kalman", "regression", "knn", "historical"];
 
 exports.getModel = function(model){
 	return models[model];
 }
 
-var modelList = [];
-for (var m in models){
-	modelList.push(m);
-}
 
 /**
  * Get Section Collection List
@@ -43,7 +41,8 @@ for (var i in config.tram_est_sections){
 
 exports.getModels = function(){
 	var list = [];
-	for (var myModel in models){
+	for (var i in modelList){
+		var myModel = modelList[i];
 		list.push({
 			id: myModel,
 			name: models[myModel].name,
