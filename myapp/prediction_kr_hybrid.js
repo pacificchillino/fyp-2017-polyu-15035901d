@@ -176,7 +176,7 @@ exports.getPredictorDetails = function(sectCollection){
 		regression_info[myMode] = {};
 		for (var myClass in predictors[sectCollection][myMode]){
 			regression_info[myMode][myClass] = {weights: []};
-			var noOfVariables = exports.modes[myMode].regression_variables_label.length;
+			var noOfVariables = modes[myMode].regression_variables_label.length;
 			//Get bias
 			var bias = predictors[sectCollection][myMode][myClass].predict(func.onehotArray(noOfVariables, -1))[0];
 			regression_info[myMode][myClass].bias = bias;
