@@ -1,0 +1,152 @@
+<div class="alert alert-info">
+	<strong>How to do Prediction?</strong>
+	<ul>
+		<li>Kalman filtered value: Obtain the value with respect to time of day and class of the day. Since values are discrete, the value with the nearest time of day sample is taken.</li>
+		<li>Regressed multiplier: Calculate the sum of multiplications of each input variable and the weight, then add up the bias constant. Each day class has an independent set of weights and bias.</li>
+		<li>Final value: Multiply the Kalman filtered value with the multiplier.</li>
+	</ul>
+</div>
+
+<%
+var HHMMSS = function(h,m,s){
+	return h + ":" + (mm < 10 ? "0" : "") + m + ":" + (ss < 10 ? "0" : "") + s;
+};
+
+//Set up chart data
+var chart_data = {};
+for (var id in result.modes){
+	chart_data[id] = {};
+	var interval = result.modes[id].samplingInterval;
+	for (var i in result.modes[id].classList){
+		var myClass = result.modes[id].classList[i];
+		chart_data[id][myClass] = [];
+		var array_a = (hours_start - hours_date_turnover) * 3600 / interval;
+		var array_b = (hours_end - hours_date_turnover) * 3600 / interval;
+		var hours = hours_start;
+		for (var j = array_a; j <= array_b; j++){
+			chart_data[id][myClass].push({
+					x: Math.round(hours * 10000) / 10000,
+					y: Math.round(result.average_tt[id][myClass][j] * 10000) / 10000,
+				});
+			hours += interval / 3600;
+		}
+	}
+}
+chart_data = JSON.stringify(chart_data);
+
+%>
+
+<% for (var id in result.modes){ %>
+
+	<h4>Mode: <%= result.modes[id].name %> <small>(<%= id %>)</small></h4>
+	<p><strong>Kalman Filtered Value </strong><br/><%= result.modes[id].description_kalman %></p>
+
+	<div style="width: 100%">
+		<canvas id="chart_<%= id %>"></canvas>
+	</div>
+
+	<p><strong>Regressed Multiplier: </strong><br/><%= result.modes[id].description_regression %></p>
+
+	<div class="table-responsive">
+		<table class="table">
+			<tr>
+				<th colspan="<%= result.modes[id].regression_variables_label.length+3 %>">Data for this section</th>
+			</tr>
+			<tr>
+				<th>Class Label</th>
+				<th>Description</th>
+				<% for (var j in result.modes[id].regression_variables_label){ %>
+				<th><%- result.modes[id].regression_variables_label[j] %></th>
+				<% } %>
+				<th>[Bias]</th>
+			</tr>
+			<% for (var i in result.modes[id].classList){ %>
+			<% var myClass = result.modes[id].classList[i]; %>
+			<tr>
+				<td><%= myClass %></td>
+				<td><%= result.modes[id].classDescription[i] %></td>
+				<% for (var j in result.modes[id].regression_variables_label){ %>
+				<td><%= (result.regression_info[id][myClass].weights[j]-0).toFixed(4) %></td>
+				<% } %>
+				<td><%= (result.regression_info[id][myClass].bias-0).toFixed(4) %></td>
+			</tr>
+			<% } %>
+		</table>
+	</div>
+
+	<p>Where:
+		<ul>
+			<% for (var i in result.modes[id].regression_variables_remarks){ %>
+			<li><%= result.modes[id].regression_variables_remarks[i] %></li>
+			<% } %>
+		</ul>
+	</p>
+
+<% } %>
+
+<script src = "/javascripts/Chart.bundle.min.js"></script>
+
+<script language = "javascript">
+
+	var chart_data = JSON.parse('<%- chart_data %>');
+	
+	var datasetLine = function (label, data, hue){
+		return {
+			label: label,
+			data: data,
+			showLine: true,
+			borderColor: (hue == null) ? "rgba(0, 0, 0, 0.8)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.8)",
+			backgroundColor: (hue == null) ? "rgba(0, 0, 0, 0.1)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.1)",
+			fill: false,
+			borderWidth: 2,
+			pointRadius: 0,
+			lineTension: 0,
+		};
+	}
+
+	var charts = {};
+	for (var myMode in chart_data){
+		charts[myMode] = {};
+		var datasets = [];
+		var noOfClasses = 0;
+		var i = 0;
+		for (var myClass in chart_data[myMode]) noOfClasses++;
+		for (var myClass in chart_data[myMode]){
+			var hue = i / noOfClasses;
+			datasets.push(datasetLine(myClass, chart_data[myMode][myClass], hue));
+			i++;
+		}
+		charts[myMode].ctx = document.getElementById("chart_" + myMode).getContext("2d");
+		charts[myMode].chart = Chart.Scatter(charts[myMode].ctx , {
+			data: {
+				datasets: datasets,
+			},
+			options: {
+				title: {
+					display: true,
+					text: 'Data for Section <%= params.stopA %> - <%= params.stopB %> (' + myMode + ')',
+					fontSize: 16,
+				},
+				legend: {
+					position: "top",
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: "Time of Day (Hours)",
+						},
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: "Kalman Filtered Value (Minutes)",
+						},
+					}],
+				},
+			},
+		});
+	}
+</script>

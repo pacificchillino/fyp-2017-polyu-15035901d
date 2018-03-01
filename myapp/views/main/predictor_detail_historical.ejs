@@ -1,0 +1,33 @@
+<div class="alert alert-info">
+	<strong>How to do Prediction?</strong>
+	<p>Simply obtain the "historical mean" data with respect to the class of the day, regardless of time of day.</p>
+</div>
+	  
+
+<% for (var id in result.modes){ %>
+
+<h4>Mode: <%= result.modes[id].name %> <small>(<%= id %>)</small></h4>
+<p><%= result.modes[id].description %></p>
+
+<div class="table-responsive">
+	<table class="table">
+		<tr>
+			<th colspan="3">Data for this section</th>
+		</tr>
+		<tr>
+			<th>Class Label</th>
+			<th>Description</th>
+			<th>Historical Mean (mins)</th>
+		</tr>
+		<% for (var i in result.modes[id].classList){ %>
+		<% var myClass = result.modes[id].classList[i]; %>
+		<tr>
+			<td><%= myClass %></td>
+			<td><%= result.modes[id].classDescription[i] %></td>
+			<td><%= result.average_tt[id][myClass].toFixed(4) %></td>
+		</tr>
+		<% } %>
+	</table>
+</div>
+
+<% } %>

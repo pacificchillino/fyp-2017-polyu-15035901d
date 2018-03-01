@@ -1,0 +1,90 @@
+<%- include('header'); %>
+
+	<%# Search Box --------------------------------------------------------------------- %>
+
+	<%
+	function section(compare){
+		if (typeof params === "undefined"){
+			return "";
+		}else{
+			return (params.stopA+"/"+params.stopB == compare) ? " selected" : "";
+		}
+	}
+	function model(compare){
+		if (typeof params === "undefined"){
+			return "";
+		}else{
+			return (params.model == compare) ? " selected" : "";
+		}
+	}
+	%>
+	<div class="panel panel-default">
+		<div class="panel-heading"><b><%= title %></b></div>
+		<div class="panel-body">
+			<form>
+				<div class="form-group">
+					<div class="row">
+						<%# Section %>
+						<label class="control-label col-sm-3 col-lg-2" for="section">Select section:</label>
+						<div class="col-sm-9 col-lg-4">
+							<select class="form-control" id="section">
+								<option value="">-- Please select --</option>
+								<% for (var i in searchbox.sections){ %>
+								<option value = "<%= searchbox.sections[i].from_to %>"<%= section(searchbox.sections[i].from_to) %>><%= searchbox.sections[i].caption %></option>
+								<% } %>
+							</select>
+						</div>
+						<%# Model %>
+						<label class="control-label col-sm-3 col-lg-2" for="model">Prediction Model:</label>
+						<div class="col-sm-9 col-lg-4">
+							<select class="form-control" id="model">
+								<option value="">-- Please select --</option>
+								<% for (var i in searchbox.models){ %>
+								<option value = "<%= searchbox.models[i].id %>"<%= model(searchbox.models[i].id) %>><%= searchbox.models[i].name %></option>
+								<% } %>
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<br/>
+						<button type="button" class="btn-block btn-default" onclick="searchbox_submit();">View</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script language = "javascript">
+		//Submit
+		function searchbox_submit(){
+			if ($("#section").val() != "" && $("#model").val() != ""){
+				//Valid
+				var URL = "/trams/predictor_detail/" + $("#section").val() + "/" + $("#model").val();
+				//Go to new URL
+				window.location.href = URL;
+			}
+		}
+	</script>
+
+	<%# Search Box Ends --------------------------------------------------------------------- %>
+
+	<style>
+		.table td {text-align: center;}
+		.table th {text-align: center;}
+		.table {font-size:0.9em;}
+	</style>
+
+	<% if (typeof params !== "undefined"){ %>
+	<% if (result == null){ %>
+
+		<p>Sorry, no prediction model details are available.</p>
+
+	<% }else{ %>
+
+		<h3>Details of Prediction Model <em><%= params.model %></em> for Tram Section <em><%= params.stopA %> - <%= params.stopB %></em></h3>
+		<%- include('predictor_detail_' + params.model); %>
+
+	<% } %>
+	<% } %>
+
+<%- include('footer'); %>

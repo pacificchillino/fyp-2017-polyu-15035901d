@@ -1,0 +1,143 @@
+<div class="alert alert-info">
+	<strong>How to do Prediction?</strong>
+	<p>Calculate the sum of multiplications of each input variable and the weight, then add up the bias constant. Each day class has an independent set of weights and bias.</p>
+</div>
+
+<% for (var id in result.modes){ %>
+
+	<h4>Mode: <%= result.modes[id].name %> <small>(<%= id %>)</small></h4>
+	<p><%= result.modes[id].description %></p>
+
+	<div class="table-responsive">
+		<table class="table">
+			<tr>
+				<th colspan="<%= result.modes[id].regression_variables_label.length+3 %>">Data for this section</th>
+			</tr>
+			<tr>
+				<th>Class Label</th>
+				<th>Description</th>
+				<% for (var j in result.modes[id].regression_variables_label){ %>
+				<th><%- result.modes[id].regression_variables_label[j] %></th>
+				<% } %>
+				<th>[Bias]</th>
+			</tr>
+			<% for (var i in result.modes[id].classList){ %>
+			<% var myClass = result.modes[id].classList[i]; %>
+			<tr>
+				<td><%= myClass %></td>
+				<td><%= result.modes[id].classDescription[i] %></td>
+				<% for (var j in result.modes[id].regression_variables_label){ %>
+				<td><%= (result.regression_info[id][myClass].weights[j]-0).toFixed(4) %></td>
+				<% } %>
+				<td><%= (result.regression_info[id][myClass].bias-0).toFixed(4) %></td>
+			</tr>
+			<% } %>
+		</table>
+	</div>
+
+	<p>Where:
+		<ul>
+			<% for (var i in result.modes[id].regression_variables_remarks){ %>
+			<li><%= result.modes[id].regression_variables_remarks[i] %></li>
+			<% } %>
+		</ul>
+	</p>
+
+<% } %>
+
+<h4>Comparison of Modes Regressed with Time of Day</h4>
+
+<% for (var i in result.time_curve_comparison.classList){ %>
+	<div style="width: 100%">
+		<canvas id="chart_<%= result.time_curve_comparison.classList[i] %>"></canvas>
+	</div>
+<% } %>
+
+<script src = "/javascripts/Chart.bundle.min.js"></script>
+
+<script language = "javascript">
+
+	var regression_info = JSON.parse('<%- JSON.stringify(result.regression_info) %>');
+	var hours_start = ("<%= hours_start %>" - 0);
+	var hours_end = ("<%= hours_end %>" - 0);
+	var time_curve_comparison = JSON.parse('<%- JSON.stringify(result.time_curve_comparison) %>');
+	
+	var datasetLine = function (label, data, hue){
+		return {
+			label: label,
+			data: data,
+			showLine: true,
+			borderColor: (hue == null) ? "rgba(0, 0, 0, 0.8)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.8)",
+			backgroundColor: (hue == null) ? "rgba(0, 0, 0, 0.1)" : "hsla(" + (hue*360) + ", 100%, 40%, 0.1)",
+			fill: false,
+			borderWidth: 2,
+			pointRadius: 0,
+			lineTension: 0,
+		};
+	}
+
+	var charts = {};
+	for (var i in time_curve_comparison.classList){
+		var myClass = time_curve_comparison.classList[i];
+		var datasets = [];
+		for (var j in time_curve_comparison.modes){
+			var myMode = time_curve_comparison.modes[j];
+			var dimension = time_curve_comparison.dimensions[j];
+			var myData = [];
+			//From start time to end time, every 0.1 hours
+			for (var h = hours_start; h <= hours_end; h += 0.1){
+				//Define myValue
+				var sum = 0;
+				for (var d = 0; d < dimension; d++){
+					var tod_n = h / 24;
+					var power = dimension - d;
+					sum += regression_info[myMode][myClass].weights[d] * Math.pow(tod_n, power);
+				}
+				sum += regression_info[myMode][myClass].bias;
+				//Push into myData
+				myData.push({
+					x: h,
+					y: sum,
+				});
+			}
+			var hue = j / time_curve_comparison.modes.length;
+			datasets.push(datasetLine(myMode, myData, hue));
+		}
+		//Draw Chart
+		var className = myClass + ": " + time_curve_comparison.classDescription[i];
+		charts[myClass] = {};
+		charts[myClass].ctx = document.getElementById("chart_" + myClass).getContext("2d");
+		charts[myClass].chart = Chart.Scatter(charts[myClass].ctx , {
+			data: {
+				datasets: datasets,
+			},
+			options: {
+				title: {
+					display: true,
+					text: 'Prediction Results for Section <%= params.stopA %> - <%= params.stopB %> for No Rainfall (Class ' + className + ')',
+					fontSize: 16,
+				},
+				legend: {
+					position: "top",
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: "Time of Day (Hours)",
+						},
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: "Predicted (Minutes)",
+						},
+					}],
+				},
+			},
+		});
+	}
+
+</script>

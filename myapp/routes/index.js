@@ -13,6 +13,7 @@ router.get('/', function(req, res, next) {
 
 var tram_view_data_controller = require('../controllers/tram_view_data_controller');
 var tram_prediction_controller = require('../controllers/tram_prediction_controller');
+var tram_predictor_detail_controller = require('../controllers/tram_predictor_detail_controller');
 
 router.get('/trams/view_data', tram_view_data_controller.tram_data);
 router.get('/trams/view_data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result);
@@ -31,6 +32,9 @@ router.get('/trams/predict/:from/:to/:isMulti', tram_prediction_controller.tram_
 
 router.get('/trams/predict_eta', tram_prediction_controller.tram_data_predict_eta);
 router.get('/trams/predict_eta/:stop_name', tram_prediction_controller.tram_data_predict_eta_result);
+
+router.get('/trams/predictor_detail', tram_predictor_detail_controller.tram_data_predictor_detail);
+router.get('/trams/predictor_detail/:stopA/:stopB/:model', tram_predictor_detail_controller.tram_data_predictor_detail_result);
 
 //API
 router.get('/api/trams/view_data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result_api);

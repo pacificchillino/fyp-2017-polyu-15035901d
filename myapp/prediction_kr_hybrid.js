@@ -11,6 +11,7 @@ exports.modes = {
 		description: "Day Classification: Weekday or Not ; Variables: Rainfall",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		kalmanMode: "default",
 		regressionMode: "default",
 	},
@@ -19,6 +20,7 @@ exports.modes = {
 		description: "Day Classification: Weekday or Not ; Variables: Rainfall Amount",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		kalmanMode: "default",
 		regressionMode: "rain_l",
 	},
@@ -27,6 +29,7 @@ exports.modes = {
 		description: "Day Classification: Weekday or Not ; Variables: Rainfall or Not",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		kalmanMode: "default",
 		regressionMode: "rain_b",
 	},
@@ -35,6 +38,7 @@ exports.modes = {
 		description: "Day Classification: Weekday or Not ; Variables: Rainfall, HKO Temperature, Humidity",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		kalmanMode: "default",
 		regressionMode: "hko",
 	},
@@ -43,14 +47,16 @@ exports.modes = {
 		description: "Day Classification: Day of Week ; Variables: Rainfall",
 		classification: func.getDayClassByDayOfWeek,
 		classList: func.dayClassListByDayOfWeek,
+		classDescription: func.dayClassDescriptionByDayOfWeek,
 		kalmanMode: "dow",
 		regressionMode: "dow",
 	},
 	"noclass": {
 		name: "No Day Classifications",
 		description: "Day Classification: None ; Variables: Rainfall",
-		classification: function(data){ return "all"; },
-		classList: ["all"],
+		classification: function(data){ return "uncl"; },
+		classList: ["uncl"],
+		classDescription: ["Unclassified"],
 		kalmanMode: "noclass",
 		regressionMode: "noclass",
 	},
@@ -135,4 +141,56 @@ exports.predict = function(sectCollection, mode, inputData){
 	if (kalmanFiltered == null) return null;
 	else if (myRegressionInput[0] == null) return null;
 	else return myRegressionOutput[0] * kalmanFiltered;
+};
+
+/**
+ * Method for Showing Details Information for this Predictor, with a Section
+ */
+exports.getPredictorDetails = function(sectCollection){
+	//Modes: obtain information for corresponding kalman & regression modes
+	var modes = {};
+	for (var myMode in exports.modes){
+		var myKalmanMode = exports.modes[myMode].kalmanMode;
+		var myRegressionMode = exports.modes[myMode].regressionMode;
+		modes[myMode] = {
+			name: exports.modes[myMode].name,
+			description: exports.modes[myMode].description,
+			classList: exports.modes[myMode].classList,
+			classDescription: exports.modes[myMode].classDescription,
+			description_kalman: global.prediction.getModel("kalman").modes[myKalmanMode].description,
+			samplingInterval: global.prediction.getModel("kalman").modes[myKalmanMode].samplingInterval,
+			description_regression: global.prediction.getModel("regression").modes[myRegressionMode].description,
+			regression_variables_label: global.prediction.getModel("regression").modes[myRegressionMode].regression_variables_label,
+			regression_variables_remarks: global.prediction.getModel("regression").modes[myRegressionMode].regression_variables_remarks,
+		};
+	};
+	//Average_tt: obtain list from kalman model
+	var average_tt = {};
+	for (var myMode in exports.modes){
+		var myKalmanMode = exports.modes[myMode].kalmanMode;
+		average_tt[myMode] = global.prediction.getModel("kalman").getMeanSeries(sectCollection, myKalmanMode);
+	}
+	//Regression_info: from predictors in this model
+	var regression_info = {};
+	for (var myMode in predictors[sectCollection]){
+		regression_info[myMode] = {};
+		for (var myClass in predictors[sectCollection][myMode]){
+			regression_info[myMode][myClass] = {weights: []};
+			var noOfVariables = exports.modes[myMode].regression_variables_label.length;
+			//Get bias
+			var bias = predictors[sectCollection][myMode][myClass].predict(func.onehotArray(noOfVariables, -1))[0];
+			regression_info[myMode][myClass].bias = bias;
+			//Get weightings
+			for (var i = 0; i < noOfVariables; i++){
+				var predicted = predictors[sectCollection][myMode][myClass].predict(func.onehotArray(noOfVariables, i))[0];
+				regression_info[myMode][myClass].weights[i] = predicted - bias;
+			}
+		} 
+	} 
+	//Return
+	return {
+		modes: modes,
+		average_tt: average_tt,
+		regression_info: regression_info,
+	};
 };

@@ -236,6 +236,7 @@ exports.getDayClassByWeekdayOrNot = function(data){
 };
 
 exports.dayClassListByWeekdayOrNot = ["w0", "w1"];
+exports.dayClassDescriptionByWeekdayOrNot = ["Weekdays (Mon - Fri)", "Saturdays, Sundays & Public Holidays"];
 
 exports.getDayClassByDayOfWeek = function(data){
 	if (data.PH == true){
@@ -246,6 +247,7 @@ exports.getDayClassByDayOfWeek = function(data){
 };
 
 exports.dayClassListByDayOfWeek = ["d0", "d1", "d2", "d3", "d4", "d5", "d6"];
+exports.dayClassDescriptionByDayOfWeek = ["Sundays & Public Holidays", "Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays"];
 
 exports.getDayClass = function(data, isDayOfWeek){
 	if (isDayOfWeek){
@@ -276,6 +278,17 @@ exports.ten = function(number){
 };
 
 ten = exports.ten;
+
+exports.onehotArray = function(num, index){
+	var arr = [];
+	for (var i = 0; i < num; i++){
+		arr.push(0);
+	}
+	if (index >= 0 && index < num){
+		arr[index] = 1;
+	}
+	return arr;
+};
 
 exports.emptyObjectIfNull = function(obj){
 	if (obj == null){

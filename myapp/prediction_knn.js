@@ -6,7 +6,7 @@ exports.description = "Using K-Nearest-Neighbours (KNN) for predicting travellin
 exports.modes = {
 	"default": {
 		name: "Default",
-		description: "No of neighbours: 5; Vector: Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'",
+		description: "No of neighbours: 5; Vector: [Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'] (3 dimensional)",
 		vector: function($){
 			return [$.t, $.s_R, $.wkday];
 		},
@@ -14,7 +14,7 @@ exports.modes = {
 	},
 	"less_n": {
 		name: "Less neighbours",
-		description: "No of neighbours: 2; Vector: Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'",
+		description: "No of neighbours: 2; Vector: [Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'] (3 dimensional)",
 		vector: function($){
 			return [$.t, $.s_R, $.wkday];
 		},
@@ -22,7 +22,7 @@ exports.modes = {
 	},
 	"more_n": {
 		name: "More neighbours",
-		description: "No of neighbours: 10; Vector: Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'",
+		description: "No of neighbours: 10; Vector: [Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'] (3 dimensional)",
 		vector: function($){
 			return [$.t, $.s_R, $.wkday];
 		},
@@ -30,7 +30,7 @@ exports.modes = {
 	},
 	"rain_b": {
 		name: "Binarized Rainfall",
-		description: "No of neighbours: 5; Vector: Normalized time of day, Binarized rainfall, binarized 'weekday or not'",
+		description: "No of neighbours: 5; Vector: [Normalized time of day, Binarized rainfall, binarized 'weekday or not'] (3 dimensional)",
 		vector: function($){
 			return [$.t, $.b_R, $.wkday];
 		},
@@ -38,7 +38,7 @@ exports.modes = {
 	},
 	"hko": {
 		name: "HKO Temperature & Humidity",
-		description: "No of neighbours: 5; Vector: Normalized time of day, Binarized rainfall, HKO Temperature, HKO Humidity, binarized 'weekday or not'",
+		description: "No of neighbours: 5; Vector: [Normalized time of day, Binarized rainfall, HKO Temperature, HKO Humidity, binarized 'weekday or not'] (5 dimensional)",
 		vector: function($){
 			return [$.t, $.b_R, $.T_n, $.H_n, $.wkday];
 		},
@@ -46,7 +46,7 @@ exports.modes = {
 	},
 	"dow": {
 		name: "Day of Week",
-		description: "No of neighbours: 5; Vector: Normalized time of day, Sigmoid-normalized rainfall, normalized day of week",
+		description: "No of neighbours: 5; Vector: [Normalized time of day, Sigmoid-normalized rainfall, normalized day of week] (3 dimensional)",
 		vector: function($){
 			return [$.t, $.s_R, $.dayOfWk];
 		},
@@ -195,4 +195,13 @@ exports.predict = function(sectCollection, mode, inputData){
 	}else{
 		return sum / count;
 	}
+};
+
+/**
+ * Method for Showing Details Information for this Predictor, with a Section
+ */
+exports.getPredictorDetails = function(sectCollection){
+	return {
+		modes: exports.modes,
+	};
 };

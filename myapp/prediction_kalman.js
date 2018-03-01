@@ -19,6 +19,7 @@ exports.modes = {
 		description: "Classification of Days: Weekday or Not; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: defaultSamplingInterval,
 		filter: defaultFilter,
 	},
@@ -27,6 +28,7 @@ exports.modes = {
 		description: "Classification of Days: Weekday or Not; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 10",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: defaultSamplingInterval,
 		filter: moreSensitiveFilter,
 	},
@@ -35,6 +37,7 @@ exports.modes = {
 		description: "Classification of Days: Weekday or Not; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 1",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: defaultSamplingInterval,
 		filter: lessSensitiveFilter,
 	},
@@ -43,6 +46,7 @@ exports.modes = {
 		description: "Classification of Days: Weekday or Not; Sampling Interval: 10 seconds ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: moreFreqSamplingInterval,
 		filter: defaultFilter,
 	},
@@ -51,6 +55,7 @@ exports.modes = {
 		description: "Classification of Days: Weekday or Not; Sampling Interval: 5 minutes ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: lessFreqSamplingInterval,
 		filter: defaultFilter,
 	},
@@ -59,14 +64,16 @@ exports.modes = {
 		description: "Classification of Days: Day of Week; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
 		classification: func.getDayClassByDayOfWeek,
 		classList: func.dayClassListByDayOfWeek,
+		classDescription: func.dayClassDescriptionByDayOfWeek,
 		samplingInterval: defaultSamplingInterval,
 		filter: defaultFilter,
 	},
 	"noclass": {
 		name: "No Day Classifications",
 		description: "Classification of Days: None; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
-		classification: function(data){ return "all"; },
-		classList: ["all"],
+		classification: function(data){ return "uncl"; },
+		classList: ["uncl"],
+		classDescription: ["Unclassified"],
 		samplingInterval: defaultSamplingInterval,
 		filter: defaultFilter,
 	},
@@ -212,6 +219,19 @@ exports.getMean = function (sectCollection, mode, data){
 };
 
 /**
+ * Get the whole mean series
+ */
+
+exports.getMeanSeries = function (sectCollection, mode){
+	if (average_tt[sectCollection] != null){
+		if (average_tt[sectCollection][mode] != null){
+			return average_tt[sectCollection][mode];
+		}
+	}
+	return null;
+}
+
+/**
  * Get class by data (used by "hybrid" mode externally)
  */
 
@@ -232,4 +252,14 @@ exports.getClassList = function(mode){
  */
 exports.predict = function(sectCollection, mode, inputData){
 	return exports.getMean(sectCollection, mode, inputData);
+};
+
+/**
+ * Method for Showing Details Information for this Predictor, with a Section
+ */
+exports.getPredictorDetails = function(sectCollection){
+	return {
+		modes: exports.modes,
+		average_tt: average_tt[sectCollection],
+	};
 };

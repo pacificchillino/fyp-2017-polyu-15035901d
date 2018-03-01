@@ -9,18 +9,21 @@ exports.modes = {
 		description: "Public holidays are considered as non-weekdays.",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 	},
 	"dayofwk": {
 		name: "Day of Week Classification",
-		description: "Public holidays are considered as public holidays.",
+		description: "Public holidays are also considered as Sundays.",
 		classification: func.getDayClassByDayOfWeek,
 		classList: func.dayClassListByDayOfWeek,
+		classDescription: func.dayClassDescriptionByDayOfWeek,
 	},
 	"noclass": {
 		name: "No Classification of Days",
 		description: "No Classification",
-		classification: function(data){ return "all"; },
-		classList: ["all"],
+		classification: function(data){ return "uncl"; },
+		classList: ["uncl"],
+		classDescription: ["Unclassified"],
 	},
 };
 
@@ -82,4 +85,14 @@ exports.predict = function(sectCollection, mode, inputData){
 		}
 	}
 	return null;
+};
+
+/**
+ * Method for Showing Details Information for this Predictor, with a Section
+ */
+exports.getPredictorDetails = function(sectCollection){
+	return {
+		modes: exports.modes,
+		average_tt: average_tt[sectCollection],
+	};
 };

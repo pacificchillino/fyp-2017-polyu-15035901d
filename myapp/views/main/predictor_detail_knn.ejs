@@ -1,0 +1,11 @@
+<div class="alert alert-info">
+	<strong>How to do Prediction?</strong>
+	<p>Obtain the k-th nearest vectorized samples in terms of the Euclidean distance from the vectorized input. Take the mean values of the k samples as the prediction result.</p>
+</div>
+
+<% for (var id in result.modes){ %>
+
+<h4>Mode: <%= result.modes[id].name %> <small>(<%= id %>)</small></h4>
+<p><%= result.modes[id].description %></p>
+
+<% } %>

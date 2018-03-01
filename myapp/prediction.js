@@ -392,3 +392,16 @@ exports.predictionErrorSummaryByDate = function(sectCollection, model, mode, dat
 	}
 	return null;
 };
+
+/**
+ * Get model details
+ */
+exports.getPredictorDetails = function(model, sectCollection){
+	if (models[model] == null){
+		return null;
+	}else if (models[model].getPredictorDetails == null){
+		return null;
+	}else{
+		return models[model].getPredictorDetails(sectCollection);
+	}
+};
