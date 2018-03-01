@@ -6,62 +6,62 @@ var KalmanFilter = require('kalmanjs').default;
 exports.name = "Kalman Filtering Model";
 exports.description = "Using Kalman Filters to fit travelling time with respect to day of time.";
 
-var defaultFilter = {R: 0.01, Q: 3};
-var lessSensitiveFilter = {R: 0.01, Q: 1};
-var moreSensitiveFilter = {R: 0.01, Q: 10};
+var defaultFilter = {R: 0.005, Q: 3};
+var moreTolerantFilter = {R: 0.005, Q: 1};
+var lessTolerantFilter = {R: 0.005, Q: 9};
 var defaultSamplingInterval = 60;
-var moreFreqSamplingInterval = 10;
-var lessFreqSamplingInterval = 300;
+var moreFreqSamplingInterval = 20;
+var lessFreqSamplingInterval = 180;
 
 exports.modes = {
 	"default": {
 		name: "Default",
-		description: "Classification of Days: Weekday or Not; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
+		description: "Classification of Days: Weekday or Not; Sampling Interval: 1 minute ; R (process noise modeller): 0.005 ; Q (measurement noise modeller): 3",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
 		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: defaultSamplingInterval,
 		filter: defaultFilter,
 	},
-	"more_sen": {
-		name: "More Sensitive",
-		description: "Classification of Days: Weekday or Not; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 10",
+	"more_tol": {
+		name: "More Noise-Tolerant",
+		description: "Classification of Days: Weekday or Not; Sampling Interval: 1 minute ; R (process noise modeller): 0.005 ; Q (measurement noise modeller): 1",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
 		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: defaultSamplingInterval,
-		filter: moreSensitiveFilter,
+		filter: moreTolerantFilter,
 	},
-	"less_sen": {
-		name: "Less Sensitive",
-		description: "Classification of Days: Weekday or Not; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 1",
+	"less_tol": {
+		name: "Less Noise-Tolerant",
+		description: "Classification of Days: Weekday or Not; Sampling Interval: 1 minute ; R (process noise modeller): 0.005 ; Q (measurement noise modeller): 9",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
 		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: defaultSamplingInterval,
-		filter: lessSensitiveFilter,
+		filter: lessTolerantFilter,
 	},
 	"more_freq": {
 		name: "More Frequent Samplings",
-		description: "Classification of Days: Weekday or Not; Sampling Interval: 10 seconds ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
+		description: "Classification of Days: Weekday or Not; Sampling Interval: 20 seconds ; R (process noise modeller): 0.005 ; Q (measurement noise modeller): 9",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
 		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: moreFreqSamplingInterval,
-		filter: defaultFilter,
+		filter: lessTolerantFilter,
 	},
 	"less_freq": {
 		name: "Less Frequent Samplings",
-		description: "Classification of Days: Weekday or Not; Sampling Interval: 5 minutes ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
+		description: "Classification of Days: Weekday or Not; Sampling Interval: 3 minutes ; R (process noise modeller): 0.005 ; Q (measurement noise modeller): 1",
 		classification: func.getDayClassByWeekdayOrNot,
 		classList: func.dayClassListByWeekdayOrNot,
 		classDescription: func.dayClassDescriptionByWeekdayOrNot,
 		samplingInterval: lessFreqSamplingInterval,
-		filter: defaultFilter,
+		filter: moreTolerantFilter,
 	},
 	"dow": {
 		name: "Day of Week",
-		description: "Classification of Days: Day of Week; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
+		description: "Classification of Days: Day of Week; Sampling Interval: 1 minute ; R (process noise modeller): 0.005 ; Q (measurement noise modeller): 3",
 		classification: func.getDayClassByDayOfWeek,
 		classList: func.dayClassListByDayOfWeek,
 		classDescription: func.dayClassDescriptionByDayOfWeek,
@@ -70,7 +70,7 @@ exports.modes = {
 	},
 	"noclass": {
 		name: "No Day Classifications",
-		description: "Classification of Days: None; Sampling Interval: 1 minute ; R (process noise modeller): 0.01 ; Q (measurement noise modeller): 3",
+		description: "Classification of Days: None; Sampling Interval: 1 minute ; R (process noise modeller): 0.005 ; Q (measurement noise modeller): 3",
 		classification: function(data){ return "uncl"; },
 		classList: ["uncl"],
 		classDescription: ["Unclassified"],
