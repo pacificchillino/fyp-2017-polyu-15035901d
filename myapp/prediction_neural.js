@@ -16,7 +16,7 @@ var maxRainfall = 300;
 var minTemperature = -10;
 var maxTemperature = 50;
 
-var disabled = false; disabled = (process.platform == "win32") ? true : false;
+var disabled = false; //disabled = (process.platform == "win32") ? true : false;
 
 var trainingOptions = {
 	rate: 0.1,
@@ -31,9 +31,9 @@ var trainingOptions = {
 exports.modes = {
 	"default": {
 		name: "Default",
-		description: "Inputs: Public Holiday?, Day of Week, Time of Day, Rainfall or Not, Rainfall, HKO Temperature, HKO Humidity; Hidden layers: [10, 100, 50, 10, 5]; Output: Travelling time in mins",
+		description: "Inputs: Public Holiday?, Day of Week, Time of Day, Rainfall or Not, Rainfall, HKO Temperature, HKO Humidity; Hidden layers: [10, 100, 10]; Output: Travelling time in mins",
 		inputLayerSize: 7,
-		hiddenLayerSize: [10, 100, 50, 10, 5],
+		hiddenLayerSize: [10, 100, 10],
 		inputArrayFunction: function(data){
 			if (data.HKO_temp != null){
 				return [
@@ -150,6 +150,6 @@ exports.predict = function(sectCollection, mode, inputData){
  */
 exports.getPredictorDetails = function(sectCollection){
 	if (!disabled){
-		
+
 	}
 };
