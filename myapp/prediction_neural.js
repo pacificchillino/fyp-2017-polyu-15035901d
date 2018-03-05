@@ -16,7 +16,7 @@ var maxRainfall = 300;
 var minTemperature = -10;
 var maxTemperature = 50;
 
-var disabled = false; disabled = (process.platform == "win32") ? true : false;
+var disabled = false; disabled = (process.platform == "win32") ? false : true;
 
 var trainingOptions = {
 	rate: 0.1,
