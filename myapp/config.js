@@ -69,16 +69,12 @@ exports.tram_time_end = 0;//hours								//Omit time recordings beginning after 
 exports.cron_time_tram_end = "0 0 * * *";
 exports.tram_time_cutoff = 1.5;//hours							//Discard recordings which are unable to end before 1:30am
 exports.cron_time_tram_cutoff = "30 1 * * *";
+exports.cron_time_tram_clean_data = "0 2 * * *";				//Clean tram data at 2:00am
 exports.tram_eta_threshold = 60;//mins							//If the obtained ETA is over 60 mins (or under -60 mins), omit it
 exports.tram_eta_nonarrived_limit = 120;//secs					//For determination of arrival time by non-arrived ETA, it must be less than 120 seconds
 exports.cron_time_tram_get_eta = "0 * * * * *";					//Get ETA for all every minute
 exports.cron_time_tram_get_eta2 = "10,20,30,40,50 * * * * *";	//Get ETA for isTerminus: true every 10 seconds (except @min)
 exports.cron_time_tram_get_em = "5 */3 * * * *";				//Get emergency message every 3 minutes
-
- //to be deleted after update, 2018/1/24
-exports.cron_time_tram_clean_data = "30 2 * * *";				//Clean data at 2:30am
- //to be deleted after update, 2018/1/24
-exports.cron_time_tram_update_regression = "0 3 * * *";			//Update regression variables at 3am
 
 //Stops that ETA data are required
 const $E = "Eastbound";

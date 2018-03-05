@@ -11,10 +11,10 @@ var models = {
 	"regression": require("./prediction_regression.js"),
 	"hybrid": require("./prediction_kr_hybrid.js"),
 	"knn": require("./prediction_knn.js"),
-	//"neural": require("./prediction_neural.js"),
+	"neural": require("./prediction_neural.js"),
 };
 
-var modelList = ["hybrid", "kalman", "regression", "knn", "historical"];
+var modelList = ["hybrid", "kalman", "regression", "knn", "neural", "historical"];
 
 exports.getModel = function(model){
 	return models[model];
