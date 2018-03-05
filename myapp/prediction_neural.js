@@ -39,7 +39,7 @@ exports.modes = {
 //Training Options
 var training_options = function(){
 	return{
-		iterations: func.isDuringTramRecordingTimeB() ? 100 : 10000,
+		iterations: func.isDuringTramRecordingTimeB() ? 1000 : 10000,
 		errorThresh: 1e-9,
 		log: true,
 		logPeriod: 100,
