@@ -17,7 +17,7 @@ var minTemperature = -10;
 var maxTemperature = 50;
 
 var learningRate = 0.1;
-var initialIterations = (process.platform == "win32") ? 1000 : 10000;
+var initialIterations = (process.platform == "win32") ? 1000 : 1000;
 
 var disabled = false; //disabled = (process.platform == "win32") ? false : true;
 
