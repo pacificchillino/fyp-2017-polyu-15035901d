@@ -45,7 +45,12 @@ var training_options = function(){
 		logPeriod: 100,
 		learningRate: 0.01,
 		timeout: 300000, //5 minutes
-	}
+	};
+};
+
+//ANN options
+var ann_options = function(){
+	return {};
 };
 
 //Rotate hours to fit date changing time
@@ -92,7 +97,7 @@ exports.getLastUpdate = function(){
 
 exports.init = function(sectCollection, data){
 	//Define Neural Networks
-	ann[sectCollection] = new brain.NeuralNetwork();
+	ann[sectCollection] = new brain.NeuralNetwork(ann_options());
 	//Training
 	var trainingSet = new Array();
 	for (var i in data){
@@ -105,7 +110,7 @@ exports.init = function(sectCollection, data){
 			});
 		}
 	}
-	ann[sectCollection].train(trainingSet, training_options);
+	ann[sectCollection].train(trainingSet, training_options());
 };
 
 /**
