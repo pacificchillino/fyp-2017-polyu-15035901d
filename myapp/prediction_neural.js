@@ -1,12 +1,7 @@
 var config = require("./config.js");
 var func = require("./func.js");
 
-var synaptic = require('synaptic');
-var Neuron = synaptic.Neuron;
-var Layer = synaptic.Layer;
-var Network = synaptic.Network;
-var Trainer = synaptic.Trainer;
-var Architect = synaptic.Architect;
+var brain = require('brain.js');
 
 exports.name = "Artificial Neural Network Model";
 exports.description = "Using Artificial Neural Network for travelling time prediction.";
@@ -16,17 +11,6 @@ var maxRainfall = 300;
 var minTemperature = -10;
 var maxTemperature = 50;
 
-var learningRate = 0.1;
-var initialIterations = 1000;
-
-var disabled = false; disabled = (process.platform == "win32") ? false : true;
-
-/*var trainingOptions = {
-	rate: 0.1,
-	iterations: 10000,
-	error: 0.001,
-}*/
-
 /**
  * There is only one mode due to resource limitations
  */
@@ -34,9 +18,7 @@ var disabled = false; disabled = (process.platform == "win32") ? false : true;
 exports.modes = {
 	"default": {
 		name: "Default",
-		description: "Inputs: Public Holiday?, Day of Week, Time of Day, Rainfall or Not, Rainfall, HKO Temperature, HKO Humidity; Hidden layers: [50, 5]; Output: Travelling time in mins",
-		inputLayerSize: 7,
-		hiddenLayerSize: [50, 5],
+		description: "Inputs: Public Holiday?, Day of Week, Time of Day, Rainfall or Not, Rainfall, HKO Temperature, HKO Humidity; Output: Travelling time in mins",
 		inputArrayFunction: function(data){
 			if (data.HKO_temp != null){
 				return [
@@ -53,6 +35,16 @@ exports.modes = {
 			}
 		},
 	},
+};
+
+//Training Options
+var options = {
+	/*iterations: 10000,
+	errorThresh: 0.5 / maxTravellingTime,
+	log: true,
+	logPeriod: 100,
+	learningRate: 0.01,
+	timeout: 300000, //5 minutes*/
 };
 
 //Rotate hours to fit date changing time
@@ -72,10 +64,7 @@ function cap01(value){
 /**
  * Variables:
  * - lastUpdate
- * - ann["sectCollection"].network
- * - ann["sectCollection"].inputLayer
- * - ann["sectCollection"].hiddenLayer[i]
- * - ann["sectCollection"].outputLayer
+ * - ann["sectCollection"]
  */
 
 var lastUpdate;
@@ -94,77 +83,38 @@ exports.getLastUpdate = function(){
  */
 
 exports.init = function(sectCollection, data){
-	if (!disabled){
-		var hiddenLayerSize = exports.modes.default.hiddenLayerSize.length;
-		//Define Main Object
-		ann[sectCollection] = new Object();
-		//Define Layers
-		ann[sectCollection].inputLayer = new Layer(exports.modes.default.inputLayerSize);
-		ann[sectCollection].hiddenLayer = new Array();
-		for (var i = 0; i < hiddenLayerSize; i++){
-			ann[sectCollection].hiddenLayer[i] = new Layer(exports.modes.default.hiddenLayerSize[i]);
-		}
-		ann[sectCollection].outputLayer = new Layer(1);
-		//Define Projections
-		ann[sectCollection].inputLayer.project(ann[sectCollection].hiddenLayer[0]);
-		for (var i = 1; i < hiddenLayerSize; i++){
-			ann[sectCollection].hiddenLayer[i-1].project(ann[sectCollection].hiddenLayer[i]);
-		}
-		ann[sectCollection].hiddenLayer[hiddenLayerSize-1].project(ann[sectCollection].outputLayer);
-		//Define Network
-		ann[sectCollection].network = new Network({
-			input: ann[sectCollection].inputLayer,
-			hidden: ann[sectCollection].hiddenLayer,
-			output: ann[sectCollection].outputLayer,
-		});
-		//Training
-		/*ann[sectCollection].trainer = new Trainer(ann[sectCollection].network);
-		var trainingSet = new Array();
-		for (var i in data){
-			var input = exports.modes.default.inputArrayFunction(data[i]);
-			var output = [data[i].tt_mins / maxTravellingTime];
-			if (input != null){
-				trainingSet.push({
-					input: input,
-					output: output,
-				});
-
-			}
-		}
-		ann[sectCollection].trainer.train(trainingSet, trainingOptions);*/
-		for (var j = 1; j <= initialIterations; j++){
-			if (j % 100 == 0) func.msg2("--> --> ANN: Iteration #" + j, config.debug_color.prediction);
-			for (var i in data){
-				var input = exports.modes.default.inputArrayFunction(data[i]);
-				var output = [data[i].tt_mins / maxTravellingTime];
-				if (input != null){
-					ann[sectCollection].network.activate(input);
-					ann[sectCollection].network.propagate(learningRate, output);
-				}
-			}
+	//Define Neural Networks
+	ann[sectCollection] = new brain.NeuralNetwork();
+	//Training
+	var trainingSet = new Array();
+	for (var i in data){
+		var input = exports.modes.default.inputArrayFunction(data[i]);
+		var output = [data[i].tt_mins / maxTravellingTime];
+		if (input != null){
+			trainingSet.push({
+				input: input,
+				output: output,
+			});
 		}
 	}
+	ann[sectCollection].train(trainingSet, options);
 };
 
 /**
  * Method for Making a Prediction for a Section
  */
 exports.predict = function(sectCollection, mode, inputData){
-	if (!disabled){
-		var input = exports.modes.default.inputArrayFunction(inputData);
-		if (input != null){
-			return ann[sectCollection].network.activate(input)[0] * maxTravellingTime;
-		}
+	var input = exports.modes.default.inputArrayFunction(inputData);
+	if (input != null){
+		var output = ann[sectCollection].run(input)[0] * maxTravellingTime;
+		return output;
 	}
 	return null;
-
 };
 
 /**
  * Method for Showing Details Information for this Predictor, with a Section
  */
 exports.getPredictorDetails = function(sectCollection){
-	if (!disabled){
 
-	}
 };
