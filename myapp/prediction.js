@@ -152,9 +152,11 @@ exports.predictOne = function(sectCollection, model, mode, data){
 	//Check if it has been initiated.
 	if (hasBeenInitiated){
 		//Check if the model and the mode exists
-		if (models[model] != null){ if (models[model].modes[mode] != null){
-			return models[model].predict(sectCollection, mode, data);
-		}}
+		if (models[model] != null){
+			if (models[model].modes[mode] != null){
+				return models[model].predict(sectCollection, mode, data);
+			}
+		}
 	}
 	return null;
 };

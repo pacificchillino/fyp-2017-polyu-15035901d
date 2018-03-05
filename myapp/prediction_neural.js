@@ -18,17 +18,16 @@ var maxTemperature = 50;
 exports.modes = {
 	"default": {
 		name: "Default",
-		description: "Inputs: Public Holiday?, Day of Week, Time of Day, Rainfall or Not, Rainfall, HKO Temperature, HKO Humidity; Output: Travelling time in mins",
+		description: "",
 		inputArrayFunction: function(data){
 			if (data.HKO_temp != null){
 				return [
-					(data.PH ? 1 : 0),
+					(data.PH) ? 1 : 0,
 					(data.dayOfWk / 6),
-					(rotateHours(data.hours) / 24),
-					(data.rainfall ? 1 : 0),
-					cap01(data.rainfall / maxRainfall),
-					cap01((data.HKO_temp - minTemperature) / (maxTemperature - minTemperature)),
-					(data.HKO_hum / 100),
+					logit(rotateHours(data.hours) / 24),
+					cap01(data.rainfall / maxRainfall) / 2 + 0.5,
+					cap01((data.HKO_temp - minTemperature) / (maxTemperature - minTemperature)) / 2 + 0.5,
+					(data.HKO_hum / 100) / 2 + 0.5,
 				];
 			}else{
 				return null;
@@ -37,14 +36,18 @@ exports.modes = {
 	},
 };
 
+//ANN Options
+var ann_options = {
+};
+
 //Training Options
-var options = {
-	/*iterations: 10000,
-	errorThresh: 0.5 / maxTravellingTime,
+var training_options = {
+	iterations: (process.platform == "win32") ? 100 : 10000,
+	errorThresh: 1e-9,
 	log: true,
 	logPeriod: 100,
 	learningRate: 0.01,
-	timeout: 300000, //5 minutes*/
+	timeout: 300000, //5 minutes
 };
 
 //Rotate hours to fit date changing time
@@ -59,6 +62,13 @@ function cap01(value){
 	if (value < 0) return 0;
 	else if (value > 1) return 1;
 	else return value;
+}
+
+//Reverse-sigmoid function
+function logit (value){
+	if (value <= 0) return -Infinity;
+	else if (value >= 1) return Infinity;
+	else return Math.log(value / (1 - value));
 }
 
 /**
@@ -84,7 +94,7 @@ exports.getLastUpdate = function(){
 
 exports.init = function(sectCollection, data){
 	//Define Neural Networks
-	ann[sectCollection] = new brain.NeuralNetwork();
+	ann[sectCollection] = new brain.NeuralNetwork(ann_options);
 	//Training
 	var trainingSet = new Array();
 	for (var i in data){
@@ -97,7 +107,7 @@ exports.init = function(sectCollection, data){
 			});
 		}
 	}
-	ann[sectCollection].train(trainingSet, options);
+	ann[sectCollection].train(trainingSet, training_options);
 };
 
 /**
@@ -116,5 +126,7 @@ exports.predict = function(sectCollection, mode, inputData){
  * Method for Showing Details Information for this Predictor, with a Section
  */
 exports.getPredictorDetails = function(sectCollection){
-
+	return {
+		json: ann[sectCollection].toJSON(),
+	};
 };
