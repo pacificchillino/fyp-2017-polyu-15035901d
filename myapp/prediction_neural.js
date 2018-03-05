@@ -36,18 +36,16 @@ exports.modes = {
 	},
 };
 
-//ANN Options
-var ann_options = {
-};
-
 //Training Options
-var training_options = {
-	iterations: (process.platform == "win32") ? 100 : 10000,
-	errorThresh: 1e-9,
-	log: true,
-	logPeriod: 100,
-	learningRate: 0.01,
-	timeout: 300000, //5 minutes
+var training_options = function(){
+	return{
+		iterations: func.isDuringTramRecordingTimeB() ? 100 : 10000,
+		errorThresh: 1e-9,
+		log: true,
+		logPeriod: 100,
+		learningRate: 0.01,
+		timeout: 300000, //5 minutes
+	}
 };
 
 //Rotate hours to fit date changing time
@@ -94,7 +92,7 @@ exports.getLastUpdate = function(){
 
 exports.init = function(sectCollection, data){
 	//Define Neural Networks
-	ann[sectCollection] = new brain.NeuralNetwork(ann_options);
+	ann[sectCollection] = new brain.NeuralNetwork();
 	//Training
 	var trainingSet = new Array();
 	for (var i in data){
