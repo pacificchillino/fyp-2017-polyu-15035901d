@@ -16,13 +16,16 @@ var maxRainfall = 300;
 var minTemperature = -10;
 var maxTemperature = 50;
 
+var learningRate = 0.1;
+var initialIterations = (process.platform == "win32") ? 1000 : 10000;
+
 var disabled = false; disabled = (process.platform == "win32") ? false : true;
 
-var trainingOptions = {
+/*var trainingOptions = {
 	rate: 0.1,
 	iterations: 10000,
 	error: 0.001,
-}
+}*/
 
 /**
  * There is only one mode due to resource limitations
@@ -31,9 +34,9 @@ var trainingOptions = {
 exports.modes = {
 	"default": {
 		name: "Default",
-		description: "Inputs: Public Holiday?, Day of Week, Time of Day, Rainfall or Not, Rainfall, HKO Temperature, HKO Humidity; Hidden layers: [50, 10, 5]; Output: Travelling time in mins",
+		description: "Inputs: Public Holiday?, Day of Week, Time of Day, Rainfall or Not, Rainfall, HKO Temperature, HKO Humidity; Hidden layers: [50, 5]; Output: Travelling time in mins",
 		inputLayerSize: 7,
-		hiddenLayerSize: [50, 10, 5],
+		hiddenLayerSize: [50, 5],
 		inputArrayFunction: function(data){
 			if (data.HKO_temp != null){
 				return [
@@ -115,7 +118,7 @@ exports.init = function(sectCollection, data){
 			output: ann[sectCollection].outputLayer,
 		});
 		//Training
-		ann[sectCollection].trainer = new Trainer(ann[sectCollection].network);
+		/*ann[sectCollection].trainer = new Trainer(ann[sectCollection].network);
 		var trainingSet = new Array();
 		for (var i in data){
 			var input = exports.modes.default.inputArrayFunction(data[i]);
@@ -125,9 +128,21 @@ exports.init = function(sectCollection, data){
 					input: input,
 					output: output,
 				});
+
 			}
 		}
-		ann[sectCollection].trainer.train(trainingSet, trainingOptions);
+		ann[sectCollection].trainer.train(trainingSet, trainingOptions);*/
+		for (var j = 1; j <= initialIterations; j++){
+			if (j % 100 == 0) func.msg2("--> --> ANN: Iteration #" + j, config.debug_color.prediction);
+			for (var i in data){
+				var input = exports.modes.default.inputArrayFunction(data[i]);
+				var output = [data[i].tt_mins / maxTravellingTime];
+				if (input != null){
+					ann[sectCollection].network.activate(input);
+					ann[sectCollection].network.propagate(learningRate, output);
+				}
+			}
+		}
 	}
 };
 
