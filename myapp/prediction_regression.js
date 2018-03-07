@@ -174,20 +174,10 @@ exports.time_curve_comparison = {
 
 /**
  * Variables:
- * - lastUpdate
  * - predictors["sectCollection"]["mode"]["class"]
  */
 
-var lastUpdate;
 var predictors = new Object();
-
-/**
- * Method for Obtaining Last Update Time
- */
-
-exports.getLastUpdate = function(){
-	return lastUpdate;
-}
 
 /**
  * Get regression variables by data (used by "hybrid" mode externally)
@@ -202,7 +192,6 @@ exports.getRegressionVariables = function(mode, data){
  */
 
 exports.init = function(sectCollection, data){
-	lastUpdate = new Date();
 	predictors[sectCollection] = new Object();
 	//For each mode
 	for (var mode in exports.modes){
@@ -282,5 +271,6 @@ exports.getPredictorDetails = function(sectCollection){
 		modes: exports.modes,
 		regression_info: regression_info,
 		time_curve_comparison: exports.time_curve_comparison,
+		updates_info: global.prediction.getUpdatesInfo(sectCollection, "regression"),
 	};
 };

@@ -107,27 +107,16 @@ function rotateHours(hours){
 
 /**
  * Variables:
- * - lastUpdate
  * - varLists["sectCollection"][i]
  */
 
-var lastUpdate;
 var varLists = new Object();
-
-/**
- * Method for Obtaining Last Update Time
- */
-
-exports.getLastUpdate = function(){
-	return lastUpdate;
-}
 
 /**
  * Method for Initialization of a Section of Prediction (when server starts or at midnight)
  */
 
 exports.init = function(sectCollection, data){
-	lastUpdate = new Date();
 	//Define new array
 	varLists[sectCollection] = new Array();
 	for (var i in data){
@@ -203,5 +192,6 @@ exports.predict = function(sectCollection, mode, inputData){
 exports.getPredictorDetails = function(sectCollection){
 	return {
 		modes: exports.modes,
+		updates_info: global.prediction.getUpdatesInfo(sectCollection, "knn"),
 	};
 };

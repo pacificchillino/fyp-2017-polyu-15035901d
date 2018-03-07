@@ -33,6 +33,18 @@ exports.modes = {
 				return null;
 			}
 		},
+		inputs_description: [
+			"Sunday or Public Holiday: 1; else: 0",
+			"(Day of Week / 6) --> Sunday: 0, ... , Saturday: 1",
+			"logit[(Hours - 3) / 24], where logit is reverse sigmoid function",
+			"Rainfall (0 ~ 200mm) normalized to (0.5 ~ 1)",
+			"Temperature (-10 ~ 50°C) normalized to (0.5 ~ 1)",
+			"Humidity (0 ~ 100%) normalized to (0.5 ~ 1)",
+		],
+		output_description: "Predicted travelling time (0 ~ 300 mins) normalized to (0 ~ 1)",
+		remarks: [
+			"Sigmoid function is used for activation of neurons",
+		]
 	},
 };
 
@@ -43,14 +55,16 @@ var training_options = function(){
 		errorThresh: 1e-9,
 		log: true,
 		logPeriod: 100,
-		learningRate: 0.01,
+		learningRate: 0.1,
 		timeout: 300000, //5 minutes
 	};
 };
 
 //ANN options
 var ann_options = function(){
-	return {};
+	return {
+		hiddenLayers: [12, 6, 3],
+	};
 };
 
 //Rotate hours to fit date changing time
@@ -76,20 +90,10 @@ function logit (value){
 
 /**
  * Variables:
- * - lastUpdate
  * - ann["sectCollection"]
  */
 
-var lastUpdate;
 var ann = new Object();
-
-/**
- * Method for Obtaining Last Update Time
- */
-
-exports.getLastUpdate = function(){
-	return lastUpdate;
-}
 
 /**
  * Method for Initialization of a Section of Prediction (when server starts or at midnight)
@@ -130,6 +134,8 @@ exports.predict = function(sectCollection, mode, inputData){
  */
 exports.getPredictorDetails = function(sectCollection){
 	return {
+		mode: exports.modes,
 		json: ann[sectCollection].toJSON(),
+		updates_info: global.prediction.getUpdatesInfo(sectCollection, "neural"),
 	};
 };

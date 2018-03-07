@@ -64,27 +64,16 @@ exports.modes = {
 
 /**
  * Variables:
- * - lastUpdate
  * - predictors["sectCollection"]["mode"]["class"]
  */
 
-var lastUpdate;
 var predictors = new Object();
-
-/**
- * Method for Obtaining Last Update Time
- */
-
-exports.getLastUpdate = function(){
-	return lastUpdate;
-}
 
 /**
  * Method for Initialization of a Section of Prediction (when server starts or at midnight)
  */
 
 exports.init = function(sectCollection, data){
-	lastUpdate = new Date();
 	predictors[sectCollection] = new Object();
 	//For each mode
 	for (var mode in exports.modes){
@@ -192,5 +181,6 @@ exports.getPredictorDetails = function(sectCollection){
 		modes: modes,
 		average_tt: average_tt,
 		regression_info: regression_info,
+		updates_info: global.prediction.getUpdatesInfo(sectCollection, "hybrid"),
 	};
 };

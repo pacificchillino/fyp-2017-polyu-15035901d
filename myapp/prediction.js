@@ -93,6 +93,34 @@ exports.getModelAndModes = function(){
 	return data;
 };
 
+/**
+ * exports.lastUpdate[sc][model]
+ * exports.lastUpdateStr[sc][model]
+ * exports.timeSpent[sc][model]
+ * exports.noOfModes[sc][model]
+ * exports.noOfData[sc][model]
+ */
+
+exports.lastUpdate = new Object();
+exports.lastUpdateStr = new Object();
+exports.timeSpent_ms = new Object();
+exports.noOfModes = new Object();
+exports.noOfData = new Object();
+
+exports.getUpdatesInfo = function(sc, model){
+	return {
+		lastUpdate: exports.lastUpdate[sc][model],
+		lastUpdateStr: exports.lastUpdateStr[sc][model],
+		noOfModes: exports.noOfModes[sc][model],
+		noOfData: exports.noOfData[sc][model],
+		timeSpent_ms: exports.timeSpent_ms[sc][model],
+		timeSpent_str: func.exponential(exports.timeSpent_ms[sc][model] / 1000) + " s",
+		timeSpentPerMode_str: func.exponential(exports.timeSpent_ms[sc][model] / 1000 / exports.noOfModes[sc][model]) + " s",
+		timeSpentPerData_str: func.exponential(exports.timeSpent_ms[sc][model] / 1000 / exports.noOfData[sc][model]) + " s",
+		timeSpentPerModeData_str: func.exponential(exports.timeSpent_ms[sc][model] / 1000 / exports.noOfModes[sc][model] / exports.noOfData[sc][model]) + " s",
+	};
+};
+
 /** 
  * Init
  */
@@ -117,10 +145,30 @@ function initForOneSectCollection(){
 	var filter = {date: {$lt: todayString}};
 	//Find from MongoDB
 	global.db.collection(mySC).find(filter).toArray(function(err, data) {
+		//Define objects
+		exports.lastUpdate[mySC] = new Object();
+		exports.lastUpdateStr[mySC] = new Object();
+		exports.timeSpent_ms[mySC] = new Object();
+		exports.noOfModes[mySC] = new Object();
+		exports.noOfData[mySC] = new Object();
 		//Initialize for Each Model
-		for (var m in models){
-			func.msg("--> " + models[m].name, config.debug_color.prediction);
-			models[m].init(mySC, data);
+		for (var myModel in models){
+			//No of Modes
+			exports.noOfModes[mySC][myModel] = 0; for (var i in models[myModel].modes) exports.noOfModes[mySC][myModel]++;
+			//No of Data
+			exports.noOfData[mySC][myModel] = data.length;
+			//Mark Start Time
+			var now = new Date();
+			exports.lastUpdate[mySC][myModel] = now;
+			exports.lastUpdateStr[mySC][myModel] = func.getYYYYMMDD(now) + " " + func.getHMSOfDay(now);
+			//Socket Message
+			func.msg("--> " + models[myModel].name, config.debug_color.prediction);
+			//Init for each model
+			models[myModel].init(mySC, data);
+			//Mark Time Spent
+			exports.timeSpent_ms[mySC][myModel] = new Date().getTime() - exports.lastUpdate[mySC][myModel].getTime();
+			//Socket Message
+			func.msg("--> Done. Spent " + (exports.timeSpent_ms[mySC][myModel]/1000) + " seconds.");
 		}
 		//Next Section or End
 		sc++;
@@ -360,15 +408,16 @@ exports.predictionErrorSummaryByDate = function(sectCollection, model, mode, dat
 			//Mark computation time
 			var endComputationTime = new Date();
 			result.computationTime = endComputationTime.getTime() - startComputationTime.getTime();
+			result.computationTime2 = func.exponential(result.computationTime / 1000) + " s";
 			result.computationTimeAvgAll = result.computationTime / result.overall.count;
 			if (result.overall.count > 0){
-				result.computationTimeAvgAll2 = (result.computationTimeAvgAll * 1000).toFixed(4);
+				result.computationTimeAvgAll2 = func.exponential(result.computationTimeAvgAll / 1000) + " s";
 			}else{
 				result.computationTimeAvgAll2 = "";
 			}
 			result.computationTimeAvgValid = result.computationTime / result.overall.validCount;
 			if (result.overall.validCount > 0){
-				result.computationTimeAvgValid2 = (result.computationTimeAvgValid * 1000).toFixed(4);
+				result.computationTimeAvgValid2 = func.exponential(result.computationTimeAvgValid / 1000) + " s";
 			}else{
 				result.computationTimeAvgValid2 = "";
 			}

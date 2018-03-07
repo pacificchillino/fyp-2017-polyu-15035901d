@@ -32,23 +32,13 @@ exports.modes = {
  * - average_tt[sectCollection][mode][class]
  */
 
-var lastUpdate;
 var average_tt = new Object();
-
-/**
- * Method for Obtaining Last Update Time
- */
-
-exports.getLastUpdate = function(){
-	return lastUpdate;
-}
 
 /**
  * Method for Initialization of a Section of Prediction (when server starts or at midnight)
  */
 
 exports.init = function(sectCollection, data){
-	lastUpdate = new Date();
 	average_tt[sectCollection] = new Object();
 	//For each mode
 	for (var mode in exports.modes){
@@ -94,5 +84,6 @@ exports.getPredictorDetails = function(sectCollection){
 	return {
 		modes: exports.modes,
 		average_tt: average_tt[sectCollection],
+		updates_info: global.prediction.getUpdatesInfo(sectCollection, "historical"),
 	};
 };

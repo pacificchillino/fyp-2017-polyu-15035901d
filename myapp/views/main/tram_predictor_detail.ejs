@@ -84,6 +84,17 @@
 		<h3>Details of Prediction Model <em><%= params.model %></em> for Tram Section <em><%= params.stopA %> - <%= params.stopB %></em></h3>
 		<%- include('predictor_detail_' + params.model); %>
 
+		<h3>Predictor Update Information</h3>
+		<ul>
+			<li>Last Update at: <%- result.updates_info.lastUpdateStr %></li>
+			<li>No of Modes: <%- result.updates_info.noOfModes %></li>
+			<li>No of Data Entries: <%- result.updates_info.noOfData %></li>
+			<li>Update Time Spent: <%- result.updates_info.timeSpent_str %></li>
+			<li>... per Mode: <%- result.updates_info.timeSpentPerMode_str %></li>
+			<li>... per Data Entry: <%- result.updates_info.timeSpentPerData_str %></li>
+			<li>... per Mode per Data Entry: <%- result.updates_info.timeSpentPerModeData_str %></li>
+		</ul>
+
 	<% } %>
 	<% } %>
 

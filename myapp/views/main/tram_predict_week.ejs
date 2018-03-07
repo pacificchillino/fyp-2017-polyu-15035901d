@@ -231,33 +231,33 @@
 								<% } %>
 							</tr>
 							<tr>
-								<th>Overall time used (ms)</th>
+								<th>Overall time used</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].computationTime %>'</td>
+								<td><%- summary[myMode].computationTime2 %></td>
 								<% } %>
 							</tr>
 							<tr>
 								<th>No. of predictions (including failed)</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].overall.count %></td>
+								<td><%- summary[myMode].overall.count %></td>
 								<% } %>
 							</tr>
 							<tr>
-								<th>Average time used per prediction (μs)</th>
+								<th>Average time used per prediction</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].computationTimeAvgAll2 %></td>
+								<td><%- summary[myMode].computationTimeAvgAll2 %></td>
 								<% } %>
 							</tr>
 							<tr>
 								<th>No. of valid predictions</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].overall.validCount %></td>
+								<td><%- summary[myMode].overall.validCount %></td>
 								<% } %>
 							</tr>
 							<tr>
-								<th>Average time used per valid prediction (μs)</th>
+								<th>Average time used per valid prediction</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].computationTimeAvgValid2 %></td>
+								<td><%- summary[myMode].computationTimeAvgValid2 %></td>
 								<% } %>
 							</tr>
 						</table>

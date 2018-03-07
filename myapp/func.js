@@ -279,6 +279,23 @@ exports.ten = function(number){
 
 ten = exports.ten;
 
+exports.exponential = function(number){
+	if (isNaN(number)){
+		return "";
+	}else if (number == 0){
+		return 0 + "";
+	}else if (number >= 1 || number <= -1){
+		return Math.round(number * 10000) / 10000 + "";
+	}else{
+		var degree = 0;
+		while (Math.abs(number) < 1){
+			number *= 10;
+			degree -= 1;
+		}
+		return (Math.round(number * 10000) / 10000) + " x10<sup>"+degree+"</sup>"
+	}
+}
+
 exports.onehotArray = function(num, index){
 	var arr = [];
 	for (var i = 0; i < num; i++){

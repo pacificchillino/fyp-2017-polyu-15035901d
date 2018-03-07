@@ -3,6 +3,69 @@
 	<p>Set up an artifical neural network (ANN) for prediction.</p>
 </div>
 
-<p>
-	<%= JSON.stringify(result.json); %>
-</p>
+<h4>Input Layer</h4>
+
+<div class="table-responsive">
+	<table class="table">
+		<tr>
+			<th>Neuron</th>
+			<th>Description</th>
+		</tr>
+		<% for (var i = 0; i < result.mode.default.inputs_description.length; i++){ %>
+		<tr>
+			<td>#<%= (i+1) %></td>
+			<td><%= result.mode.default.inputs_description[i] %></td>
+		</tr>
+		<% } %>
+	</table>
+</div>
+
+<% for (var l = 1; l < result.json.layers.length - 1; l++){ %>
+<h4>Hidden Layer #<%= l %></h4>
+
+<div class="table-responsive">
+	<table class="table">
+		<tr>
+			<th>Neuron</th>
+			<% for (var i = 0; i < result.json.sizes[l-1]; i++){ %>
+			<th>Weight #<%= (i+1) %></th>
+			<% } %>
+			<th>Bias</th>
+		</tr>
+		<% for (var j in result.json.layers[l]){ %>
+		<tr>
+			<td>#<%= j - (-1) %></td>
+			<% for (var i = 0; i < result.json.sizes[l-1]; i++){ %>
+			<td><%= result.json.layers[l][j].weights[i].toFixed(5) %></td>
+			<% } %>
+			<td><%= result.json.layers[l][j].bias.toFixed(5) %></td>
+		</tr>
+		<% } %>
+	</table>
+</div>
+
+<% } %>
+
+<h4>Output Layer</h4>
+
+<div class="table-responsive">
+	<table class="table">
+		<tr>
+			<th>Neuron</th>
+			<th>Description</th>
+			<% var l = result.json.layers.length - 1; %>
+			<% for (var i = 0; i < result.json.sizes[l-1]; i++){ %>
+			<th>Weight #<%= (i+1) %></th>
+			<% } %>
+			<th>Bias</th>
+		</tr>
+		<tr>
+			<td>#1</td>
+			<td><%= result.mode.default.output_description %></td>
+			<% for (var i = 0; i < result.json.sizes[l-1]; i++){ %>
+			<td><%= result.json.layers[l]["0"].weights[i].toFixed(5) %></td>
+			<% } %>
+			<td><%= result.json.layers[l]["0"].bias.toFixed(5) %></td>
+		</tr>
+	</table>
+</div>
