@@ -63,7 +63,7 @@ var training_options = function(){
 //ANN options
 var ann_options = function(){
 	return {
-		hiddenLayers: [12, 6, 3],
+		hiddenLayers: [9, 3],
 	};
 };
 
