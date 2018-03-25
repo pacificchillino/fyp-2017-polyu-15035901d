@@ -489,8 +489,13 @@ var tram_data_predict_eta_result = function (req, res, isAPI, model, mode){ //mo
 	var promises = new Array();
 	//Get Models and Modes
 	var models_nm = global.prediction.getModelAndModes();
-	//Obtain ETAs
+	//Stop name
 	var stop_name = req.params.stop_name;
+	//For stop code, convert to stop name
+	if (config.tram_stops_for_eta[stop_name] != null){
+		stop_name = config.tram_stops_for_eta[stop_name].name;
+	}
+	//Obtain ETAs
 	var etaObtainedFunction = function(eta){
 		result[this.stop].eta = eta;
 		//Predict for each ETA

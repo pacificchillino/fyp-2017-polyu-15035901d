@@ -69,3 +69,11 @@
 		</tr>
 	</table>
 </div>
+
+<h4>Neural Network Information</h4>
+<ul>
+	<li>Activation function: <%= result.json.activation %></li>
+	<li>No of iterations: <%= result.json.trainOpts.iterations %></li>
+	<li>Learning Rate: <%= result.json.trainOpts.learningRate %></li>
+	<li>Timeout Limit: <%= result.json.trainOpts.timeout / 1000 %> seconds</li>
+</ul>

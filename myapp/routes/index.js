@@ -53,13 +53,10 @@ router.get('/api/trams/predict_eta/:stop_name/:model', tram_prediction_controlle
 router.get('/api/trams/predict_eta/:stop_name/:model/:mode', tram_prediction_controller.tram_data_predict_eta_result_api_m2);
 
 router.get('/api/list/tram_sections', function(req, res){
-	res.send(JSON.stringify({list: func.getTramSectionsList()}));
+	res.send(JSON.stringify({list: global.tramSectionsList}));
 });
 router.get('/api/list/prediction_models', function(req, res){
 	res.send(JSON.stringify({list: global.prediction.getModelAndModes()}));
-});
-router.get('/api/list/prediction_from_to', function(req, res){
-	res.send(JSON.stringify({list: global.tramPredictionServiceFromTo}));
 });
 router.get('/api/list/tram_prediction_menu', function(req, res){
 	res.send(JSON.stringify({list: global.tramPredictionServiceMenu}));
