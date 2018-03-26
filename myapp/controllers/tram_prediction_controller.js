@@ -474,14 +474,6 @@ exports.tram_data_predict_eta = function (req, res){
 	res.render('main/tram_predict_eta', data);
 };
 
-exports.tram_data_predict_eta_result = function (req, res){
-	tram_data_predict_eta_result(req, res, false);
-};
-
-exports.tram_data_predict_eta_result_api = function (req, res){
-	tram_data_predict_eta_result(req, res, true);
-};
-
 var tram_data_predict_eta_result = function (req, res, isAPI, model, mode){ //model, mode are optional
 	var result = {};
 	var EM = {};
@@ -491,10 +483,6 @@ var tram_data_predict_eta_result = function (req, res, isAPI, model, mode){ //mo
 	var models_nm = global.prediction.getModelAndModes();
 	//Stop name
 	var stop_name = req.params.stop_name;
-	//For stop code, convert to stop name
-	if (config.tram_stops_for_eta[stop_name] != null){
-		stop_name = config.tram_stops_for_eta[stop_name].name;
-	}
 	//Obtain ETAs
 	var etaObtainedFunction = function(eta){
 		result[this.stop].eta = eta;
@@ -558,13 +546,78 @@ var tram_data_predict_eta_result = function (req, res, isAPI, model, mode){ //mo
 	});
 };
 
+//API Only
+var tram_data_predict_eta_result_alt = function (req, res, model, mode){ //model, mode are optional
+	var result = {};
+	var EM = {};
+	//Obtain Data
+	var promises = new Array();
+	//Get Models and Modes
+	var models_nm = global.prediction.getModelAndModes();
+	//Stop code
+	var stop_code = req.params.stop_code;
+	//Obtain ETAs
+	var etaObtainedFunction = function(eta){
+		result.eta = eta;
+		//Predict for each ETA
+		if (config.tram_stops_for_eta[this.stop] != null){
+			for (var i in result.eta){
+				result.eta[i] = tram_data_predict_eta_result_each(this.stop, result.eta[i], model, mode);
+			}
+		}
+	};
+	var etaObtainFailedFunction = function(){
+		result.eta = [];
+	};
+	var emObtainedFunction = function(message){
+		EM = message;
+	};
+	var emObtainFailedFunction = function(message){
+		EM = "";
+	};
+	trams.getNextTramETA(stop_code).then(
+		etaObtainedFunction.bind({stop: stop_code})
+	).catch(
+		etaObtainFailedFunction.bind({stop: stop_code})
+	)
+	//Return List
+	.then(function(){
+		var data = {
+			params: req.params,
+			result: result,
+			EM: EM,
+		}
+		res.send(JSON.stringify(data));
+	});
+};
+
+exports.tram_data_predict_eta_result = function (req, res){
+	tram_data_predict_eta_result(req, res, false);
+};
+
 //API only
+exports.tram_data_predict_eta_result_api = function (req, res){
+	tram_data_predict_eta_result(req, res, true);
+};
+
 exports.tram_data_predict_eta_result_api_m1 = function (req, res){
 	tram_data_predict_eta_result(req, res, true, req.params.model, null);
 };
 
 exports.tram_data_predict_eta_result_api_m2 = function (req, res){
 	tram_data_predict_eta_result(req, res, true, req.params.model, req.params.mode);
+};
+
+exports.tram_data_predict_eta_result_alt_api = function (req, res){
+	tram_data_predict_eta_result_alt(req, res);
+};
+
+exports.tram_data_predict_eta_result_alt_api_m1 = function (req, res){
+	tram_data_predict_eta_result_alt(req, res, req.params.model, null);
+};
+
+exports.tram_data_predict_eta_result_alt_api_m2 = function (req, res){
+	tram_data_predict_eta_result_alt(req, res, req.params.model, req.params.mode);
 };
 
 //Predict for each ETA item
@@ -608,7 +661,7 @@ var tram_data_predict_eta_result_each = function(stop, eta, model, mode){
 	var predictSub = function(model, mode){
 		var result_sub = [];
 		var hours = basisTime;
-		var cum_mins = 0;
+		var cum_mins = (!isTerminus) ? (eta.arrive_in_second / 60) : 0;
 		for (var i = 1; i < stops.length; i++){
 			var stopA = stops[i-1];
 			var stopB = stops[i];

@@ -52,6 +52,10 @@ router.get('/api/trams/predict_eta/:stop_name', tram_prediction_controller.tram_
 router.get('/api/trams/predict_eta/:stop_name/:model', tram_prediction_controller.tram_data_predict_eta_result_api_m1);
 router.get('/api/trams/predict_eta/:stop_name/:model/:mode', tram_prediction_controller.tram_data_predict_eta_result_api_m2);
 
+router.get('/api/trams/predict_eta_alt/:stop_code', tram_prediction_controller.tram_data_predict_eta_result_alt_api);
+router.get('/api/trams/predict_eta_alt/:stop_code/:model', tram_prediction_controller.tram_data_predict_eta_result_alt_api_m1);
+router.get('/api/trams/predict_eta_alt/:stop_code/:model/:mode', tram_prediction_controller.tram_data_predict_eta_result_alt_api_m2);
+
 router.get('/api/list/tram_sections', function(req, res){
 	res.send(JSON.stringify({list: global.tramSectionsList}));
 });

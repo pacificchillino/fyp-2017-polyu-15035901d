@@ -133,7 +133,7 @@
 							<% if (result[stop_code].isTerminus){ %>
 							0.00 mins
 							<% }else{ %>
-							<%= result[stop_code].eta[n].predicted[myModel][myMode][0].time_start %> (0.00 mins)
+							<%= result[stop_code].eta[n].predicted[myModel][myMode][0].time_start %> (<%= (result[stop_code].eta[n].arrive_in_second / 60).toFixed(2) %> mins)
 							<% } %>
 						</td>
 						<% } %>
