@@ -622,12 +622,14 @@ exports.tram_data_predict_eta_result_alt_api_m2 = function (req, res){
 
 //Predict for each ETA item
 var tram_data_predict_eta_result_each = function(stop, eta, model, mode){
-	var result = Object.assign({}, eta);
-	result.sections = [];
-	result.predicted = {};
 	//isTerminus
 	var isTerminus = config.tram_stops_for_eta[stop].isTerminus;
 	var dest = eta.dest_stop_code;
+	//Result object
+	var result = Object.assign({}, eta);
+	result.sections = [];
+	result.predicted = {};
+	result.isTerminus = isTerminus;
 	//Find stop list
 	var stops = [stop];
 	var nextStopFound = true;
