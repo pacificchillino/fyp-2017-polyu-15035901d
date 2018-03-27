@@ -6,12 +6,12 @@ var func = require("./func.js");
  */
 
 var models = {
-	//"historical": require("./prediction_historical.js"),
+	"historical": require("./prediction_historical.js"),
 	"kalman": require("./prediction_kalman.js"),
 	"regression": require("./prediction_regression.js"),
 	"hybrid": require("./prediction_kr_hybrid.js"),
-	//"knn": require("./prediction_knn.js"),
-	//"neural": require("./prediction_neural.js"),
+	"knn": require("./prediction_knn.js"),
+	"neural": require("./prediction_neural.js"),
 };
 
 //var modelList = ["hybrid", "kalman", "regression", "knn", "neural", "historical"];

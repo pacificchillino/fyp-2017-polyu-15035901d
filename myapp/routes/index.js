@@ -59,11 +59,20 @@ router.get('/api/trams/predict_eta_alt/:stop_code/:model/:mode', tram_prediction
 router.get('/api/list/tram_sections', function(req, res){
 	res.send(JSON.stringify({list: global.tramSectionsList}));
 });
+router.get('/api/list/tram_sections.js', function(req, res){
+	res.send("tram_sections = " + JSON.stringify({list: global.tramSectionsList}) + ";");
+});
 router.get('/api/list/prediction_models', function(req, res){
 	res.send(JSON.stringify({list: global.prediction.getModelAndModes()}));
 });
+router.get('/api/list/prediction_models.js', function(req, res){
+	res.send("prediction_models = " + JSON.stringify({list: global.prediction.getModelAndModes()}) + ";");
+});
 router.get('/api/list/tram_prediction_menu', function(req, res){
 	res.send(JSON.stringify({list: global.tramPredictionServiceMenu}));
+});
+router.get('/api/list/tram_prediction_menu.js', function(req, res){
+	res.send("tram_prediction_menu = " + JSON.stringify({list: global.tramPredictionServiceMenu}) + ";");
 });
 router.get('/api/list/tram_prediction_menu/:from', function(req, res){
 	res.send(JSON.stringify({list: func.emptyObjectIfNull(global.tramPredictionServiceMenu[req.params.from])}));
@@ -73,6 +82,9 @@ router.get('/api/list/tram_prediction_menu_from', function(req, res){
 });
 router.get('/api/list/tram_eta_menu', function(req, res){
 	res.send(JSON.stringify({list: global.tramETAServiceMenu}));
+});
+router.get('/api/list/tram_eta_menu.js', function(req, res){
+	res.send("tram_eta_menu = " + JSON.stringify({list: global.tramETAServiceMenu}) + ";");
 });
 
 //The end
