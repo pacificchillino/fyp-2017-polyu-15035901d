@@ -501,24 +501,24 @@ var tram_data_predict_eta_result = function (req, res, isAPI, model, mode){ //mo
 		EM[this.stop] = "";
 	};
 	for (var direction in global.tramETAServiceMenu[stop_name]){
-		var stop = global.tramETAServiceMenu[stop_name][direction];
+		var stop_code = global.tramETAServiceMenu[stop_name][direction];
 		//ETA
-		result[stop] = {};
-		result[stop].direction = direction;
-		result[stop].isTerminus = config.tram_stops_for_eta[stop].isTerminus;
+		result[stop_code] = {};
+		result[stop_code].direction = direction;
+		result[stop_code].isTerminus = config.tram_stops_for_eta[stop_code].isTerminus;
 		promises.push(
-			trams.getNextTramETA(stop).then(
-				etaObtainedFunction.bind({stop: stop})
+			trams.getNextTramETA(stop_code).then(
+				etaObtainedFunction.bind({stop: stop_code})
 			).catch(
-				etaObtainFailedFunction.bind({stop: stop})
+				etaObtainFailedFunction.bind({stop: stop_code})
 			)
 		);
 		//Emergency Message
 		promises.push(
-			trams.getEmergencyMessageForTramStop(stop).then(
-				emObtainedFunction.bind({stop: stop})
+			trams.getEmergencyMessageForTramStop(stop_code).then(
+				emObtainedFunction.bind({stop: stop_code})
 			).catch(
-				emObtainFailedFunction.bind({stop: stop})
+				emObtainFailedFunction.bind({stop: stop_code})
 			)
 		);
 	}
@@ -575,13 +575,23 @@ var tram_data_predict_eta_result_alt = function (req, res, model, mode){ //model
 	var emObtainFailedFunction = function(message){
 		EM = "";
 	};
-	trams.getNextTramETA(stop_code).then(
-		etaObtainedFunction.bind({stop: stop_code})
-	).catch(
-		etaObtainFailedFunction.bind({stop: stop_code})
-	)
+	promises.push(
+		trams.getNextTramETA(stop_code).then(
+			etaObtainedFunction.bind({stop: stop_code})
+		).catch(
+			etaObtainFailedFunction.bind({stop: stop_code})
+		)
+	);
+	//Emergency Message
+	promises.push(
+		trams.getEmergencyMessageForTramStop(stop_code).then(
+			emObtainedFunction.bind({stop: stop_code})
+		).catch(
+			emObtainFailedFunction.bind({stop: stop_code})
+		)
+	);
 	//Return List
-	.then(function(){
+	Promise.all(promises).then(function(){
 		var data = {
 			params: req.params,
 			result: result,
