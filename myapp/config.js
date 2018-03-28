@@ -82,22 +82,22 @@ const $W = "Westbound";
 
 exports.tram_stops_for_eta = {
 	"KTT": 		{direction: $E, isTerminus: true, name: "Kennedy Town", district: $CW},
-	"07E": 		{direction: $E, isTerminus: false, name: "Hill Road, Shek Tong Tsui", district: $CW},
-	"WMT": 		{direction: $E, isTerminus: true, name: "Western Market, Sheung Wan", district: $CW},
-	"19E": 		{direction: $E, isTerminus: false, name: "Macau Ferry, Sheung Wan", district: $CW},
-	"27E": 		{direction: $E, isTerminus: false, name: "Pedder Street, Central", district: $CW},
-	"33E": 		{direction: $E, isTerminus: false, name: "Murray Street, Central", district: $CW},
+	"07E": 		{direction: $E, isTerminus: false, name: "Hill Road", district: $CW},
+	"WMT": 		{direction: $E, isTerminus: true, name: "Western Market", district: $CW},
+	"19E": 		{direction: $E, isTerminus: false, name: "Macau Ferry", district: $CW},
+	"27E": 		{direction: $E, isTerminus: false, name: "Pedder Street", district: $CW},
+	"33E": 		{direction: $E, isTerminus: false, name: "Murray Street", district: $CW},
 	"35E": 		{direction: $E, isTerminus: false, name: "Admiralty Station", district: $CW},
-	"37E": 		{direction: $E, isTerminus: false, name: "Arsenal Street, Wan Chai", district: $WC},
-	"49E": 		{direction: $E, isTerminus: false, name: "Canal Road, Causeway Bay", district: $WC},
+	"37E": 		{direction: $E, isTerminus: false, name: "Arsenal Street", district: $WC},
+	"49E": 		{direction: $E, isTerminus: false, name: "Canal Road", district: $WC},
 	"HVT":		{direction: "", name: "Happy Valley", isDummy: true},
 	"HVT_B": 	{direction: $E, isTerminus: true, name: "Happy Valley", district: $WC}, //To Shau Kei Wan
 	"HVT_K": 	{direction: $W, isTerminus: false, name: "Happy Valley", district: $WC}, //To Kennedy Town
 	"57E": 		{direction: $E, isTerminus: false, name: "Victoria Park", district: $WC},
 	"69E": 		{direction: $E, isTerminus: false, name: "North Point Road", district: $EA},
-	"81E": 		{direction: $E, isTerminus: false, name: "Finnie Street, Quarry Bay", district: $EA},
-	"87E": 		{direction: $E, isTerminus: false, name: "Kornhill, Tai Koo", district: $EA},
-	"93E": 		{direction: $E, isTerminus: false, name: "Tai On Street, Sai Wan Ho", district: $EA},
+	"81E": 		{direction: $E, isTerminus: false, name: "Finnie Street", district: $EA},
+	"87E": 		{direction: $E, isTerminus: false, name: "Kornhill", district: $EA},
+	"93E": 		{direction: $E, isTerminus: false, name: "Tai On Street", district: $EA},
 	"SKT": 		{direction: $W, isTerminus: false, name: "Shau Kei Wan", district: $EA},
 };
 
