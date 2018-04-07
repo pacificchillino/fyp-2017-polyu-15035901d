@@ -1,0 +1,189 @@
+	<%
+	function DOW(compare){
+		if (typeof query === "undefined"){
+			return "";
+		}else{
+			return (query.dow + "" == compare + "") ? " selected" : "";
+		}
+	}
+	function PH(compare){
+		if (typeof query === "undefined"){
+			return "";
+		}else{
+			return (query.ph + "" == compare + "") ? " selected" : "";
+		}
+	}
+	function q($q){
+		if (typeof query === "undefined"){
+			return "";
+		}else if (typeof query[$q] === "undefined"){
+			return "";
+		}else{
+			return query[$q];
+		}
+	}
+	%>
+	<div class="panel panel-default">
+		<div class="panel-heading"><b>Trams: Travelling Time Prediction</b></div>
+		<div class="panel-body">
+			<form>
+				<div class="form-group">
+					<div class="row">
+						<%# Section %>
+						<label class="control-label col-sm-3 col-lg-2" for="from">From:</label>
+						<div class="col-sm-9 col-lg-4">
+							<select class="form-control" id="from" onchange="to_update();">
+							</select>
+						</div>
+						<label class="control-label col-sm-3 col-lg-2" for="to">To:</label>
+						<div class="col-sm-9 col-lg-4">
+							<select class="form-control" id="to" onchange="multi_update();">
+							</select>
+						</div>
+						<label class="control-label col-sm-3 col-lg-2" for="isMulti">Prediction By:</label>
+						<div class="col-sm-9 col-lg-4">
+							<select class="form-control" id="isMulti">
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12 col-lg-12" style="padding-top: 0.5em; padding-bottom: 0.5em;">
+							For the following input factors, keep blank if the current factors are used.
+						</div>
+						<%# D.O.W. %>
+						<label class="control-label col-sm-3 col-lg-2" for="dow">Day of Week:</label>
+						<div class="col-sm-9 col-lg-4">
+							<select class="form-control" id="dow" onchange="dow_changed();">
+								<option value="">[Today]</option>
+								<option value = "0"<%= DOW(0) %>>Sunday</option>
+								<option value = "1"<%= DOW(1) %>>Monday</option>
+								<option value = "2"<%= DOW(2) %>>Tuesday</option>
+								<option value = "3"<%= DOW(3) %>>Wednesday</option>
+								<option value = "4"<%= DOW(4) %>>Thursday</option>
+								<option value = "5"<%= DOW(5) %>>Friday</option>
+								<option value = "6"<%= DOW(6) %>>Saturday</option>
+							</select>
+						</div>
+						<%# P.H. %>
+						<label class="control-label col-sm-3 col-lg-2" for="ph">Public Holiday?</label>
+						<div class="col-sm-9 col-lg-4">
+							<select class="form-control" id="ph" onchange="dow_changed();">
+								<option value="">[Today]</option>
+								<option value = "1"<%= PH(1) %>>Yes</option>
+								<option value = "0"<%= PH(0) %>>No</option>
+							</select>
+						</div>
+						<%# Filter: Hours %>
+						<label class="control-label col-sm-3 col-lg-2" for="time">Time: <small>(hours / hh:mm:ss)</small></label>
+						<div class="col-sm-9 col-lg-4">
+								<input type="text" class="form-control" id="time" placeholder="[Current Time]" value="<%= q('time') %>">
+						</div>
+						<%# Filter: Rainfall %>
+						<label class="control-label col-sm-3 col-lg-2" for="rainfall">Rainfall (mm):</label>
+						<div class="col-sm-9 col-lg-4">
+								<input type="text" class="form-control" id="rainfall" placeholder="[Current Rainfall]" value="<%= q('rainfall') %>">
+						</div>
+						<%# Filter: HKO Temp %>
+						<label class="control-label col-sm-3 col-lg-2" for="HKO_temp">HKO Temperature (℃):</label>
+						<div class="col-sm-9 col-lg-4">
+								<input type="text" class="form-control" id="HKO_temp" placeholder="[Current Temperature]" value="<%= q('hkotemp') %>">
+						</div>
+						<%# Filter: HKO Humidity %>
+						<label class="control-label col-sm-3 col-lg-2" for="HKO_hum">HKO Humidity (%):</label>
+						<div class="col-sm-9 col-lg-4">
+								<input type="text" class="form-control" id="HKO_hum" placeholder="[Current Humidity]" value="<%= q('hkohum') %>">
+						</div>
+					</div>
+					<div class="row">
+						<br/>
+						<button type="button" class="btn-block btn-default" onclick="searchbox_submit_predict();">Predict</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script language = "javascript">
+		//Parse From/To List
+		var from_to = JSON.parse('<%- searchbox_predict.menu_json %>');
+
+		//from, to, multi
+		//
+		//
+		function from_update(){
+			$("#from").children().remove();
+			$('#from').append($('<option>', {value: "", text : "-- Please Select --"}));
+			$.each(from_to, function (i, item) {
+				$('#from').append($('<option>', {value: i, text : i}));
+			});
+			to_update();
+		};
+		function to_update(){
+			var from = $('#from').val();
+			$("#to").children().remove();
+			if (from == ""){
+				$('#to').append($('<option>', {value: "", text : "(Please choose \"from\" first)"}));
+			}else{
+				$('#to').append($('<option>', {value: "", text : "-- Please Select --"}));
+				$.each(from_to[from], function (i, item) {
+					$('#to').append($('<option>', {value: i, text : i}));
+				});
+			}
+			multi_update();
+		};
+		function multi_update(){
+			var from = $('#from').val();
+			var to = $('#to').val();
+			$("#isMulti").children().remove();
+			if (from == "" || to == ""){
+				$('#isMulti').append($('<option>', {value: "", text : "(Please choose \"to\" first)"}));
+			}else{
+				var isSingleEnabled = (from_to[from][to]["0"]);
+				var isMultiEnabled = (from_to[from][to]["1"]);
+				var from_id = from_to[from][to].from;
+				var to_id = from_to[from][to].to;
+				if (isSingleEnabled && isMultiEnabled){
+					$('#isMulti').append($('<option>', {value: "", text : "-- Please Select --"}));
+				}
+				if (isSingleEnabled){
+					var value = from_id + "/" + to_id + "/0";
+					$('#isMulti').append($('<option>', {value: value, text : "Single Section"}));
+				}
+				if (isMultiEnabled){
+					var value = from_id + "/" + to_id + "/1";
+					$('#isMulti').append($('<option>', {value: value, text : "Multiple Sections"}));
+				}
+			}
+		}
+
+		from_update();
+
+		//DOW Changed (Sunday must be public holiday)
+		function dow_changed(){
+			if ($("#dow").val() == "0"){
+				$("#ph").val("1");
+			}
+		}
+
+		//Submit
+		function searchbox_submit_predict(){
+			if ($("#isMulti").val() != ""){
+				//Valid
+				var URL = "/trams/predict/" + $("#isMulti").val();
+				//Input Factors
+				var params = [];
+				if ($("#dow").val() != "") params.push("dow=" + encodeURI($("#dow").val()));
+				if ($("#ph").val() != "") params.push("ph=" + encodeURI($("#ph").val()));
+				if ($("#time").val() != "") params.push("time=" + encodeURI($("#time").val()));
+				if ($("#rainfall").val() != "") params.push("rainfall=" + encodeURI($("#rainfall").val()));
+				if ($("#HKO_temp").val() != "") params.push("hkotemp=" + encodeURI($("#HKO_temp").val()));
+				if ($("#HKO_hum").val() != "") params.push("hkohum=" + encodeURI($("#HKO_hum").val()));
+				//Appand to URL
+				if (params.length){
+					URL += "?" + params.join("&");
+				}
+				//Go to new URL
+				window.location.href = URL;
+			}
+		}
+	</script>

@@ -7,6 +7,7 @@ var func = require("./func.js");
 
 var models = {
 	"historical": require("./prediction_historical.js"),
+	"historical_inv": require("./prediction_historical_inv.js"),
 	"kalman": require("./prediction_kalman.js"),
 	"regression": require("./prediction_regression.js"),
 	"hybrid": require("./prediction_kr_hybrid.js"),
@@ -14,7 +15,7 @@ var models = {
 	"neural": require("./prediction_neural.js"),
 };
 
-var modelList = ["hybrid", "kalman", "regression", "knn", "neural", "historical"];
+var modelList = ["hybrid", "kalman", "regression", "knn", "neural", "historical", "historical_inv"];
 
 exports.getModel = function(model){
 	return models[model];

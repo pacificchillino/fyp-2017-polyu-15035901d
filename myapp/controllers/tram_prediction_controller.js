@@ -94,6 +94,19 @@ var predictForTram = function(stopA, stopB, model, mode, data){
 }
 
 /**
+ * Index
+ */
+
+exports.tram_index = function(req, res){
+	var data = {
+		title: "Travelling Time Estimation Trial Project",
+		searchbox_predict: searchbox_predict(),
+		searchbox_eta: searchbox_eta(),
+	};
+	res.render('main/index', data);
+};
+
+/**
  * Predict a Section
  */
 
@@ -285,7 +298,7 @@ var searchbox_predict = function(model){
 exports.tram_data_predict = function (req, res){
 	var data = {
 		title: "Trams: Travelling Time Prediction",
-		searchbox: searchbox_predict(),
+		searchbox_predict: searchbox_predict(),
 	};
 	res.render('main/tram_predict', data);
 };
@@ -323,7 +336,7 @@ var tram_data_predict_result = function (req, res, isAPI){
 			query: req.query,
 			query_filled: queries,
 			sections: sections,
-			searchbox: searchbox_predict(),
+			searchbox_predict: searchbox_predict(),
 			result: result,
 			models_n_modes: models_nm,
 		}
@@ -469,7 +482,7 @@ var searchbox_eta = function(model){
 exports.tram_data_predict_eta = function (req, res){
 	var data = {
 		title: "Trams: ETA with Predictions",
-		searchbox: searchbox_eta(),
+		searchbox_eta: searchbox_eta(),
 	};
 	res.render('main/tram_predict_eta', data);
 };
@@ -529,7 +542,7 @@ var tram_data_predict_eta_result = function (req, res, isAPI, model, mode){ //mo
 				title: "Trams: ETA with Predictions",
 				params: req.params,
 				query: req.query,
-				searchbox: searchbox_eta(),
+				searchbox_eta: searchbox_eta(),
 				models_n_modes: models_nm,
 				result: result,
 				EM: EM,

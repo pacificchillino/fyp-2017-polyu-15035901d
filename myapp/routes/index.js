@@ -2,11 +2,6 @@ var express = require('express');
 var router = express.Router();
 var func = require("../func.js");
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('main/index', { title: 'Travelling Time Estimation Trial Project' });
-});
-
 /** 
  * Tram
  */
@@ -14,6 +9,8 @@ router.get('/', function(req, res, next) {
 var tram_view_data_controller = require('../controllers/tram_view_data_controller');
 var tram_prediction_controller = require('../controllers/tram_prediction_controller');
 var tram_predictor_detail_controller = require('../controllers/tram_predictor_detail_controller');
+
+router.get('/', tram_prediction_controller.tram_index);
 
 router.get('/trams/view_data', tram_view_data_controller.tram_data);
 router.get('/trams/view_data/:stopA/:stopB/:yy/:mm/:dd', tram_view_data_controller.tram_data_result);

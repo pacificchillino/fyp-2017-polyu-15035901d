@@ -1,8 +1,8 @@
 var config = require("./config.js");
 var func = require("./func.js");
 
-exports.name = "Historical Average Model";
-exports.description = "Simply using average travelling time of the past data.";
+exports.name = "Historical Average Model (Inverse)";
+exports.description = "Using average travelling speed (i.e. inverse of travelling time) of the past data.";
 exports.modes = {
 	"default": {
 		name: "Weekday or Not Classification",
@@ -51,14 +51,14 @@ exports.init = function(sectCollection, data){
 		//For each piece of data
 		for (var i in data){
 			var myClass = exports.modes[mode].classification(data[i]);
-			average_tt[sectCollection][mode][myClass].sum += data[i].tt_mins;
+			average_tt[sectCollection][mode][myClass].sum += (1 / data[i].tt_mins);
 			average_tt[sectCollection][mode][myClass].count ++;
 		}
 		//For each class --> find mean
 		for (var i in exports.modes[mode].classList){
 			var myClass = exports.modes[mode].classList[i];
 			var sc = average_tt[sectCollection][mode][myClass];
-			average_tt[sectCollection][mode][myClass] = sc.sum / sc.count;
+			average_tt[sectCollection][mode][myClass] = (1 / sc.sum * sc.count);
 		}
 	}
 };
@@ -84,6 +84,6 @@ exports.getPredictorDetails = function(sectCollection){
 	return {
 		modes: exports.modes,
 		average_tt: average_tt[sectCollection],
-		updates_info: global.prediction.getUpdatesInfo(sectCollection, "historical"),
+		updates_info: global.prediction.getUpdatesInfo(sectCollection, "historical_inv"),
 	};
 };
