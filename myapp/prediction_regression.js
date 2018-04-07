@@ -163,11 +163,53 @@ exports.modes = {
 			return arr;
 		},
 	},
+	"time_10": {
+		name: "Time of Day: 10-Degree Polynomial",
+		description: "Day Classification: Day of Week ; Variables: Rainfall, Normalized time of Day up to Degree 10",
+		classification: func.getDayClassByWeekdayOrNot,
+		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByDayOfWeek,
+		regression_variables_label: ["t<sup>10</sup>","t<sup>9</sup>","t<sup>8</sup>","t<sup>7</sup>","t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R","r"],
+		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)","r: [1 if there is rainfall, 0 else]"],
+		regression_variables: function(data){
+			var tod = data.hours / 24;
+			var m = 1;
+			var arr = [];
+			for (var i = 0; i < 10; i++){
+				m *= tod;
+				arr.unshift(m);
+			}
+			arr.push(data.rainfall);
+			arr.push((data.rainfall > 0) ? 1 : 0);
+			return arr;
+		},
+	},
+	"time_12": {
+		name: "Time of Day: 12-Degree Polynomial",
+		description: "Day Classification: Day of Week ; Variables: Rainfall, Normalized time of Day up to Degree 12",
+		classification: func.getDayClassByWeekdayOrNot,
+		classList: func.dayClassListByWeekdayOrNot,
+		classDescription: func.dayClassDescriptionByDayOfWeek,
+		regression_variables_label: ["t<sup>12</sup>","t<sup>11</sup>","t<sup>10</sup>","t<sup>9</sup>","t<sup>8</sup>","t<sup>7</sup>","t<sup>6</sup>","t<sup>5</sup>","t<sup>4</sup>","t<sup>3</sup>","t<sup>2</sup>","t","R","r"],
+		regression_variables_remarks: ["t: Normalized time of day (0 ~ 1, i.e. hours / 24)","R: Rainfall (in mm)","r: [1 if there is rainfall, 0 else]"],
+		regression_variables: function(data){
+			var tod = data.hours / 24;
+			var m = 1;
+			var arr = [];
+			for (var i = 0; i < 12; i++){
+				m *= tod;
+				arr.unshift(m);
+			}
+			arr.push(data.rainfall);
+			arr.push((data.rainfall > 0) ? 1 : 0);
+			return arr;
+		},
+	},
 };
 
 exports.time_curve_comparison = {
-	modes: ["time_4", "time_6", "time_8"],
-	dimensions: [4, 6, 8],
+	modes: ["time_4", "time_6", "time_8", "time_10", "time_12"],
+	dimensions: [4, 6, 8, 10, 12],
 	classList: func.dayClassListByWeekdayOrNot,
 	classDescription: func.dayClassDescriptionByWeekdayOrNot,
 }

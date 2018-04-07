@@ -6,13 +6,21 @@ exports.description = "Using K-Nearest-Neighbours (KNN) for predicting travellin
 exports.modes = {
 	"default": {
 		name: "Default",
+		description: "No of neighbours: 10; Vector: [Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'] (3 dimensional)",
+		vector: function($){
+			return [$.t, $.s_R, $.wkday];
+		},
+		noOfNeighbours: 10,
+	},
+	"less_n1": {
+		name: "Less neighbours",
 		description: "No of neighbours: 5; Vector: [Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'] (3 dimensional)",
 		vector: function($){
 			return [$.t, $.s_R, $.wkday];
 		},
 		noOfNeighbours: 5,
 	},
-	"less_n": {
+	"less_n2": {
 		name: "Less neighbours",
 		description: "No of neighbours: 2; Vector: [Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'] (3 dimensional)",
 		vector: function($){
@@ -20,37 +28,45 @@ exports.modes = {
 		},
 		noOfNeighbours: 2,
 	},
-	"more_n": {
+	"more_n1": {
 		name: "More neighbours",
-		description: "No of neighbours: 10; Vector: [Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'] (3 dimensional)",
+		description: "No of neighbours: 20; Vector: [Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'] (3 dimensional)",
 		vector: function($){
 			return [$.t, $.s_R, $.wkday];
 		},
-		noOfNeighbours: 10,
+		noOfNeighbours: 20,
+	},
+	"more_n2": {
+		name: "More neighbours",
+		description: "No of neighbours: 50; Vector: [Normalized time of day, Sigmoid-normalized rainfall, binarized 'weekday or not'] (3 dimensional)",
+		vector: function($){
+			return [$.t, $.s_R, $.wkday];
+		},
+		noOfNeighbours: 50,
 	},
 	"rain_b": {
 		name: "Binarized Rainfall",
-		description: "No of neighbours: 5; Vector: [Normalized time of day, Binarized rainfall, binarized 'weekday or not'] (3 dimensional)",
+		description: "No of neighbours: 10; Vector: [Normalized time of day, Binarized rainfall, binarized 'weekday or not'] (3 dimensional)",
 		vector: function($){
 			return [$.t, $.b_R, $.wkday];
 		},
-		noOfNeighbours: 5,
+		noOfNeighbours: 10,
 	},
 	"hko": {
 		name: "HKO Temperature & Humidity",
-		description: "No of neighbours: 5; Vector: [Normalized time of day, Binarized rainfall, HKO Temperature, HKO Humidity, binarized 'weekday or not'] (5 dimensional)",
+		description: "No of neighbours: 10; Vector: [Normalized time of day, Binarized rainfall, HKO Temperature, HKO Humidity, binarized 'weekday or not'] (5 dimensional)",
 		vector: function($){
 			return [$.t, $.b_R, $.T_n, $.H_n, $.wkday];
 		},
-		noOfNeighbours: 5,
+		noOfNeighbours: 10,
 	},
 	"dow": {
 		name: "Day of Week",
-		description: "No of neighbours: 5; Vector: [Normalized time of day, Sigmoid-normalized rainfall, normalized day of week] (3 dimensional)",
+		description: "No of neighbours: 10; Vector: [Normalized time of day, Sigmoid-normalized rainfall, normalized day of week] (3 dimensional)",
 		vector: function($){
 			return [$.t, $.s_R, $.dayOfWk];
 		},
-		noOfNeighbours: 5,
+		noOfNeighbours: 10,
 	},
 };
 
