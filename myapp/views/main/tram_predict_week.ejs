@@ -162,19 +162,19 @@
 							<tr>
 								<th>Mean Absolute Error (MAE)</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].overall.MAE2 %>'</td>
+								<td><%= summary[myMode].overall.MAE.toFixed(4); %>'</td>
 								<% } %>
 							</tr>
 							<tr>
 								<th>Root Mean Square Error (RMSE)</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].overall.RMSE2 %>'</td>
+								<td><%= summary[myMode].overall.RMSE.toFixed(4); %>'</td>
 								<% } %>
 							</tr>
 							<tr>
 								<th>Worst Error</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].overall.maxError2 %>'</td>
+								<td><%= summary[myMode].overall.maxError.toFixed(4); %>'</td>
 								<% } %>
 							</tr>
 							<tr>
@@ -197,19 +197,19 @@
 							<tr>
 								<th>Mean Absolute Error (MAE)</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].byDate[myDate].MAE2 %>'</td>
+								<td><%= summary[myMode].byDate[myDate].MAE.toFixed(4); %>'</td>
 								<% } %>
 							</tr>
 							<tr>
 								<th>Root Mean Square Error (RMSE)</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].byDate[myDate].RMSE2 %>'</td>
+								<td><%= summary[myMode].byDate[myDate].RMSE.toFixed(4); %>'</td>
 								<% } %>
 							</tr>
 							<tr>
 								<th>Worst Error</th>
 								<% for (var j in searchbox.modes){ var myMode = searchbox.modes[j].id; %>
-								<td><%= summary[myMode].byDate[myDate].maxError2 %>'</td>
+								<td><%= summary[myMode].byDate[myDate].maxError.toFixed(4); %>'</td>
 								<% } %>
 							</tr>
 							<tr>
