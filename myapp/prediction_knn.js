@@ -84,7 +84,7 @@ function mapDataToVarList(data){
 		T_n: (data.HKO_temp == null) ? null : ((data.HKO_temp - 20) / 100 + 0.5), // Small impact on temperature
 		H_n: (data.HKO_hum == null) ? null : ((data.HKO_hum - 50) / 200 + 0.5), // Small impact on humidity
 		wkday: (data.wkday ? 1 : 0), //1 for weekday, 0 for non-weekday
-		dayOfWk: (data.dayOfWk / 7), //Day of week (normalized to 0 ~ 1)
+		dayOfWk: (data.dayOfWk / 6), //Day of week (normalized to 0 ~ 1)
 	};
 }
 
