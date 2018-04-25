@@ -15,7 +15,7 @@ var models = {
 	"neural": require("./prediction_neural.js"),
 };
 
-var modelList = ["hybrid", "kalman", "regression", "knn", "neural", "historical", "historical_inv"];
+var modelList = ["regression", "kalman", "hybrid", "knn", "historical", "historical_inv", "neural"];
 
 exports.getModel = function(model){
 	return models[model];
